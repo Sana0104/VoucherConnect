@@ -1,0 +1,25 @@
+{
+  "cloudPlatforms": [
+    {
+      "name": "AWS",
+      "exams": [
+          "AWS Certified  SysOps Administrator",
+          "AWS Cloud Practitioner (CLF 102)"
+      ]
+    },
+    {
+      "name": "Google",
+      "exams": [
+        "Google Cloud Architect"
+      ]
+    },
+    {
+      "name": "Azure",
+      "exams": [
+         "Microsoft Certified : Azure Fundamentals"
+      ]
+    }
+  ]
+}
+
+

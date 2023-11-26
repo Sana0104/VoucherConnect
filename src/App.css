@@ -1,0 +1,35 @@
+.form-container{
+  background-color: rgb(251, 246, 246);
+  box-shadow: 0 12px 24px rgb(43, 43, 43);
+  border-radius: 15px;
+  padding: 20px;
+  width: 900px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 150px;
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+.form-control-data{
+  margin: 10px;
+  width: 600px;
+}
+span {
+  margin-top: 1px;
+  margin-bottom: 2px;
+  font-size: 14px;
+}
+.errors{
+  color: #d32f2f;
+  font-family: "Roboto","Helvetica","Arial",sans-serif;
+  font-weight: 400;
+  font-size: 0.75rem;
+  line-height: 1.66;
+  letter-spacing: 0.03333em;
+  text-align: left;
+  margin-top: 3px;
+  margin-right: 14px;
+  margin-bottom: 0;
+  margin-left: 14px;
+}
