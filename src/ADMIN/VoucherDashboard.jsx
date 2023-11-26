@@ -195,16 +195,22 @@ function VoucherDashboard() {
     }
   };
   const handleDownloadSampleSheet = () => {
-    const sheetContent = [['Cloud', 'Exam', 'Voucher Code', 'Issue Date', 'Expiry Date', 'Issued To']];
+    const sheetContent = [
+      ['EXAM NAME', 'CLOUD PLATFORM', 'VOUCHER CODE', 'ISSUED DATE', 'EXPIRY DATE']
+     
+    ];
   
-    // Convert the content to a CSV string
-    const csvContent = sheetContent.map(row => row.join(',')).join('\n');
+    
+    const ws = XLSX.utils.aoa_to_sheet(sheetContent);
   
-    // Convert the CSV string to a Blob
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+   
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'data');
   
-    // Trigger the download
-    saveAs(blob, 'SampleSheet.csv');
+    
+    XLSX.writeFile(wb, 'SampleSheet.xlsx', { bookType: 'xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  
+    
   };
   return (
     <div className="headd">
