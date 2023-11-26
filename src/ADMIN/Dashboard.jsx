@@ -233,7 +233,7 @@ function Dashboard() {
       All Requests
     </option>
     <option value="Assigned" style={{ background: "#e74c3c" }}>
-      Assigned
+      Assigned Requests
     </option>
     <option value="Pending" >
       Pending Requests
