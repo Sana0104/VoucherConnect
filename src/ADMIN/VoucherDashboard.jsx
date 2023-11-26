@@ -122,6 +122,20 @@ function VoucherDashboard() {
       } catch (error) {
         console.error(error);
       }
+    } else if (selectedOption === 'Assigned') {
+      try {
+        const response = await axios.get('http://localhost:9091/voucher/getAllAssignedVoucher');
+        setVouchers(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    } else if (selectedOption === 'AssignedNotUsed') {
+      try {
+        const response = await axios.get('http://localhost:9091/voucher/getAllAssignedButNotUtilizedVoucher');
+        setVouchers(response.data);
+      } catch (error) {
+        console.error(error);
+      }
     }
 
     // Notify user about the filter change
@@ -273,12 +287,18 @@ function VoucherDashboard() {
       outline: "none",
     }}
   >
-    <option value="default">Apply Filters</option>
-    <option value="Expired" style={{ background: "#e74c3c", color: "#fff" }}>
+    <option value="default">Filters</option>
+    <option value="Expired">
       All Expired Vouchers
     </option>
-    <option value="Available" style={{ background: "#2ecc71", color: "#fff" }}>
+    <option value="Available">
       All Available Vouchers
+    </option>
+    <option value="Assigned" >
+      All Assigned Vouchers
+    </option>
+    <option value="AssignedNotUsed" >
+      Assigned Not Used Vouchers
     </option>
   </select>
 </div>
