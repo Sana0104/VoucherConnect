@@ -211,7 +211,9 @@ button {
 }
 
 .right-corner {
-  margin-left: 530px;
+  margin-left: 380px;
+  display: flex;
+  flex-direction: row;
 }
 
 .right-corner a{
@@ -293,10 +295,18 @@ button {
 
 
 .footer-div {
-  margin-bottom: 2px;
+  /* margin-top: auto; Add this line to push the footer to the bottom */
   display: flex;
-  margin-top: 40px;
-  /* margin-right: -100px; */
-  margin-left: 600px;
+  flex-direction: column;
   font-size: small;
+  width: 100%;
+  background-color: rgb(240, 235, 235);
+  align-items: center;
+  height: 30px;
+  margin-top: 50px;
+  margin-left: 100px;
+}
+
+.footer-div footer {
+  margin-top: 10px;
 }

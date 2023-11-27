@@ -224,15 +224,15 @@ function Dashboard() {
       borderRadius: "5px",
       paddingLeft: "10px",
       border: "1px solid #27ae60", 
-      background: "#2ecc71", 
-      color: "#fff", 
+      color: "black", 
       outline: "none",
+      background: "#ecf0f1", // Light gray background
     }}
   >
-    <option value="default" style={{ background: "#3498db"  }}>
+    <option value="default">
       All Requests
     </option>
-    <option value="Assigned" style={{ background: "#e74c3c" }}>
+    <option value="Assigned">
       Assigned
     </option>
     <option value="Pending" >
@@ -308,9 +308,9 @@ function Dashboard() {
 
       </div>
 
-      <div>
-        <footer className="footer-div">
-          <p>Capgemini 2023, All rights reserved.</p>
+      <div className="footer-div">
+        <footer> 
+          <p>&copy; 2023 Capgemini. All rights reserved.</p>
         </footer>
       </div>
 
