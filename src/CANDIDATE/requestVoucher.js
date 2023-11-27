@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
   TextField,
@@ -39,6 +39,20 @@ const RequestVoucherForm = () => {
   const username = location.state?.username || '';
   const [formErrors, setFormErrors] = useState({});
   const [examOptions, setExamOptions] = useState([]);
+  
+  useEffect(() => {
+    const obj = localStorage.getItem("userInfo");
+    const { name } = JSON.parse(obj);
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      candidateName: name,
+    }));
+  }, []);
+  
+  
+  
+  
+  
   const handleChange = (event) => {
     const { name, value,files} = event.target;
     if (name === 'doSelectScoreImage') {
@@ -263,13 +277,11 @@ const RequestVoucherForm = () => {
             size="sl"
             margin="normal">
             <TextField
-                label="Candidate Name"
-                name="candidateName"
-                value={formData.candidateName}
-                onChange={handleNameChange}
-                error={!!formErrors.candidateName}
-                helperText={formErrors.candidateName}
-            />
+            label="Candidate Name"
+            name="candidateName"
+            value={formData.candidateName}
+            disabled // Disable the text field
+          />
         </FormControl>
         <FormControl className='form-control-data' variant="outlined" size="sl" margin="normal">
             <InputLabel id="name-select-label">Cloud Name</InputLabel>
