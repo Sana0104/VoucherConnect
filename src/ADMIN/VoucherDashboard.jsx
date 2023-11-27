@@ -323,6 +323,7 @@ function VoucherDashboard() {
       marginRight: "20px",
       boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
       border: "none",
+      fontSize:"14px"
     }}
     onClick={openModal}
   >
@@ -340,6 +341,7 @@ function VoucherDashboard() {
             marginRight: "20px",
             boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
             border: "none",
+            fontSize: "14px"
           }}
           onClick={handleDownloadSampleSheet}
         >
