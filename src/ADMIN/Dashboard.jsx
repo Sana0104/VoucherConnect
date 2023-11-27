@@ -223,16 +223,16 @@ function Dashboard() {
       height: "40px",
       borderRadius: "5px",
       paddingLeft: "10px",
-      border: "1px solid #27ae60", 
-      background: "#2ecc71", 
-      color: "#fff", 
+      border: "1px solid #3498db", 
+      color: "black", 
+      background: "#ecf0f1", // Light gray background
       outline: "none",
     }}
   >
-    <option value="default" style={{ background: "#3498db"  }}>
+    <option value="default" >
       All Requests
     </option>
-    <option value="Assigned" style={{ background: "#e74c3c" }}>
+    <option value="Assigned" >
       Assigned Requests
     </option>
     <option value="Pending" >
