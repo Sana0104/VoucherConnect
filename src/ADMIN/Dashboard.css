@@ -1,0 +1,304 @@
+.left-column {
+  position: fixed;
+  top: 0;
+  left: 0;
+  color: black;
+  width: 14%;
+  height: 100%;
+  background-color: rgb(112, 183, 184);
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.enabled-button {
+  background-color: #f0d35c;
+  color: rgb(21, 1, 1); /* Set the text color for better visibility */
+  font-size: 12px;
+  height: 38px;
+}
+
+.disabled-button {
+  background-color: rgb(225, 196, 196); /* Grey color for disabled state */
+  color: white; /* Set the text color for better visibility */
+  font-size: 12px;
+  height: 38px;
+  cursor: not-allowed; /* Change cursor to not-allowed for better UX */
+}
+
+.left-column p:hover{
+    color: rgb(150, 145, 173);
+    transition: background-color 300ms;
+    background-color: rgb(15, 2, 0);
+}
+
+.heading {
+  margin-top: 5px;
+  font-family: 'Times New Roman', Times, serif;
+  color:white;
+}
+.h1 {
+  text-align: center;
+  color: black;
+}
+
+.head {
+  /* justify-content: center; */
+  margin-top: -600px;
+  position: relative;
+  width: 50%;
+}
+
+p {
+  margin: 0;
+  padding-right: 10px;
+}
+
+.navbar {
+  /* margin: 75px 0px 100px 200px; */
+  margin-top: 10px;
+  margin-bottom: 1px;
+  margin-left: 200px;
+  display: flex;
+  width: 1000px;
+  align-items: center;
+  font-weight: bold;
+  color: black;
+  padding: 5px;
+  justify-content: space-between;
+  
+}
+#name {
+  font-size: large;
+}
+
+#date {
+  color: rgb(247, 245, 245);
+  font-size: small;
+}
+
+#profile{
+  margin-left: 50px;
+}
+
+
+.search-box {
+  flex: 1;
+  padding: 5px;
+  margin-left: 50px;
+  /* margin-right: 2px; */
+  border: none;
+  height: 30px;
+  max-width: 300px;
+  border-radius: 10px;
+  background-color: #fff; /* Set the background color to white */
+}
+
+.notification {
+  padding: 5px 10px;
+  background-color: white;
+  color: black;
+  border-radius: 6px;
+  border-color:  white;
+  width: 40px;
+  font-size: 18px;
+  margin-left: 50px;
+  margin-right: -40px;
+}
+
+img {
+  width: 60px; /* Set the width to 150 pixels */
+  height: 50px; /* Set the height to 100 pixels */
+  border-radius: 10px;
+  margin-right: 5px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.row {
+  margin-top: 50px;
+}
+
+.left-row {
+  /* margin-bottom: 10px; */
+  text-align: justify;
+}
+
+.left-row p {
+  margin-top: 20px;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.left-row p:hover {
+  background-color: #ddd;
+  border-radius: 5px;
+}
+
+.image {
+  padding-left: 2px;
+}
+
+button {
+  border: none;
+  border-radius: 5px;
+}
+
+.wrap{
+  background-color: white;
+  position: relative;
+  min-height: 50vh;
+  margin-left: 200px;
+  margin-right: 50px;
+  margin-top: 5px;
+  border-radius: 1px;
+  width: 83%;
+  
+}
+
+.dashboard-container {
+  text-align: center;
+  margin-left: 10px;
+  margin-right: 0px;
+  max-width: 950px; 
+  padding: 10px;
+  display: flex;
+}
+
+.back {
+  margin-left: 20px;
+  /* margin-top: 30px; */
+}
+
+/* Dropdown styles */
+
+.dashboard-dropdown {
+  display: inline-block;
+  margin-right: 15px;
+  position: relative;
+  width: 30%; /* Each div takes 50% of the container width */
+  padding: 10px; /* Add padding for spacing between the divs */
+  box-sizing: border-box; /* Ensure padding is included in the width */
+  
+}
+
+.dashboard-dropdown select {
+  padding: 5px;
+  font-size: 16px;
+  /* border: none; */
+  border: 1px black solid;
+  border-bottom: 1px solid #007bff;
+  border-radius: 0;
+  background-color: transparent;
+  color: #007bff;
+  cursor: pointer;
+
+}
+
+.table-div td{
+  margin-top: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+  padding: 10px; /* Adjust the padding as needed */
+  width: 95%;
+  font-size: 12px;
+}
+.dashboard-table {
+  border-radius: 5px;
+}
+
+.right-corner {
+  margin-left: 380px;
+  display: flex;
+  flex-direction: row;
+}
+
+.right-corner a{
+  display: flex;
+  margin-left: 250px;
+  /* margin-right: 5px; */
+  position:relative;
+  padding: 10px;
+  box-sizing: border-box;
+  
+}
+
+.right {
+  padding: 10px;
+}
+
+.dashboard-dropdown select:focus {
+  border-color: #e6c46f;
+  color: #007bff;
+}
+
+/* Table styles */
+
+.dashboard-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  margin-top: 20px;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+  padding: 5px; /* Adjust the padding as needed */
+  border: 1px solid #ccc;
+  text-align: center; /* Adjust the text alignment as needed */
+}
+
+.dashboard-table th {
+  /* background-color: rgb(60, 139, 0); */
+  background-color: #0f64bf;
+  font-family: 'Courier New', Courier, monospace;
+  color: white;
+}
+
+.dashboard-table td:nth-child(1) {
+  /* Adjust the width for the first column (Name) */
+  width: 10%;
+}
+
+/* Repeat for other columns as needed */
+.dashboard-table td:nth-child(2) {
+  width: 20%; /* Adjust the width for the second column (Email) */
+}
+
+.dashboard-table td:nth-child(3) {
+  width: 7%; /* Adjust the width for the second column (Email) */
+}
+.dashboard-table td:nth-child(4) {
+  width: 15%; /* Adjust the width for the second column (Email) */
+}
+.dashboard-table td:nth-child(5) {
+  width: 10%; /* Adjust the width for the second column (Email) */
+}
+.dashboard-table td:nth-child(6) {
+  width: 10%; /* Adjust the width for the second column (Email) */
+}
+.dashboard-table td:nth-child(7) {
+  width: 10%; /* Adjust the width for the second column (Email) */
+}
+.dashboard-table td:nth-child(8) {
+  width: 10%; /* Adjust the width for the second column (Email) */
+}
+.dashboard-table td:nth-child(9) {
+  width: 15%; /* Adjust the width for the second column (Email) */
+}
+
+/* Add more styles for other columns */
+
+
+.footer-div {
+  margin-bottom: 2px;
+  display: flex;
+  margin-top: 40px;
+  /* margin-right: -100px; */
+  margin-left: 600px;
+  font-size: small;
+}
