@@ -442,9 +442,10 @@ function VoucherDashboard() {
         </div>
       </div>
 
-      <div>
-        <footer className="footer-div">
-          <p>Capgemini 2022, All rights reserved.</p>
+      <div className="footer-div" style={{"fontSize": "small", "height": "30px", "marginTop": "30px", "marginBottom": "2px"}}>
+        <footer> 
+          <p>&copy; 2023 Capgemini. All rights reserved.</p>
+
         </footer>
       </div>
 

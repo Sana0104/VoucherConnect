@@ -54,18 +54,17 @@ p {
 }
 
 .navbar {
-  /* margin: 75px 0px 100px 200px; */
   margin-top: 10px;
   margin-bottom: 1px;
   margin-left: 200px;
   display: flex;
-  width: 1000px;
+  flex-direction: row;
+  width: 81%;
   align-items: center;
   font-weight: bold;
   color: black;
-  padding: 5px;
-  justify-content: space-between;
-  
+  padding: 3px;
+  height: 80px;
 }
 #name {
   font-size: large;
@@ -77,7 +76,7 @@ p {
 }
 
 #profile{
-  margin-left: 50px;
+  margin-left: 40px;
 }
 
 
@@ -295,10 +294,14 @@ button {
 
 
 .footer-div {
-  margin-bottom: 2px;
-  display: flex;
-  margin-top: 40px;
-  /* margin-right: -100px; */
-  margin-left: 600px;
-  font-size: small;
+  position: relative;
+  bottom: 0;
+  width: 100%;
+  background-color: #f1f1f1;
+  text-align: center;
+  padding: 10px;
+}
+
+.footer-div footer {
+  margin-left: 180px
 }
