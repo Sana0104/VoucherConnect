@@ -122,6 +122,20 @@ function VoucherDashboard() {
       } catch (error) {
         console.error(error);
       }
+    } else if (selectedOption === 'Assigned') {
+      try {
+        const response = await axios.get('http://localhost:9091/voucher/getAllAssignedVoucher');
+        setVouchers(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    } else if (selectedOption === 'AssignedNotUsed') {
+      try {
+        const response = await axios.get('http://localhost:9091/voucher/getAllAssignedButNotUtilizedVoucher');
+        setVouchers(response.data);
+      } catch (error) {
+        console.error(error);
+      }
     }
 
     // Notify user about the filter change
@@ -194,18 +208,26 @@ function VoucherDashboard() {
       }
     }
   };
+  
   const handleDownloadSampleSheet = () => {
-    const sheetContent = [['Cloud', 'Exam', 'Voucher Code', 'Issue Date', 'Expiry Date', 'Issued To']];
+    const sheetContent = [
+      ['EXAM NAME', 'CLOUD PLATFORM', 'VOUCHER CODE', 'ISSUED DATE', 'EXPIRY DATE']
+     
+    ];
   
-    // Convert the content to a CSV string
-    const csvContent = sheetContent.map(row => row.join(',')).join('\n');
+    
+    const ws = XLSX.utils.aoa_to_sheet(sheetContent);
   
-    // Convert the CSV string to a Blob
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+   
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'data');
   
-    // Trigger the download
-    saveAs(blob, 'SampleSheet.csv');
+    
+    XLSX.writeFile(wb, 'SampleSheet.xlsx', { bookType: 'xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  
+    
   };
+
   return (
     <div className="headd">
       <div>
@@ -273,18 +295,24 @@ function VoucherDashboard() {
       outline: "none",
     }}
   >
-    <option value="default">Apply Filters</option>
-    <option value="Expired" style={{ background: "#e74c3c", color: "#fff" }}>
+    <option value="default">Filters</option>
+    <option value="Expired">
       All Expired Vouchers
     </option>
-    <option value="Available" style={{ background: "#2ecc71", color: "#fff" }}>
+    <option value="Available">
       All Available Vouchers
+    </option>
+    <option value="Assigned" >
+      All Assigned Vouchers
+    </option>
+    <option value="AssignedNotUsed" >
+      Assigned Not Used Vouchers
     </option>
   </select>
 </div>
 
 
-<div className="right-corner">
+<div className="right-corner" >
   <button
     style={{
       backgroundColor: "#2ecc71",
@@ -297,6 +325,7 @@ function VoucherDashboard() {
       marginRight: "20px",
       boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
       border: "none",
+      fontSize: "14px"
     }}
     onClick={openModal}
   >
@@ -314,6 +343,7 @@ function VoucherDashboard() {
             marginRight: "20px",
             boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
             border: "none",
+            fontSize: "14px"
           }}
           onClick={handleDownloadSampleSheet}
         >
@@ -411,10 +441,12 @@ function VoucherDashboard() {
           </table>
         </div>
       </div>
+    
 
-      <div>
-        <footer className="footer-div">
-          <p>Capgemini 2022, All rights reserved.</p>
+
+      <div className="footer-div" style={{"fontSize": "small", "height": "30px", "marginTop": "30px", "marginBottom": "2px"}}>
+        <footer> 
+          <p>&copy; 2023 Capgemini. All rights reserved.</p>
         </footer>
       </div>
 

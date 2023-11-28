@@ -92,6 +92,13 @@ function Dashboard() {
       } catch (error) {
         console.error(error);
       }
+    } else if (selectedOption === 'Completed') {
+      try {
+        const response = await axios.get('http://localhost:8085/requests/getAllCompletedVoucherRequests');
+        setRequests(response.data);
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 
@@ -109,14 +116,14 @@ function Dashboard() {
     } else if (searchOption === 'candidateName') {
       return request.candidateName.toLowerCase().includes(searchValue.toLowerCase());
     } else if (searchOption === 'plannedExamDate') {
-      return request.plannedExamDate === searchValue;
+      return request.plannedExamDate.toLowerCase().includes(searchValue.toLowerCase());
     } else if (searchOption === 'cloudPlatform') {
-      return request.cloudPlatform === searchValue;
+      return request.cloudPlatform.toLowerCase().includes(searchValue.toLowerCase());
     } else if (searchOption === 'cloudExam') {
-      return request.cloudExam === searchValue;
+      return request.cloudExam.toLowerCase().includes(searchValue.toLowerCase());
     }
     else if (searchOption === 'examResult') {
-      return request.examResult === searchValue;
+      return request.examResult.toLowerCase().includes(searchValue.toLowerCase());
     }
   };
 
@@ -217,19 +224,22 @@ function Dashboard() {
       borderRadius: "5px",
       paddingLeft: "10px",
       border: "1px solid #27ae60", 
-      background: "#2ecc71", 
-      color: "#fff", 
+      color: "black",
       outline: "none",
+      background: "#ecf0f1", // Light gray background
     }}
   >
-    <option value="default" style={{ background: "#3498db"  }}>
+    <option value="default" >
       All Requests
     </option>
-    <option value="Assigned" style={{ background: "#e74c3c" }}>
-      Assigned
+    <option value="Assigned" >
+      Assigned Requests
     </option>
-    <option value="Pending" style={{ background: "#f39c12"  }}>
-      Pending
+    <option value="Pending" >
+      Pending Requests
+    </option>
+    <option value="Completed" >
+      Completed Exam
     </option>
   </select>
 </div>
@@ -298,9 +308,9 @@ function Dashboard() {
 
       </div>
 
-      <div>
-        <footer className="footer-div">
-          <p>Capgemini 2023, All rights reserved.</p>
+      <div className="footer-div" style={{ "fontSize": "small", "height": "30px", "marginTop": "30px", "marginBottom": "2px"}}>
+        <footer> 
+          <p>&copy; 2023 Capgemini. All rights reserved.</p>
         </footer>
       </div>
 

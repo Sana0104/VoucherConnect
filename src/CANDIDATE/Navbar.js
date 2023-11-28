@@ -20,17 +20,23 @@ const Navbar = () => {
  
   const isProfilePopupOpen = Boolean(anchorEl);
  
+  const obj = localStorage.getItem("userInfo");
+  const { name } = JSON.parse(obj);
+ 
   return (
     <>
       <AppBar position="static" style={{ backgroundColor: 'black', height: '80px' }}>
         <Toolbar style={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography variant="h6" component="div">
-            Welcome
+           Welcome to Voucher Connect Dashboard
+
           </Typography>
           <div>
             <Button color="inherit" onClick={openProfilePopup}>
-              <AccountCircleIcon />
-              Profile
+              <AccountCircleIcon style={{ color: 'skyblue', fontSize: '45px' , marginRight: '5px'}} />
+              <Typography variant="h6" style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                {name}
+              </Typography>
             </Button>
             <Popover
               open={isProfilePopupOpen}
@@ -46,7 +52,6 @@ const Navbar = () => {
               }}
             >
               <UserProfile />
-             
             </Popover>
           </div>
         </Toolbar>
