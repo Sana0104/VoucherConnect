@@ -29,6 +29,7 @@ const Navbar = () => {
         <Toolbar style={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography variant="h6" component="div">
            Welcome to Voucher Connect Dashboard
+
           </Typography>
           <div>
             <Button color="inherit" onClick={openProfilePopup}>
