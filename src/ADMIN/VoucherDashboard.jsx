@@ -312,7 +312,7 @@ function VoucherDashboard() {
 </div>
 
 
-<div className="right-corner">
+<div className="right-corner" >
   <button
     style={{
       backgroundColor: "#2ecc71",
@@ -325,7 +325,7 @@ function VoucherDashboard() {
       marginRight: "20px",
       boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
       border: "none",
-      fontSize:"14px"
+      fontSize: "14px"
     }}
     onClick={openModal}
   >
@@ -441,10 +441,10 @@ function VoucherDashboard() {
           </table>
         </div>
       </div>
+      <div className="footer-div">
+        <footer> 
+          <p>&copy; 2023 Capgemini. All rights reserved.</p>
 
-      <div>
-        <footer className="footer-div">
-          <p>Capgemini 2022, All Rights Reserved.</p>
         </footer>
       </div>
 

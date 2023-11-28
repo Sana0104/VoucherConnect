@@ -223,10 +223,10 @@ function Dashboard() {
       height: "40px",
       borderRadius: "5px",
       paddingLeft: "10px",
-      border: "1px solid #3498db", 
-      color: "black", 
-      background: "#ecf0f1", // Light gray background
+      border: "1px solid #27ae60", 
+      color: "black",
       outline: "none",
+      background: "#ecf0f1", // Light gray background
     }}
   >
     <option value="default" >
@@ -308,9 +308,9 @@ function Dashboard() {
 
       </div>
 
-      <div>
-        <footer className="footer-div">
-          <p>Capgemini 2023, All rights reserved.</p>
+      <div className="footer-div">
+        <footer> 
+          <p>&copy; 2023 Capgemini. All rights reserved.</p>
         </footer>
       </div>
 
