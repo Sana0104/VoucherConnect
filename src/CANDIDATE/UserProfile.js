@@ -16,7 +16,7 @@ const UserProfile = () => {
    
     navigate('/');
   };
- 
+
   return (
     <div style={{ textAlign: 'center', padding: '20px' }}>
       <Avatar
@@ -31,8 +31,10 @@ const UserProfile = () => {
       <Button variant="outlined" color="primary" onClick={handleLogout}>
         Logout
       </Button>
+     {/* Logout button */}
     </div>
   );
 };
  
 export default UserProfile;
+
