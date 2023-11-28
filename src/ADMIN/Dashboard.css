@@ -211,7 +211,9 @@ button {
 }
 
 .right-corner {
-  margin-left: 530px;
+  margin-left: 380px;
+  display: flex;
+  flex-direction: row;
 }
 
 .right-corner a{
