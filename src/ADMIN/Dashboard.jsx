@@ -308,7 +308,7 @@ function Dashboard() {
 
       </div>
 
-      <div className="footer-div">
+      <div className="footer-div" style={{ "fontSize": "small", "height": "30px", "marginTop": "30px", "marginBottom": "2px"}}>
         <footer> 
           <p>&copy; 2023 Capgemini. All rights reserved.</p>
         </footer>

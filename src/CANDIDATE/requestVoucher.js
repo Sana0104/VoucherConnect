@@ -50,7 +50,6 @@ const RequestVoucherForm = () => {
   }, []);
   
   
-
   const handleChange = (event) => {
     const { name, value,files} = event.target;
     if (name === 'doSelectScoreImage') {
