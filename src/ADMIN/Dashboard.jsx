@@ -224,7 +224,12 @@ function Dashboard() {
       borderRadius: "5px",
       paddingLeft: "10px",
       border: "1px solid #27ae60", 
+
+      background: "#ecf0f1", // Light gray background
+      color: "#2c3e50", 
+
       color: "black",
+
       outline: "none",
       background: "#ecf0f1", // Light gray background
     }}

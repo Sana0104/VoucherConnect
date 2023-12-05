@@ -294,6 +294,14 @@ button {
 
 
 .footer-div {
+
+  margin-bottom: 2px;
+  display: flex;
+  margin-top: 40px;
+  /* margin-right: -100px; */
+  margin-left: 600px;
+  font-size: small;
+
   position: relative;
   bottom: 0;
   width: 100%;
@@ -304,4 +312,5 @@ button {
 
 .footer-div footer {
   margin-left: 180px
+
 }
