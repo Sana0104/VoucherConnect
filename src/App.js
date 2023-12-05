@@ -9,6 +9,8 @@ import ViewVouchers from './CANDIDATE/ViewVouchers';
 import RequestVoucherForm from './CANDIDATE/requestVoucher';
 import { useSelector } from 'react-redux';
 import React, { useState, useEffect } from 'react';
+import NotFound from './COMMON/404Page';
+
 
 function App() {
   
@@ -21,6 +23,7 @@ function App() {
       <Routes>
       
       <Route exact path='/' element={<Login/>}></Route>
+      {/* <Route exact path='/not_found' element={<NotFound/>}></Route> */}
       <Route exact path='/signup' element={< SignupForm />}></Route>
       
         <Route exact path='/dashboard' element={isLoggedIn && isAdmin ? < Dashboard />:<Navigate to="/" replace/>}></Route>
@@ -32,7 +35,8 @@ function App() {
         <Route exact path="/candidatedashboard" element={isLoggedIn ?<ViewVouchers/>:<Navigate to="/" replace/>}></Route>
        <Route exact path="/requestform" element={isLoggedIn ?<RequestVoucherForm/>:<Navigate to="/" replace/>}></Route>
 
-       
+       <Route exact path='/404' element={< NotFound />}></Route>
+        <Route path="*" element={<Navigate replace to="/404" />} />
         
        
       </Routes>
