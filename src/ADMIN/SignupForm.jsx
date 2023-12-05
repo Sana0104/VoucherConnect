@@ -44,8 +44,8 @@ function SignupForm() {
         let errorMessage = '';
 
         if (field === 'userEmail') {
-            if (!value.match(/^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$/)) {
-                errorMessage = 'Invalid email address';
+            if (!value.match(/^[a-zA-Z0-9._%+-]+@capgemini\.com$/)) {
+                errorMessage = ' Please use a @capgemini.com email address.';
             }
         } else if (field === 'password') {
             if (value.length < 6) {
