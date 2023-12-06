@@ -3,10 +3,10 @@
     {
       "name": "AWS",
       "exams": [
-         "AWS Certified Cloud Practitioner (CLF C02)",
+         "AWS Certified Cloud Practitioner",
           "AWS Certified Solution Architect- Associate",
           "AWS Certified Developer - Associate",
-          "AWS Certified SysOps Administrator",
+          "AWS Certified  SysOps Administrator",
           "AWS Certified Solutions Architect - Professional",
           "AWS Certified DevOps Engineer - Professional",
           "AWS Certified Data Analytics - Specialty",
@@ -20,8 +20,8 @@
     {
       "name": "GCP",
       "exams": [
-        "GCP Cloud Developer",
-        "GCP Cloud Architect",
+        "Google Cloud Developer",
+        "Google Cloud Architect",
         "Cloud Database Engineer",
         "Data Engineer",
         "Cloud DevOps Engineer",
