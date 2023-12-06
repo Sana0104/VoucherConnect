@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,600,700');
+@import url('https://fonts.googleapis.com/css?family=Catamaran:400,800');
+ 
+body {
+  background-color: #f5f5f5;
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+}
+ 
+.not-found-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 100vh;
+}
+ 
+.error-container {
+  font-size: 200px;
+  font-family: 'Catamaran', sans-serif;
+  font-weight: 800;
+  display: flex;
+}
+ 
+.digit {
+  width: 80px; /* Adjust the width */
+  height: 80px; /* Adjust the height */
+  margin: 0%;
+  border-radius: 50%;
+  background: #e27b7e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.5em; /* Adjust the font size */
+  border-right: 60%;
+}
+ 
+.text-container {
+  text-align: center;
+  max-width: 700px;
+}
+ 
+h1 {
+  font-size: 2.5em;
+  color: #333;
+  margin-bottom: 20px;
+}
+ 
+.zoom-area {
+  font-size: 1.2em;
+  color: #555;
+  margin-bottom: 30px;
+}
+ 
+.link-container {
+  text-align: center;
+}
+ 
+a.more-link {
+  text-transform: uppercase;
+  font-size: 16px;
+  background-color: #e27b7e;
+  padding: 15px 20px;
+  border-radius: 5px;
+  color: #fff;
+  text-decoration: none;
+  letter-spacing: 1px;
+  transition: background-color 0.3s ease;
+ 
+}
+ 
+a.more-link:hover {
+  background-color: #d89ca4;
+}
