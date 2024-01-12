@@ -73,10 +73,17 @@ const ViewVouchers = () => {
     useEffect(() => {
         const fetchVouchers = async () => {
             try {
- 
                 const response = await fetch(`http://localhost:8085/requests/${username}`);
                 const result = await response.json();
-                setData(result);
+ 
+                // Sort the data array by exam date
+                const sortedData = result.sort((a, b) => {
+                    const dateA = new Date(a.plannedExamDate);
+                    const dateB = new Date(b.plannedExamDate);
+                    return dateA - dateB;
+                });
+ 
+                setData(sortedData);
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -90,9 +97,11 @@ const ViewVouchers = () => {
     const handleRequestVoucher = () => {
         navigate('/requestform', { state: { username } });
     };
+    const [selectedIndexForDateEdit, setSelectedIndexForDateEdit] = useState(null);
  
     const handleEditExamDate = (index) => {
         setSelectedExamIndex(index);
+        setSelectedIndexForDateEdit(index);
         setEditDateModalOpen(true);
     };
  
@@ -194,6 +203,9 @@ const ViewVouchers = () => {
         setPage(0);
     };
  
+ 
+   
+ 
     return (
         <>
             <Navbar />
@@ -222,7 +234,7 @@ const ViewVouchers = () => {
                                     {loading ? (
                                         <StyledTableRow>
                                             <TableCell colSpan={7} className="table-cell">
-                                                Loading Data.......
+                                                Loading...
                                             </TableCell>
                                         </StyledTableRow>
                                     ) : (
@@ -230,9 +242,9 @@ const ViewVouchers = () => {
                                             <StyledTableRow key={index}>
                                                 <StyledTableCell >{voucher.cloudExam}</StyledTableCell>
                                                 <StyledTableCell >{voucher.cloudPlatform}</StyledTableCell>
-                                                <StyledTableCell>{voucher.voucherCode ?? 'Pending'}</StyledTableCell>
-                                                <StyledTableCell >{voucher.voucherIssueLocalDate ? voucher.voucherIssueLocalDate : 'Pending'}</StyledTableCell>
-                                                <StyledTableCell >{voucher.voucherExpiryLocalDate ? voucher.voucherExpiryLocalDate : 'Pending'}</StyledTableCell>
+                                                <StyledTableCell>{voucher.voucherCode ?? 'Requested'}</StyledTableCell>
+                                                <StyledTableCell >{voucher.voucherIssueLocalDate ? voucher.voucherIssueLocalDate : 'Requested'}</StyledTableCell>
+                                                <StyledTableCell >{voucher.voucherExpiryLocalDate ? voucher.voucherExpiryLocalDate : 'Requested'}</StyledTableCell>
                                                 <StyledTableCell >
                                                     {voucher.plannedExamDate}
                                                     <IconButton onClick={() => handleEditExamDate(index)}>
@@ -300,6 +312,11 @@ const ViewVouchers = () => {
                             dateFormat="yyyy-MM-dd"
                             utcOffset={0}
                             minDate={new Date()}
+                            maxDate={
+                                data[selectedIndexForDateEdit]?.voucherExpiryLocalDate
+                                    ? new Date(data[selectedIndexForDateEdit].voucherExpiryLocalDate)
+                                    : null
+                            }
                         />
                     </DialogContent>
                     <DialogActions>

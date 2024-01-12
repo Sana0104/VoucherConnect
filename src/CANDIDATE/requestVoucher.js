@@ -210,7 +210,7 @@ const RequestVoucherForm = () => {
                   document.getElementById('fileInput').value = '';
                   setTimeout(() => {
                     navigate('/candidatedashboard');
-                  }, 2000);
+                  }, 1000);
                 })
                 .catch((error) => {
                   console.error('API Error:', error);

@@ -71,11 +71,11 @@ function Login() {
 
       dispatch(login(res));
 
-      if (res.roles[0] === 'ROLE_CANDIDATE') {
+      if (res.roles[0] === 'CANDIDATE') {
         setTimeout(() => {
           navigate('/candidatedashboard'); 
         }, 1000);
-      } else if (res.roles[0] === 'ROLE_ADMIN') {
+      } else if (res.roles[0] === 'ADMIN') {
         setTimeout(() => {
           navigate('/dashboard'); 
         }, 1000);

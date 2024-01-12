@@ -1,12 +1,11 @@
-// Dashboard.js
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import "./Dashboard.css";
 import axios from "axios";
-
+ 
 import Button from '@mui/material/Button';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-
+ 
 import Popover from '@mui/material/Popover';
 import UserProfile from "../CANDIDATE/UserProfile";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -19,29 +18,30 @@ import {
   faTachometerAlt,
   faCog
 } from "@fortawesome/free-solid-svg-icons";
-
+import { TablePagination } from "@mui/material";
+ 
 function Dashboard() {
   const obj = localStorage.getItem("userInfo");
   const { name } = JSON.parse(obj);
   const [requests, setRequests] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
-
+ 
   const openProfilePopup = (event) => {
     setAnchorEl(event.currentTarget);
   };
-
+ 
   const closeProfilePopup = () => {
     setAnchorEl(null);
   };
-
+ 
   const isProfilePopupOpen = Boolean(anchorEl);
   const navigate = useNavigate();
-
+ 
   const [searchOption, setSearchOption] = useState("default");
   const [searchValue, setSearchValue] = useState("");
-
+ 
   const [requestsOption, setRequestsOption] = useState("default");
-
+ 
   useEffect(() => {
     axios.get(`http://localhost:8085/requests/getAllVouchers`)
       .then(response => {
@@ -51,26 +51,26 @@ function Dashboard() {
         console.log(error);
       });
   }, []);
-
+ 
   const [currentTime, setCurrentTime] = useState(new Date());
-
+ 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 60000);
-
+ 
     return () => {
       clearInterval(timer);
     };
   }, []);
-
+ 
   const dateOptions = { day: "numeric", month: "long", year: "numeric" };
   const timeOptions = { hour: "2-digit", minute: "2-digit", hour12: true };
-
+ 
   const handleRequests = async (event) => {
     const selectedOption = event.target.value;
     setRequestsOption(selectedOption);
-
+ 
     if (selectedOption === 'Assigned') {
       try {
         const response = await axios.get('http://localhost:8085/requests/allAssignedVoucher');
@@ -101,41 +101,55 @@ function Dashboard() {
       }
     }
   };
-
+ 
   const handleSearchOptionChange = (event) => {
     setSearchOption(event.target.value);
   };
-
+ 
   const handleSearchInputChange = (event) => {
     setSearchValue(event.target.value);
   };
-
+ 
   const filters = (request) => {
+    if (!request) {
+      return false; // or true, depending on your logic for handling null requests
+    }
     if (searchOption === 'default') {
       return true;
     } else if (searchOption === 'candidateName') {
-      return request.candidateName.toLowerCase().includes(searchValue.toLowerCase());
+      return request.candidateName && request.candidateName.toLowerCase().includes(searchValue.toLowerCase());
     } else if (searchOption === 'plannedExamDate') {
-      return request.plannedExamDate.toLowerCase().includes(searchValue.toLowerCase());
+      return request.plannedExamDate && request.plannedExamDate.toLowerCase().includes(searchValue.toLowerCase());
     } else if (searchOption === 'cloudPlatform') {
-      return request.cloudPlatform.toLowerCase().includes(searchValue.toLowerCase());
+      return request.cloudPlatform && request.cloudPlatform.toLowerCase().includes(searchValue.toLowerCase());
     } else if (searchOption === 'cloudExam') {
-      return request.cloudExam.toLowerCase().includes(searchValue.toLowerCase());
-    }
-    else if (searchOption === 'examResult') {
-      return request.examResult.toLowerCase().includes(searchValue.toLowerCase());
+      return request.cloudExam && request.cloudExam.toLowerCase().includes(searchValue.toLowerCase());
+    } else if (searchOption === 'examResult') {
+      return request.examResult && request.examResult.toLowerCase().includes(searchValue.toLowerCase());
     }
   };
-
+ 
+ 
   const handleAssigneVoucherClick = (email, examName, id) => {
     navigate(`/voucher-dashboard/${email}/${examName}/${id}`);
   };
-
+ 
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const handleChangePage = (event, newPage) => {
+      setPage(newPage);
+  };
+ 
+  const handleChangeRowsPerPage = (event) => {
+      setRowsPerPage(parseInt(event.target.value, 10));
+      setPage(0);
+  };
+ 
   return (
     <div className="headd">
-
+ 
       <div className="navbar" style={{ backgroundColor: "rgb(112, 183, 184)" }}>
-
+ 
         <div className="user-info" style={{ marginLeft: "10px" }}>
           <p id="name">Welcome!!</p>
           <p id="date">
@@ -143,7 +157,7 @@ function Dashboard() {
             {currentTime.toLocaleDateString(undefined, dateOptions)}
           </p>
         </div>
-
+ 
         <div className="user-info">
           <div>
             <Button color="inherit" onClick={openProfilePopup}>
@@ -164,16 +178,16 @@ function Dashboard() {
               }}
             >
               <UserProfile />
-
+ 
             </Popover>
           </div>
         </div>
       </div>
-
+ 
       <div className="wrap">
-
+ 
         <div className="dashboard-container">
-
+ 
           <div className="dashboard-dropdown">
             <select
               className="search-text"
@@ -212,7 +226,7 @@ function Dashboard() {
               />
             )}
           </div>
-
+ 
           <div className="dashboard-dropdown">
   <select
     className="search-text"
@@ -223,15 +237,10 @@ function Dashboard() {
       height: "40px",
       borderRadius: "5px",
       paddingLeft: "10px",
-      border: "1px solid #27ae60", 
-
-      background: "#ecf0f1", // Light gray background
-      color: "#2c3e50", 
-
+      border: "1px solid #3498db",
       color: "black",
-
-      outline: "none",
       background: "#ecf0f1", // Light gray background
+      outline: "none",
     }}
   >
     <option value="default" >
@@ -248,13 +257,13 @@ function Dashboard() {
     </option>
   </select>
 </div>
-
+ 
           <div className="right-corner">
-
+ 
           </div>
-
+ 
         </div>
-
+ 
         <div className="table-div">
           <table className="dashboard-table">
             <thead>
@@ -272,9 +281,17 @@ function Dashboard() {
                 <th>Actions</th>
               </tr>
             </thead>
-
+ 
             <tbody>
-              {requests.filter(filters).map((row, index) => (
+              {requests.filter(filters).sort((a, b) => {
+                if (a.voucherCode === null && b.voucherCode !== null) {
+                  return -1; // Move rows with no voucher code to the top
+                } else if (a.voucherCode !== null && b.voucherCode === null) {
+                  return 1; // Move rows with voucher code to the bottom
+                } else {
+                  return 0; // Maintain the order for other rows
+                }
+              }).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
                 <tr key={index}>
                   <td>{row.candidateName}</td>
                   <td>{row.candidateEmail}</td>
@@ -309,38 +326,48 @@ function Dashboard() {
               ))}
             </tbody>
           </table>
+          <TablePagination style={{ width: "70%", marginLeft: "2%" }}
+                                rowsPerPageOptions={[10, 20, 25, { label: 'All', value: requests.length }]}
+                                component="div"
+                                count={requests.length}
+                                rowsPerPage={rowsPerPage}
+                                page={page}
+                                onPageChange={handleChangePage}
+                                onRowsPerPageChange={handleChangeRowsPerPage}
+                                labelRowsPerPage="Rows per page"
+                            />
         </div>
-
+ 
       </div>
-
-      <div className="footer-div" style={{ "fontSize": "small", "height": "30px", "marginTop": "30px", "marginBottom": "2px"}}>
-        <footer> 
-          <p>&copy; 2023 Capgemini. All rights reserved.</p>
+ 
+      <div>
+        <footer className="footer-div">
+          <p>Capgemini 2023, All rights reserved.</p>
         </footer>
       </div>
-
+ 
       <div className="left-column">
         <h2 className="heading">Voucher Dashboard</h2>
-
+ 
         <hr />
-
+ 
         <div className="row">
-
+ 
           <div className="left-row">
             <p><Link to={'/dashboard'} style={{ "color": "white" }}>
               <FontAwesomeIcon icon={faTachometerAlt} size="1x" />  Dashboard</Link></p>
           </div>
-
+ 
           <div className="left-row">
             <p><Link to={'/vouchers'} style={{ "color": "white" }}>
               <FontAwesomeIcon icon={faClipboardCheck} size="1x" />  Vouchers</Link></p>
           </div>
-
+ 
         </div>
-
+ 
       </div>
     </div>
   );
 }
-
+ 
 export default Dashboard;
