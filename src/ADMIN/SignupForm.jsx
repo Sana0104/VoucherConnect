@@ -23,7 +23,7 @@ function SignupForm() {
         userName: '',
         userEmail: '',
         password: '',
-        role:'ROLE_CANDIDATE'
+        role:'CANDIDATE'
     });
 
     const [formErrors, setFormErrors] = useState({

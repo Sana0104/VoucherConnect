@@ -16,7 +16,8 @@ function App() {
   
   const { isLoggedIn,roles } = useSelector((state) => state.auth.value);
   
-  const isAdmin = roles.includes("ROLE_ADMIN");
+  const isAdmin = roles.includes("ADMIN");
+  const isCandidate = roles.includes("CANDIDATE");
  
   return (
     <BrowserRouter>
@@ -32,8 +33,8 @@ function App() {
        
        
        
-        <Route exact path="/candidatedashboard" element={isLoggedIn ?<ViewVouchers/>:<Navigate to="/" replace/>}></Route>
-       <Route exact path="/requestform" element={isLoggedIn ?<RequestVoucherForm/>:<Navigate to="/" replace/>}></Route>
+        <Route exact path="/candidatedashboard" element={isLoggedIn && isCandidate ?<ViewVouchers/>:<Navigate to="/" replace/>}></Route>
+       <Route exact path="/requestform" element={isLoggedIn && isCandidate ?<RequestVoucherForm/>:<Navigate to="/" replace/>}></Route>
 
        <Route exact path='/404' element={< NotFound />}></Route>
         <Route path="*" element={<Navigate replace to="/404" />} />

@@ -9,17 +9,14 @@ function NotFound() {
         <div className="digit">0</div>
         <div className="digit">4</div>
       </div>
-      <br/>
-      <br/>
       <div className="text-container">
-        <h1><b>OOPS! Looks Like You're Lost</b></h1>
+        <h1>Oops! Looks Like You're Lost</h1>
         <p className="zoom-area">
-          The page you are looking for might be under construction or doesn't exist.
+          The page you are looking for might be under construction or moved.
         </p>
-        <br/>
         <div className="link-container">
           <a href="/" className="more-link">
-            Return Home
+            Go Back Home
           </a>
         </div>
       </div>

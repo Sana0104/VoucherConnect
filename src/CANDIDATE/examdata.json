@@ -7,9 +7,6 @@
          "AWS Certified Cloud Practitioner",
 
 
-          "AWS Certified  SysOps Administrator",
-          "AWS Certified Cloud Practitioner",
-
           "AWS Certified Solution Architect- Associate",
           "AWS Certified Developer - Associate",
           "AWS Certified  SysOps Administrator",
@@ -21,11 +18,10 @@
           "AWS Certified Machine Learning - Specialty",
           "AWS Certified Security - Specialty",
           "AWS Certified Advanced Networking - Specialty"
-
       ]
     },
     {
-      "name": "GCP",
+      "name": "Google",
       "exams": [
         "Google Cloud Developer",
         "Google Cloud Architect",
