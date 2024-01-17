@@ -149,8 +149,12 @@ function Dashboard() {
     <div className="headd">
  
       <div className="navbar" style={{ backgroundColor: "rgb(112, 183, 184)" }}>
+
  
         <div className="user-info" style={{ marginLeft: "10px" }}>
+
+
+       
           <p id="name">Welcome!!</p>
           <p id="date">
             {currentTime.toLocaleTimeString(undefined, timeOptions)}{" "}
