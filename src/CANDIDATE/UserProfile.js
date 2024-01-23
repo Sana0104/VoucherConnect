@@ -11,10 +11,10 @@ import { useNavigate } from 'react-router-dom';
 
 import { useProfileImage } from './ProfileImageContext';
 
-const UserProfile = ({ onImageChange }) => {
+const UserProfile = ({ onImageChange, userChanged }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState(null);
-  const { imageURL, setImageURL } = useProfileImage();
+  const { imageURL, setImageURL, resetImage } = useProfileImage();
   const obj = localStorage.getItem('userInfo');
   const { username, name } = JSON.parse(obj);
   const navigate = useNavigate();
@@ -45,14 +45,16 @@ const UserProfile = ({ onImageChange }) => {
       }
     };
 
-    // Fetch the image URL immediately upon mounting
-    fetchImageURL();
-  }, [username, onImageChange, setImageURL]);
+    // Fetch the image URL when userChanged is true
+    if (userChanged) {
+      fetchImageURL();
+    }
+  }, [userChanged, username, onImageChange, setImageURL]);
 
   const handleLogout = () => {
     localStorage.removeItem('userInfo');
     localStorage.removeItem('id');
-    console.log("Logged out...");
+    console.log('Logged out...');
     navigate('/');
   };
 
