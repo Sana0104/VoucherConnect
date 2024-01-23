@@ -135,7 +135,7 @@ const RequestVoucherForm = () => {
       }
       else if(doSelectScore <80){
         errorsCopy.doSelectScore =
-          'Since your score is less than 80 your not eligible for the exam';
+          'Since your score is less than 80 your not eligible foer the exam';
       }
         else {
           errorsCopy.doSelectScore = '';
