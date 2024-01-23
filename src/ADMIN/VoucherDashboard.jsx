@@ -9,8 +9,9 @@ import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { saveAs } from 'file-saver';
+import Avatar from '@mui/material/Avatar';
 import * as XLSX from 'xlsx';
-
+import { useProfileImage } from "../CANDIDATE/ProfileImageContext";
 import Popover from '@mui/material/Popover';
 import UserProfile from "../CANDIDATE/UserProfile";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -33,6 +34,7 @@ function VoucherDashboard() {
   const [requests, setRequests] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
 
+  const { imageURL } = useProfileImage();//
   
   const openProfilePopup = (event) => {
     setAnchorEl(event.currentTarget);
@@ -161,7 +163,7 @@ function VoucherDashboard() {
       try {
         const response = await axios.get(`http://localhost:8085/requests/assignvoucher/${voucherid}/${email}/${id}`);
         console.log(response.data);
-        navigate("/dashboard");
+        navigate("/requests");
   
         // Show success toasty message
         toast.success('Voucher Assigned Successfully!!!');
@@ -184,30 +186,61 @@ function VoucherDashboard() {
         toast.error('Please select a file to upload.');
         return;
       }
-
+  
       const formData = new FormData();
       formData.append('file', selectedFile);
-
+  
       const response = await axios.post('http://localhost:9091/voucher/addVouchers', formData);
-
+  
       console.log('Backend Response:', response.data);
-
-      const vouchersArray = response.data;
-      setVouchers(vouchersArray);
-
+  
+      const newVouchersArray = response.data;
+  
+      // Check for duplicate voucher codes before adding
+      const duplicates = newVouchersArray.filter((newVoucher) =>
+        vouchers.some((existingVoucher) => existingVoucher.voucherCode === newVoucher.voucherCode)
+      );
+  
+      if (duplicates.length > 0) {
+        // If duplicates are found, show an error message
+        console.error('Duplicate vouchers found:', duplicates);
+  
+        // Check if the error response has a 'message' property
+        const errorMessage = duplicates.map((v) => v.voucherCode);
+        toast.error(`Duplicate vouchers found. These vouchers were not added: ${errorMessage.join(', ')}`);
+        return; // Return to avoid executing the next part if duplicates are found
+      }
+  
+      // If no duplicates, update the state with new vouchers
+      setVouchers((prevVouchers) => [...prevVouchers, ...newVouchersArray]);
       toast.success('Data added successfully');
     } catch (error) {
       console.error('Error uploading file', error);
-
-      if (error.response) {
-        toast.error(`Error: ${error.response.data}`);
+  
+      if (error.response && error.response.data && error.response.data.message) {
+        // Check if the error response has a 'message' property
+        const errorMessage = error.response.data.message;
+  
+        // Check if the message is an array (indicating duplicate vouchers)
+        if (Array.isArray(errorMessage)) {
+          const duplicateVoucherCodes = errorMessage.map((v) => v.voucherCode).join(', ');
+          toast.error(`Duplicate vouchers found. These vouchers were not added: ${duplicateVoucherCodes}`);
+        } else {
+          // If not an array, treat it as a regular error message
+          toast.error(`Error: ${errorMessage}`);
+        }
       } else if (error.request) {
+        console.error('Error request:', error.request);
         toast.error('Error: No response from the server.');
       } else {
+        console.error('Other error:', error);
         toast.error('Error: Something went wrong.');
       }
     }
   };
+  
+  
+  
   
   const handleDownloadSampleSheet = () => {
     const sheetContent = [
@@ -245,9 +278,19 @@ function VoucherDashboard() {
 
         <div className="user-info">
           <div>
-            <Button color="inherit" onClick={openProfilePopup}>
-              <AccountCircleIcon />
-              {name}
+          <Button color="inherit" onClick={openProfilePopup}>
+              {imageURL ? (
+                <Avatar
+                  alt="Profile"
+                  src={imageURL}
+                  style={{ width: '63px', height: '63px', marginRight: '8px', marginBottom: '3px' }}
+                />
+              ) : (
+                <AccountCircleIcon style={{ color: 'skyblue', fontSize: '32px', marginRight: '8px' }} />
+              )}
+              <Typography variant="h6" style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                {name}
+              </Typography>
             </Button>
             <Popover
               open={isProfilePopupOpen}
@@ -262,6 +305,7 @@ function VoucherDashboard() {
                 horizontal: 'right',
               }}
             >
+              
               <UserProfile />
             </Popover>
           </div>
@@ -272,7 +316,7 @@ function VoucherDashboard() {
         <div className="dashboard-container">
         <div className="back">
   <p>
-    <Link to="/dashboard" style={{ color: "black", textDecoration: "none", fontSize: "16px", fontWeight: "bold" }}>
+    <Link to="/requests" style={{ color: "black", textDecoration: "none", fontSize: "16px", fontWeight: "bold" }}>
       <FontAwesomeIcon icon={faArrowLeft} /> Back
     </Link>
   </p>
@@ -463,6 +507,10 @@ function VoucherDashboard() {
           <div className="left-row">
             <p><Link to='/dashboard' style={{ "color": "white" }}>
               <FontAwesomeIcon icon={faTachometerAlt} size="1x" /> Dashboard</Link></p>
+          </div>
+          <div className="left-row">
+            <p><Link to='/requests' style={{ "color": "white" }}>
+              <FontAwesomeIcon icon={faTachometerAlt} size="1x" /> Requests</Link></p>
           </div>
 
           <div className="left-row">
