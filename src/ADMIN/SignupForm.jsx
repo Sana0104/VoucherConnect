@@ -6,6 +6,7 @@ import axios from 'axios';
 import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 function SignupForm() {
+
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -70,6 +71,68 @@ function SignupForm() {
   
     result
       .then((res) => {
+
+
+    const navigate =useNavigate();
+    const [formData, setFormData] = useState({
+        userName: '',
+        userEmail: '',
+        password: '',
+        role:'CANDIDATE'
+    });
+
+    const [formErrors, setFormErrors] = useState({
+        userName: '',
+        userEmail: '',
+        password: '',
+    
+    });
+
+    const handleInputChange = (e) => {
+        const { id, value } = e.target;
+        setFormData({ ...formData, [id]: value });
+        // You can add validation here and update formErrors.
+        validateField(id, value);
+    };
+
+    const validateField = (field, value) => {
+        let errorMessage = '';
+
+        if (field === 'userEmail') {
+            if (!value.match(/^[a-zA-Z0-9._%+-]+@capgemini\.com$/)) {
+                errorMessage = ' Please enter Organisation email(@capgemini.com)';
+            }
+        } else if (field === 'password') {
+            if (value.length < 6) {
+                errorMessage = 'Password must be at least 6 characters long';
+            }
+        
+        }else if (field === 'userName') {
+            if (value.length < 5) {
+                errorMessage = 'Name must be at least 5 character long';
+            }
+       
+        }
+        // Add validation logic for other fields here.
+
+        setFormErrors({ ...formErrors, [field]: errorMessage });
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        // Check if there are any validation errors
+        for (const field in formErrors) {
+            if (formErrors[field]) {
+                alert('Please fix the form errors before submitting.');
+                return;
+            }
+        }
+        console.log(formData);
+        var url = "http://localhost:9092/user/register"
+      var result = axios.post(url, formData);
+    //   console.log("ok")
+      result.then((res) => {
+
         console.log(res.data);
         localStorage.setItem('userName', formData.userName);
         navigate('/');
