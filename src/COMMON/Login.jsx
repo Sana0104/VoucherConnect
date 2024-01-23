@@ -31,14 +31,17 @@ function Login() {
     if (field === 'usermail') {
       if (!value) {
         errorMessage = 'Email is required';
-      } else if (!value.match(/^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$/)) {
+      } else if (!value.match(/^[a-zA-Z0-9._%+-]+@capgemini\.com$/)) {
         errorMessage = 'Invalid email address. Must contain @ and .com';
       }
       setFormErrors({ ...formErrors, usermail: errorMessage, password: formErrors.password });
     } else if (field === 'password') {
       if (!value) {
+        
         errorMessage = 'Password is required';
-      }
+      }else if (value.length < 6) {
+        errorMessage = 'Password must be at least 6 characters long';
+    }
       setFormErrors({ ...formErrors, password: errorMessage, usermail: formErrors.usermail });
     }
   };
@@ -77,7 +80,7 @@ function Login() {
         }, 1000);
       } else if (res.roles[0] === 'ADMIN') {
         setTimeout(() => {
-          navigate('/dashboard'); 
+          navigate('/requests'); 
         }, 1000);
       }
     } catch (error) {
