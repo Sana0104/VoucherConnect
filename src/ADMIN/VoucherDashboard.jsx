@@ -11,7 +11,8 @@ import Typography from '@mui/material/Typography';
 import { saveAs } from 'file-saver';
 import Avatar from '@mui/material/Avatar';
 import * as XLSX from 'xlsx';
-import { useProfileImage } from "../CANDIDATE/ProfileImageContext";
+import { TablePagination } from "@mui/material";
+
 import Popover from '@mui/material/Popover';
 import UserProfile from "../CANDIDATE/UserProfile";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -30,11 +31,12 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 
 function VoucherDashboard() {
   const obj = localStorage.getItem("userInfo");
-  const { name } = JSON.parse(obj);
+  const { name, username } = JSON.parse(obj);
   const [requests, setRequests] = useState([]);
+  
   const [anchorEl, setAnchorEl] = useState(null);
+  const [profileImageURL, setProfileImageURL] = useState(null);
 
-  const { imageURL } = useProfileImage();//
   
   const openProfilePopup = (event) => {
     setAnchorEl(event.currentTarget);
@@ -260,7 +262,38 @@ function VoucherDashboard() {
   
     
   };
+  useEffect(() => {
+    const fetchProfileImageURL = async () => {
+      try {
+        const response = await axios.get(`http://localhost:9092/user/getProfileImageURL/${username}`, {
+          responseType: 'arraybuffer',
+        });
 
+        const blob = new Blob([response.data], { type: 'image/jpeg' });
+        const reader = new FileReader();
+
+        reader.onloadend = () => {
+          setProfileImageURL(reader.result);
+        };
+
+        reader.readAsDataURL(blob);
+      } catch (error) {
+        console.error('Error fetching image URL:', error.message);
+      }
+    };
+
+    fetchProfileImageURL();
+  }, [username]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const handleChangePage = (event, newPage) => {
+      setPage(newPage);
+  };
+ 
+  const handleChangeRowsPerPage = (event) => {
+      setRowsPerPage(parseInt(event.target.value, 10));
+      setPage(0);
+  };
   return (
     <div className="headd">
       <div>
@@ -279,14 +312,10 @@ function VoucherDashboard() {
         <div className="user-info">
           <div>
           <Button color="inherit" onClick={openProfilePopup}>
-              {imageURL ? (
-                <Avatar
-                  alt="Profile"
-                  src={imageURL}
-                  style={{ width: '63px', height: '63px', marginRight: '8px', marginBottom: '3px' }}
-                />
+              {profileImageURL ? (
+                <img src={profileImageURL} alt="Profile" style={{ borderRadius: '50%', width: '60px', height: '60px', marginRight: '5px' }} />
               ) : (
-                <AccountCircleIcon style={{ color: 'skyblue', fontSize: '32px', marginRight: '8px' }} />
+                <AccountCircleIcon style={{ color: 'skyblue', fontSize: '45px', marginRight: '5px' }} />
               )}
               <Typography variant="h6" style={{ fontSize: '18px', fontWeight: 'bold' }}>
                 {name}
@@ -305,8 +334,8 @@ function VoucherDashboard() {
                 horizontal: 'right',
               }}
             >
-              
-              <UserProfile />
+              {/* Pass profileImageURL as a prop to UserProfile */}
+              <UserProfile setProfileImageURL={setProfileImageURL} />
             </Popover>
           </div>
         </div>
@@ -442,7 +471,7 @@ function VoucherDashboard() {
             </thead>
 
             <tbody>
-              {vouchers.map((row, index) => (
+            {vouchers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
                 <tr key={index}>
                   <td>{row.cloudPlatform}</td>
                   <td>{row.examName}</td>
@@ -487,6 +516,16 @@ function VoucherDashboard() {
               ))}
             </tbody>
           </table>
+          <TablePagination style={{ width: "70%", marginLeft: "2%" }}
+                                rowsPerPageOptions={[5,10,20,25, { label: 'All', value: vouchers.length }]}
+                                component="div"
+                                count={vouchers.length}
+                                rowsPerPage={rowsPerPage}
+                                page={page}
+                                onPageChange={handleChangePage}
+                                onRowsPerPageChange={handleChangeRowsPerPage}
+                                labelRowsPerPage="Rows per page"
+                            />
         </div>
       </div>
     

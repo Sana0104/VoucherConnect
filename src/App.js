@@ -9,16 +9,14 @@ import RequestVoucherForm from './CANDIDATE/requestVoucher';
 import { useSelector } from 'react-redux';
 import React from 'react';
 import NotFound from './COMMON/404Page';
-import { ProfileImageProvider } from './CANDIDATE/ProfileImageContext';
 
 function App() {
-  const { isLoggedIn, roles } = useSelector((state) => state.auth.value);
-
-  const isAdmin = roles.includes('ADMIN');
-  const isCandidate = roles.includes('CANDIDATE');
+  const { isLoggedIn,roles } = useSelector((state) => state.auth.value);
+  const isAdmin = roles.includes('ROLE_ADMIN');
+  const isCandidate = roles.includes('ROLE_CANDIDATE');
 
   return (
-    <ProfileImageProvider>
+    
       <BrowserRouter>
         <Routes>
           <Route exact path="/" element={<Login />} />
@@ -62,7 +60,7 @@ function App() {
           <Route path="*" element={<Navigate replace to="/404" />} />
         </Routes>
       </BrowserRouter>
-    </ProfileImageProvider>
+    
   );
 }
 

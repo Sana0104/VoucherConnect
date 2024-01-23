@@ -59,13 +59,14 @@ p {
   margin-left: 200px;
   display: flex;
   flex-direction: row;
-  width: 81%;
+  width: 83%;
   align-items: center;
   font-weight: bold;
   color: black;
   padding: 3px;
   height: 80px;
 }
+
 #name {
   font-size: large;
 }
@@ -175,13 +176,26 @@ button {
 /* Dropdown styles */
 
 .dashboard-dropdown {
-  display: inline-block;
-  margin-right: 15px;
+  display: flex; /* Change to flex to align items horizontally */
+  align-items: center; /* Align items vertically in the center */
+  margin-right: 25px;
   position: relative;
-  width: 30%; /* Each div takes 50% of the container width */
-  padding: 10px; /* Add padding for spacing between the divs */
-  box-sizing: border-box; /* Ensure padding is included in the width */
-  
+  padding: 10px;
+  box-sizing: border-box;
+}
+ 
+/* Add new styling for the button */
+.dashboard-dropdown button {
+  margin-left: 10px;
+  font-size: 13px;
+  font-weight: bold;
+  height: 40px;
+  width: 140px;
+  border-radius: 5px;
+  background-color: #0b5f97;
+  color: #fff;
+  cursor: pointer;
+  border: none;
 }
 
 .dashboard-dropdown select {
@@ -210,7 +224,7 @@ button {
 }
 
 .right-corner {
-  margin-left: 380px;
+  margin-left: 350px;
   display: flex;
   flex-direction: row;
 }
