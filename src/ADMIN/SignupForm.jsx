@@ -64,7 +64,7 @@ function SignupForm() {
         return;
       }
     }
-  
+  //api point 
     var url = 'http://localhost:9092/user/register';
     var result = axios.post(url, formData);
   
