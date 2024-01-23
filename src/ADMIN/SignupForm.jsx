@@ -12,12 +12,14 @@ function SignupForm() {
     userName: '',
     userEmail: '',
     password: '',
-    role: 'CANDIDATE'
+    mentorEmail:'',
+    role: 'ROLE_CANDIDATE'
   });
 
   const [formErrors, setFormErrors] = useState({
     userName: '',
     userEmail: '',
+    mentorEmail:'',
     password: '',
   });
 
@@ -42,7 +44,12 @@ function SignupForm() {
       if (!value.match(/^[a-zA-Z0-9._%+-]+@capgemini\.com$/)) {
         errorMessage = ' Please use a @capgemini.com email address.';
       }
-    } else if (field === 'password') {
+    }  else if (field === 'mentorEmail') {
+      if (!value.match(/^[a-zA-Z0-9._%+-]+@capgemini\.com$/)) {
+        errorMessage = ' Please use a @capgemini.com email address for mentor.';
+      }
+    }
+    else if (field === 'password') {
       if (value.length < 6) {
         errorMessage = 'Password must be at least 6 characters long';
       }
@@ -137,6 +144,19 @@ function SignupForm() {
                         placeholder="Password"
                       />
                       {formErrors.password && <span className="text-danger">{formErrors.password}</span>}
+                    </MDBCol>
+                  </MDBRow>
+                  <MDBRow>
+                    <MDBCol col='6'>
+                      <MDBInput
+                        id="mentorEmail"
+                        type="email"
+                        label="Mentor Email"
+                        value={formData.mentorEmail}
+                        onChange={handleInputChange}
+                        placeholder="Mentor's email address"
+                      />
+                      {formErrors.mentorEmail && <span className="text-danger">{formErrors.mentorEmail}</span>}
                     </MDBCol>
                   </MDBRow>
                 </MDBCardBody>
