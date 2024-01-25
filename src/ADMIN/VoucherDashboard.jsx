@@ -9,7 +9,9 @@ import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { saveAs } from 'file-saver';
+import Avatar from '@mui/material/Avatar';
 import * as XLSX from 'xlsx';
+import { TablePagination } from "@mui/material";
 
 import Popover from '@mui/material/Popover';
 import UserProfile from "../CANDIDATE/UserProfile";
@@ -29,9 +31,11 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 
 function VoucherDashboard() {
   const obj = localStorage.getItem("userInfo");
-  const { name } = JSON.parse(obj);
+  const { name, username } = JSON.parse(obj);
   const [requests, setRequests] = useState([]);
+  
   const [anchorEl, setAnchorEl] = useState(null);
+  const [profileImageURL, setProfileImageURL] = useState(null);
 
   
   const openProfilePopup = (event) => {
@@ -161,7 +165,7 @@ function VoucherDashboard() {
       try {
         const response = await axios.get(`http://localhost:8085/requests/assignvoucher/${voucherid}/${email}/${id}`);
         console.log(response.data);
-        navigate("/dashboard");
+        navigate("/requests");
   
         // Show success toasty message
         toast.success('Voucher Assigned Successfully!!!');
@@ -184,30 +188,61 @@ function VoucherDashboard() {
         toast.error('Please select a file to upload.');
         return;
       }
-
+  
       const formData = new FormData();
       formData.append('file', selectedFile);
-
+  
       const response = await axios.post('http://localhost:9091/voucher/addVouchers', formData);
-
+  
       console.log('Backend Response:', response.data);
-
-      const vouchersArray = response.data;
-      setVouchers(vouchersArray);
-
+  
+      const newVouchersArray = response.data;
+  
+      // Check for duplicate voucher codes before adding
+      const duplicates = newVouchersArray.filter((newVoucher) =>
+        vouchers.some((existingVoucher) => existingVoucher.voucherCode === newVoucher.voucherCode)
+      );
+  
+      if (duplicates.length > 0) {
+        // If duplicates are found, show an error message
+        console.error('Duplicate vouchers found:', duplicates);
+  
+        // Check if the error response has a 'message' property
+        const errorMessage = duplicates.map((v) => v.voucherCode);
+        toast.error(`Duplicate vouchers found. These vouchers were not added: ${errorMessage.join(', ')}`);
+        return; // Return to avoid executing the next part if duplicates are found
+      }
+  
+      // If no duplicates, update the state with new vouchers
+      setVouchers((prevVouchers) => [...prevVouchers, ...newVouchersArray]);
       toast.success('Data added successfully');
     } catch (error) {
       console.error('Error uploading file', error);
-
-      if (error.response) {
-        toast.error(`Error: ${error.response.data}`);
+  
+      if (error.response && error.response.data && error.response.data.message) {
+        // Check if the error response has a 'message' property
+        const errorMessage = error.response.data.message;
+  
+        // Check if the message is an array (indicating duplicate vouchers)
+        if (Array.isArray(errorMessage)) {
+          const duplicateVoucherCodes = errorMessage.map((v) => v.voucherCode).join(', ');
+          toast.error(`Duplicate vouchers found. These vouchers were not added: ${duplicateVoucherCodes}`);
+        } else {
+          // If not an array, treat it as a regular error message
+          toast.error(`Error: ${errorMessage}`);
+        }
       } else if (error.request) {
+        console.error('Error request:', error.request);
         toast.error('Error: No response from the server.');
       } else {
+        console.error('Other error:', error);
         toast.error('Error: Something went wrong.');
       }
     }
   };
+  
+  
+  
   
   const handleDownloadSampleSheet = () => {
     const sheetContent = [
@@ -227,7 +262,38 @@ function VoucherDashboard() {
   
     
   };
+  useEffect(() => {
+    const fetchProfileImageURL = async () => {
+      try {
+        const response = await axios.get(`http://localhost:9092/user/getProfileImageURL/${username}`, {
+          responseType: 'arraybuffer',
+        });
 
+        const blob = new Blob([response.data], { type: 'image/jpeg' });
+        const reader = new FileReader();
+
+        reader.onloadend = () => {
+          setProfileImageURL(reader.result);
+        };
+
+        reader.readAsDataURL(blob);
+      } catch (error) {
+        console.error('Error fetching image URL:', error.message);
+      }
+    };
+
+    fetchProfileImageURL();
+  }, [username]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const handleChangePage = (event, newPage) => {
+      setPage(newPage);
+  };
+ 
+  const handleChangeRowsPerPage = (event) => {
+      setRowsPerPage(parseInt(event.target.value, 10));
+      setPage(0);
+  };
   return (
     <div className="headd">
       <div>
@@ -235,7 +301,7 @@ function VoucherDashboard() {
       </div>
 
       <div className="navbar" style={{ backgroundColor: "rgb(112, 183, 184)" }}>
-        <div className="user-info" style={{ marginLeft: "20px" }}>
+        <div className="user-info" style={{ marginLeft: "10px" }}>
           <p id="name">Welcome!!</p>
           <p id="date">
             {currentTime.toLocaleTimeString(undefined, timeOptions)}{" "}
@@ -245,9 +311,15 @@ function VoucherDashboard() {
 
         <div className="user-info">
           <div>
-            <Button color="inherit" onClick={openProfilePopup}>
-              <AccountCircleIcon />
-              {name}
+          <Button color="inherit" onClick={openProfilePopup}>
+              {profileImageURL ? (
+                <img src={profileImageURL} alt="Profile" style={{ borderRadius: '50%', width: '60px', height: '60px', marginRight: '5px' }} />
+              ) : (
+                <AccountCircleIcon style={{ color: 'skyblue', fontSize: '45px', marginRight: '5px' }} />
+              )}
+              <Typography variant="h6" style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                {name}
+              </Typography>
             </Button>
             <Popover
               open={isProfilePopupOpen}
@@ -262,7 +334,8 @@ function VoucherDashboard() {
                 horizontal: 'right',
               }}
             >
-              <UserProfile />
+              {/* Pass profileImageURL as a prop to UserProfile */}
+              <UserProfile setProfileImageURL={setProfileImageURL} />
             </Popover>
           </div>
         </div>
@@ -272,7 +345,7 @@ function VoucherDashboard() {
         <div className="dashboard-container">
         <div className="back">
   <p>
-    <Link to="/dashboard" style={{ color: "black", textDecoration: "none", fontSize: "16px", fontWeight: "bold" }}>
+    <Link to="/requests" style={{ color: "black", textDecoration: "none", fontSize: "16px", fontWeight: "bold" }}>
       <FontAwesomeIcon icon={faArrowLeft} /> Back
     </Link>
   </p>
@@ -398,7 +471,7 @@ function VoucherDashboard() {
             </thead>
 
             <tbody>
-              {vouchers.map((row, index) => (
+            {vouchers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
                 <tr key={index}>
                   <td>{row.cloudPlatform}</td>
                   <td>{row.examName}</td>
@@ -443,6 +516,16 @@ function VoucherDashboard() {
               ))}
             </tbody>
           </table>
+          <TablePagination style={{ width: "70%", marginLeft: "2%" }}
+                                rowsPerPageOptions={[5,10,20,25, { label: 'All', value: vouchers.length }]}
+                                component="div"
+                                count={vouchers.length}
+                                rowsPerPage={rowsPerPage}
+                                page={page}
+                                onPageChange={handleChangePage}
+                                onRowsPerPageChange={handleChangeRowsPerPage}
+                                labelRowsPerPage="Rows per page"
+                            />
         </div>
       </div>
     
@@ -463,6 +546,10 @@ function VoucherDashboard() {
           <div className="left-row">
             <p><Link to='/dashboard' style={{ "color": "white" }}>
               <FontAwesomeIcon icon={faTachometerAlt} size="1x" /> Dashboard</Link></p>
+          </div>
+          <div className="left-row">
+            <p><Link to='/requests' style={{ "color": "white" }}>
+              <FontAwesomeIcon icon={faTachometerAlt} size="1x" /> Requests</Link></p>
           </div>
 
           <div className="left-row">
