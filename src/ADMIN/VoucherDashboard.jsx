@@ -300,7 +300,7 @@ function VoucherDashboard() {
         <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
       </div>
 
-      <div className="navbar" style={{ backgroundColor: "rgb(112, 183, 184)" }}>
+      <div className="navbar" style={{ backgroundColor: "rgb(112, 183, 184)", width: "auto"}}>
         <div className="user-info" style={{ marginLeft: "10px" }}>
           <p id="name">Welcome!!</p>
           <p id="date">
@@ -309,11 +309,11 @@ function VoucherDashboard() {
           </p>
         </div>
 
-        <div className="user-info">
+        <div className="user-info" style={{alignItems: "flex-end"}}>
           <div>
           <Button color="inherit" onClick={openProfilePopup}>
               {profileImageURL ? (
-                <img src={profileImageURL} alt="Profile" style={{ borderRadius: '50%', width: '60px', height: '60px', marginRight: '5px' }} />
+                <img src={profileImageURL} alt="Profile" style={{ borderRadius: '50%', width: '60px', height: '60px', marginRight: '5px', marginTop:"-15px" }} />
               ) : (
                 <AccountCircleIcon style={{ color: 'skyblue', fontSize: '45px', marginRight: '5px' }} />
               )}
@@ -341,7 +341,7 @@ function VoucherDashboard() {
         </div>
       </div>
 
-      <div className="wrap">
+      <div className="wrap" style={{width: "fit-content"}}>
         <div className="dashboard-container">
         <div className="back">
   <p>
@@ -485,7 +485,7 @@ function VoucherDashboard() {
       style={{
         backgroundColor: "#e3c449",
         fontSize: "12px",
-        height: "40px",
+        height: "35px",
         color: "white",
         borderRadius: "5px",
         cursor: "pointer",
@@ -500,7 +500,7 @@ function VoucherDashboard() {
       style={{
         backgroundColor: "#e74c3c",
         fontSize: "12px",
-        height: "40px",
+        height: "35px",
         color: "white",
         borderRadius: "5px",
         cursor: "pointer",
@@ -531,9 +531,9 @@ function VoucherDashboard() {
     
 
 
-      <div className="footer-div" style={{"fontSize": "small", "height": "30px", "marginTop": "30px", "marginBottom": "2px"}}>
+      <div className="footer-div" style={{"height": "40px", "marginTop": "30px", width: "100%"}}>
         <footer> 
-          <p>&copy; 2023 Capgemini. All rights reserved.</p>
+          <p>&copy; 2024 Capgemini. All rights reserved.</p>
         </footer>
       </div>
 

@@ -23,6 +23,7 @@ import {
   faCog
 } from "@fortawesome/free-solid-svg-icons";
 import { TablePagination } from "@mui/material";
+import { orange } from "@mui/material/colors";
  
 function VoucherRequests() {
   const obj = localStorage.getItem("userInfo");
@@ -226,11 +227,11 @@ function VoucherRequests() {
           </p>
         </div>
  
-        <div className="user-info">
+        <div className="user-info" style={{marginRight: "100px"}}>
           <div>
           <Button color="inherit" onClick={openProfilePopup}>
               {profileImageURL ? (
-                <img src={profileImageURL} alt="Profile" style={{ borderRadius: '50%', width: '60px', height: '60px', marginRight: '5px' }} />
+                <img src={profileImageURL} alt="Profile" style={{ borderRadius: '50%', width: '60px', height: '60px', marginRight: '5px', marginTop:"-15px" }} />
               ) : (
                 <AccountCircleIcon style={{ color: 'skyblue', fontSize: '45px', marginRight: '5px' }} />
               )}
@@ -369,12 +370,14 @@ function VoucherRequests() {
                 <th>Cloud</th>
                 <th>Exam</th>
                 <th>DoSelect Score</th>
+                <th>DoSelect Image</th>
+                <th>Deny Voucher</th>
                 <th>Voucher code</th>
                 <th>Issued Date</th>
                 <th>Expiry Date</th>
                 <th>Exam Date</th>
                 <th>Result</th>
-                <th>Actions</th>
+                <th>Assign Voucher</th>
               </tr>
             </thead>
  
@@ -394,6 +397,18 @@ function VoucherRequests() {
                   <td>{row.cloudPlatform}</td>
                   <td>{row.cloudExam}</td>
                   <td>{row.doSelectScore}</td>
+                  <td><a href="/requests">View</a></td>
+                  <td><button className={row.voucherCode !== null ? 'disabled-button' : 'enabled-button'} 
+                      disabled={row.voucherCode !== null}
+                      style={{
+                        backgroundColor: row.voucherCode !== null ? "#95a5a6" : "rgb(230, 134, 134)",
+                        fontSize: "12px",
+                        height: "35px",
+                        color: "#fff",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                        border: "none"
+                      }}>Deny Request</button></td>
                   <td>{row.voucherCode}</td>
                   <td>{row.voucherIssueLocalDate}</td>
                   <td>{row.voucherExpiryLocalDate}</td>
@@ -406,13 +421,12 @@ function VoucherRequests() {
                       disabled={row.voucherCode !== null}
                       style={{
                         backgroundColor: row.voucherCode !== null ? "#95a5a6" : "#3498db", // Gray for disabled, Blue for enabled
-                        fontSize: "14px",
-                        height: "40px",
+                        fontSize: "12px",
+                        height: "35px",
                         color: "#fff",
                         borderRadius: "5px",
                         cursor: "pointer",
-                        border: "none",
-                        marginLeft: "10px",
+                        border: "none"
                       }}
                     >
                       Assign Voucher
@@ -436,9 +450,9 @@ function VoucherRequests() {
  
       </div>
  
-      <div>
-        <footer className="footer-div">
-          <p>Capgemini 2023, All rights reserved.</p>
+      <div className="footer-div" style={{ "height": "40px", "marginTop": "30px"}}>
+        <footer> 
+          <p>&copy; 2024 Capgemini. All rights reserved.</p>
         </footer>
       </div>
  
