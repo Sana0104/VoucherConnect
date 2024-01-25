@@ -3,15 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import "./Dashboard.css";
 import axios from "axios";
 import Avatar from '@mui/material/Avatar';
-import { ToastContainer ,toast} from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import 'react-toastify/dist/ReactToastify.css';
+
 import Button from '@mui/material/Button';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Typography from '@mui/material/Typography';
 import Popover from '@mui/material/Popover';
 import UserProfile from "../CANDIDATE/UserProfile";
-
+import { useProfileImage } from "../CANDIDATE/ProfileImageContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalendar,
@@ -26,12 +24,12 @@ import { TablePagination } from "@mui/material";
  
 function VoucherRequests() {
   const obj = localStorage.getItem("userInfo");
-  const { name, username } = JSON.parse(obj);
+  const { name } = JSON.parse(obj);
   const [requests, setRequests] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [showReminderButton, setShowReminderButton] = useState(false);
+  const { imageURL } = useProfileImage();// Assuming you have the profile image URL
 
-  const [profileImageURL, setProfileImageURL] = useState(null);
+
  
 
   const openProfilePopup = (event) => {
@@ -83,7 +81,6 @@ function VoucherRequests() {
       try {
         const response = await axios.get('http://localhost:8085/requests/allAssignedVoucher');
         setRequests(response.data);
-        setShowReminderButton(false);
       } catch (error) {
         console.error(error);
       }
@@ -91,7 +88,6 @@ function VoucherRequests() {
       try {
         const response = await axios.get('http://localhost:8085/requests/allUnAssignedVoucher');
         setRequests(response.data);
-        setShowReminderButton(false);
       } catch (error) {
         console.error(error);
       }
@@ -99,7 +95,6 @@ function VoucherRequests() {
       try {
         const response = await axios.get('http://localhost:8085/requests/getAllVouchers');
         setRequests(response.data);
-        setShowReminderButton(false);
       } catch (error) {
         console.error(error);
       }
@@ -107,24 +102,9 @@ function VoucherRequests() {
       try {
         const response = await axios.get('http://localhost:8085/requests/getAllCompletedVoucherRequests');
         setRequests(response.data);
-        setShowReminderButton(false);
       } catch (error) {
         console.error(error);
       }
-      
-    }else if (selectedOption === 'NotUpdated') {
-      try {
-       
-        const response = await axios.get('http://localhost:8085/requests/pendingResultRequests');
-        setRequests(response.data);
-        setShowReminderButton(response.data.length > 0);
-      } catch (error) {
-        console.error(error);
-        setShowReminderButton(false);
-      }
-    } else {
-      // For any other option, hide the button
-      setShowReminderButton(false);
     }
   };
  
@@ -155,28 +135,7 @@ function VoucherRequests() {
     }
   };
  
-  const handleSendReminderEmail = async () => {
-    try {
-      const response = await axios.get(`http://localhost:8085/requests/sendPendingEmails`);
-      console.log(response.data);
-      setShowReminderButton(false);
-      setRequestsOption("default");
-  
-      // Show success toasty message
-      toast.success('Mail sent successfully!!!');
-      
-      // Reload the current page
-      window.location.reload();
-    } catch (error) {
-      console.error(error.response.data);
-  
-      // Show error toasty message
-      toast.error('Failed to send email. Please try again.');
-    }
-  };
-  
-  
-
+ 
   const handleAssigneVoucherClick = (email, examName, id) => {
     navigate(`/voucher-dashboard/${email}/${examName}/${id}`);
   };
@@ -191,28 +150,7 @@ function VoucherRequests() {
       setRowsPerPage(parseInt(event.target.value, 10));
       setPage(0);
   };
-  useEffect(() => {
-    const fetchProfileImageURL = async () => {
-      try {
-        const response = await axios.get(`http://localhost:9092/user/getProfileImageURL/${username}`, {
-          responseType: 'arraybuffer',
-        });
-
-        const blob = new Blob([response.data], { type: 'image/jpeg' });
-        const reader = new FileReader();
-
-        reader.onloadend = () => {
-          setProfileImageURL(reader.result);
-        };
-
-        reader.readAsDataURL(blob);
-      } catch (error) {
-        console.error('Error fetching image URL:', error.message);
-      }
-    };
-
-    fetchProfileImageURL();
-  }, [username]);
+ 
   return (
     <div className="headd">
  
@@ -229,10 +167,14 @@ function VoucherRequests() {
         <div className="user-info">
           <div>
           <Button color="inherit" onClick={openProfilePopup}>
-              {profileImageURL ? (
-                <img src={profileImageURL} alt="Profile" style={{ borderRadius: '50%', width: '60px', height: '60px', marginRight: '5px' }} />
+              {imageURL ? (
+                <Avatar
+                  alt="Profile"
+                  src={imageURL}
+                  style={{ width: '63px', height: '63px', marginRight: '8px', marginBottom: '3px' }}
+                />
               ) : (
-                <AccountCircleIcon style={{ color: 'skyblue', fontSize: '45px', marginRight: '5px' }} />
+                <AccountCircleIcon style={{ color: 'skyblue', fontSize: '32px', marginRight: '8px' }} />
               )}
               <Typography variant="h6" style={{ fontSize: '18px', fontWeight: 'bold' }}>
                 {name}
@@ -251,8 +193,8 @@ function VoucherRequests() {
                 horizontal: 'right',
               }}
             >
-              {/* Pass profileImageURL as a prop to UserProfile */}
-              <UserProfile setProfileImageURL={setProfileImageURL} />
+              
+              <UserProfile />
             </Popover>
           </div>
         </div>
@@ -329,29 +271,7 @@ function VoucherRequests() {
     <option value="Completed" >
       Completed Exam
     </option>
-    <option value="NotUpdated" >
-      Not Updated Result
-    </option>
   </select>
-  {showReminderButton && (
-          <button
-            onClick={() => handleSendReminderEmail()}
-            style={{
-              marginLeft: "10px",
-              fontSize: "13px",
-              padding: "2px",
-              height: "40px",
-              width: "140px",
-              borderRadius: "5px",
-              // backgroundColor: "#3498db",
-              color: "#fff",
-              cursor: "pointer",
-              border: "none",
-            }}
-          >
-            Send Reminder Mail
-          </button>
-        )}
 </div>
  
           <div className="right-corner">
@@ -423,7 +343,7 @@ function VoucherRequests() {
             </tbody>
           </table>
           <TablePagination style={{ width: "70%", marginLeft: "2%" }}
-                                rowsPerPageOptions={[5,10, 20, 25, { label: 'All', value: requests.length }]}
+                                rowsPerPageOptions={[10, 20, 25, { label: 'All', value: requests.length }]}
                                 component="div"
                                 count={requests.length}
                                 rowsPerPage={rowsPerPage}
