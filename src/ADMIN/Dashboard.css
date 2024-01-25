@@ -5,7 +5,7 @@
   color: black;
   width: 14%;
   height: 100%;
-  background-color: #70b7b8;
+  background-color: rgb(112, 183, 184);
   padding: 20px;
   overflow-y: auto;
 }
@@ -66,6 +66,7 @@ p {
   padding: 3px;
   height: 80px;
 }
+
 #name {
   font-size: large;
 }
@@ -175,13 +176,26 @@ button {
 /* Dropdown styles */
 
 .dashboard-dropdown {
-  display: inline-block;
-  margin-right: 15px;
+  display: flex; /* Change to flex to align items horizontally */
+  align-items: center; /* Align items vertically in the center */
+  margin-right: 25px;
   position: relative;
-  width: 30%; /* Each div takes 50% of the container width */
-  padding: 10px; /* Add padding for spacing between the divs */
-  box-sizing: border-box; /* Ensure padding is included in the width */
-  
+  padding: 10px;
+  box-sizing: border-box;
+}
+ 
+/* Add new styling for the button */
+.dashboard-dropdown button {
+  margin-left: 10px;
+  font-size: 13px;
+  font-weight: bold;
+  height: 40px;
+  width: 140px;
+  border-radius: 5px;
+  background-color: #0b5f97;
+  color: #fff;
+  cursor: pointer;
+  border: none;
 }
 
 .dashboard-dropdown select {
@@ -197,10 +211,6 @@ button {
 
 }
 
-.table-div {
-  margin-left: 30px;
-}
-
 .table-div td{
   margin-top: 10px;
   margin-left: 10px;
@@ -211,7 +221,6 @@ button {
 }
 .dashboard-table {
   border-radius: 5px;
-  
 }
 
 .right-corner {
@@ -245,7 +254,7 @@ button {
   width: 100%;
 
   border-collapse: collapse;
-    /* margin-left: 20px; */
+
   margin-top: 20px;
 }
 
@@ -300,12 +309,12 @@ button {
 
 .footer-div {
 
-  /* margin-bottom: 2px;
+  margin-bottom: 2px;
   display: flex;
-  margin-top: 40px; */
+  margin-top: 40px;
   /* margin-right: -100px; */
-  /* margin-left: 600px;
-  font-size: small; */
+  margin-left: 600px;
+  font-size: small;
 
   position: relative;
   bottom: 0;
@@ -319,7 +328,3 @@ button {
   margin-left: 180px
 
 }
-
-
-
-
