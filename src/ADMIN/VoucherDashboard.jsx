@@ -1,22 +1,18 @@
-// Dashboard.js
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from 'react-router-dom';
 import "./Dashboard.css";
+import axios from "axios";
+import Avatar from '@mui/material/Avatar';
+import { ToastContainer ,toast} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css';
 import Button from '@mui/material/Button';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import Modal from '@mui/material/Modal';
-import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { saveAs } from 'file-saver';
-import Avatar from '@mui/material/Avatar';
-import * as XLSX from 'xlsx';
-import { TablePagination } from "@mui/material";
-
 import Popover from '@mui/material/Popover';
 import UserProfile from "../CANDIDATE/UserProfile";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from "axios";
 import {
   faCalendar,
   faBell,
@@ -26,241 +22,174 @@ import {
   faTachometerAlt,
   faCog
 } from "@fortawesome/free-solid-svg-icons";
-
-import { Link, useParams, useNavigate } from "react-router-dom";
-
-function VoucherDashboard() {
+import { TablePagination } from "@mui/material";
+ 
+function VoucherRequests() {
   const obj = localStorage.getItem("userInfo");
   const { name, username } = JSON.parse(obj);
   const [requests, setRequests] = useState([]);
-  
   const [anchorEl, setAnchorEl] = useState(null);
-  const [profileImageURL, setProfileImageURL] = useState(null);
+  const [showReminderButton, setShowReminderButton] = useState(false);
 
-  
+  const [profileImageURL, setProfileImageURL] = useState(null);
+ 
+
   const openProfilePopup = (event) => {
     setAnchorEl(event.currentTarget);
   };
-
+ 
   const closeProfilePopup = () => {
     setAnchorEl(null);
   };
-
+ 
   const isProfilePopupOpen = Boolean(anchorEl);
-
+  const navigate = useNavigate();
+ 
   const [searchOption, setSearchOption] = useState("default");
   const [searchValue, setSearchValue] = useState("");
-
-  const [vouchers, setVouchers] = useState([]);
-
-  const { email, exam, id } = useParams();
-
-  const navigate = useNavigate();
-
-  const [selectedFile, setSelectedFile] = useState(null);
-  const fileInputRef = useRef(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-  
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
  
-  
-  const handleModalSubmit = () => {
-    handleFileUpload();
-    closeModal();
-  };
-  
+  const [requestsOption, setRequestsOption] = useState("default");
+ 
   useEffect(() => {
-    axios.get(`http://localhost:9091/voucher/vouchersByExamName/${exam}`)
+    axios.get(`http://localhost:8085/requests/getAllVouchers`)
       .then(response => {
-        console.log(response.data);
-        setVouchers(response.data);
+        setRequests(response.data);
       })
       .catch(error => {
         console.log(error);
       });
   }, []);
-
+ 
   const [currentTime, setCurrentTime] = useState(new Date());
-
+ 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 60000);
-
+ 
     return () => {
       clearInterval(timer);
     };
   }, []);
-
+ 
   const dateOptions = { day: "numeric", month: "long", year: "numeric" };
   const timeOptions = { hour: "2-digit", minute: "2-digit", hour12: true };
-
-  const handleSearchOptionChange = async (event) => {
+ 
+  const handleRequests = async (event) => {
     const selectedOption = event.target.value;
-    setSearchOption(selectedOption);
-
-    if (selectedOption === 'Expired') {
+    setRequestsOption(selectedOption);
+ 
+    if (selectedOption === 'Assigned') {
       try {
-        const response = await axios.get('http://localhost:9091/voucher/getAllExpiredVouchers');
-        setVouchers(response.data);
+        const response = await axios.get('http://localhost:8085/requests/allAssignedVoucher');
+        setRequests(response.data);
+        setShowReminderButton(false);
       } catch (error) {
         console.error(error);
       }
-    } else if (selectedOption === 'Available') {
+    } else if (selectedOption === 'Pending') {
       try {
-        const response = await axios.get('http://localhost:9091/voucher/getAllVouchers');
-        setVouchers(response.data);
+        const response = await axios.get('http://localhost:8085/requests/allUnAssignedVoucher');
+        setRequests(response.data);
+        setShowReminderButton(false);
       } catch (error) {
         console.error(error);
       }
     } else if (selectedOption === 'default') {
       try {
-        const response = await axios.get(`http://localhost:9091/voucher/vouchersByExamName/${exam}`);
-        setVouchers(response.data);
+        const response = await axios.get('http://localhost:8085/requests/getAllVouchers');
+        setRequests(response.data);
+        setShowReminderButton(false);
       } catch (error) {
         console.error(error);
       }
-    } else if (selectedOption === 'Assigned') {
+    } else if (selectedOption === 'Completed') {
       try {
-        const response = await axios.get('http://localhost:9091/voucher/getAllAssignedVoucher');
-        setVouchers(response.data);
+        const response = await axios.get('http://localhost:8085/requests/getAllCompletedVoucherRequests');
+        setRequests(response.data);
+        setShowReminderButton(false);
       } catch (error) {
         console.error(error);
       }
-    } else if (selectedOption === 'AssignedNotUsed') {
+      
+    }else if (selectedOption === 'NotUpdated') {
       try {
-        const response = await axios.get('http://localhost:9091/voucher/getAllAssignedButNotUtilizedVoucher');
-        setVouchers(response.data);
+       
+        const response = await axios.get('http://localhost:8085/requests/pendingResultRequests');
+        setRequests(response.data);
+        setShowReminderButton(response.data.length > 0);
       } catch (error) {
         console.error(error);
-      }
-    }
-
-    // Notify user about the filter change
-    toast.info(`Showing ${selectedOption} vouchers`);
-  };
-
-  const handleActionButtonClick = async (voucherid, isExpired) => {
-    if (isExpired) {
-      try {
-        const response = await axios.delete(`http://localhost:9091/voucher/deleteVoucher/${voucherid}`);
-        console.log(response.data);
-        const updatedVouchers = vouchers.filter(voucher => voucher.id !== voucherid);
-        setVouchers(updatedVouchers);
-        navigate(`/voucher-dashboard/${email}/${exam}/${id}`);
-  
-        // Show success toasty message
-        toast.success('Voucher Deleted Successfully!!!');
-      } catch (error) {
-        console.error(error.response.data);
-        alert(error.data);
+        setShowReminderButton(false);
       }
     } else {
-      try {
-        const response = await axios.get(`http://localhost:8085/requests/assignvoucher/${voucherid}/${email}/${id}`);
-        console.log(response.data);
-        navigate("/requests");
-  
-        // Show success toasty message
-        toast.success('Voucher Assigned Successfully!!!');
-      } catch (error) {
-        console.error(error.response.data);
-        alert(error.data);
-      }
+      // For any other option, hide the button
+      setShowReminderButton(false);
     }
   };
  
- 
-
-  const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
+  const handleSearchOptionChange = (event) => {
+    setSearchOption(event.target.value);
   };
-
-  const handleFileUpload = async () => {
+ 
+  const handleSearchInputChange = (event) => {
+    setSearchValue(event.target.value);
+  };
+ 
+  const filters = (request) => {
+    if (!request) {
+      return false; // or true, depending on your logic for handling null requests.....
+    }
+    if (searchOption === 'default') {
+      return true;
+    } else if (searchOption === 'candidateName') {
+      return request.candidateName && request.candidateName.toLowerCase().includes(searchValue.toLowerCase());
+    } else if (searchOption === 'plannedExamDate') {
+      return request.plannedExamDate && request.plannedExamDate.toLowerCase().includes(searchValue.toLowerCase());
+    } else if (searchOption === 'cloudPlatform') {
+      return request.cloudPlatform && request.cloudPlatform.toLowerCase().includes(searchValue.toLowerCase());
+    } else if (searchOption === 'cloudExam') {
+      return request.cloudExam && request.cloudExam.toLowerCase().includes(searchValue.toLowerCase());
+    } else if (searchOption === 'examResult') {
+      return request.examResult && request.examResult.toLowerCase().includes(searchValue.toLowerCase());
+    }
+  };
+ 
+  const handleSendReminderEmail = async () => {
     try {
-      if (!selectedFile) {
-        toast.error('Please select a file to upload.');
-        return;
-      }
+      const response = await axios.get(`http://localhost:8085/requests/sendPendingEmails`);
+      console.log(response.data);
+      setShowReminderButton(false);
+      setRequestsOption("default");
   
-      const formData = new FormData();
-      formData.append('file', selectedFile);
-  
-      const response = await axios.post('http://localhost:9091/voucher/addVouchers', formData);
-  
-      console.log('Backend Response:', response.data);
-  
-      const newVouchersArray = response.data;
-  
-      // Check for duplicate voucher codes before adding
-      const duplicates = newVouchersArray.filter((newVoucher) =>
-        vouchers.some((existingVoucher) => existingVoucher.voucherCode === newVoucher.voucherCode)
-      );
-  
-      if (duplicates.length > 0) {
-        // If duplicates are found, show an error message
-        console.error('Duplicate vouchers found:', duplicates);
-  
-        // Check if the error response has a 'message' property
-        const errorMessage = duplicates.map((v) => v.voucherCode);
-        toast.error(`Duplicate vouchers found. These vouchers were not added: ${errorMessage.join(', ')}`);
-        return; // Return to avoid executing the next part if duplicates are found
-      }
-  
-      // If no duplicates, update the state with new vouchers
-      setVouchers((prevVouchers) => [...prevVouchers, ...newVouchersArray]);
-      toast.success('Data added successfully');
+      // Show success toasty message
+      toast.success('Mail sent successfully!!!');
+      
+      // Reload the current page
+      window.location.reload();
     } catch (error) {
-      console.error('Error uploading file', error);
+      console.error(error.response.data);
   
-      if (error.response && error.response.data && error.response.data.message) {
-        // Check if the error response has a 'message' property
-        const errorMessage = error.response.data.message;
-  
-        // Check if the message is an array (indicating duplicate vouchers)
-        if (Array.isArray(errorMessage)) {
-          const duplicateVoucherCodes = errorMessage.map((v) => v.voucherCode).join(', ');
-          toast.error(`Duplicate vouchers found. These vouchers were not added: ${duplicateVoucherCodes}`);
-        } else {
-          // If not an array, treat it as a regular error message
-          toast.error(`Error: ${errorMessage}`);
-        }
-      } else if (error.request) {
-        console.error('Error request:', error.request);
-        toast.error('Error: No response from the server.');
-      } else {
-        console.error('Other error:', error);
-        toast.error('Error: Something went wrong.');
-      }
+      // Show error toasty message
+      toast.error('Failed to send email. Please try again.');
     }
   };
   
   
-  
-  
-  const handleDownloadSampleSheet = () => {
-    const sheetContent = [
-      ['EXAM NAME', 'CLOUD PLATFORM', 'VOUCHER CODE', 'ISSUED DATE', 'EXPIRY DATE']
-     
-    ];
-  
-    
-    const ws = XLSX.utils.aoa_to_sheet(sheetContent);
-  
-   
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'data');
-  
-    
-    XLSX.writeFile(wb, 'SampleSheet.xlsx', { bookType: 'xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  
-    
+
+  const handleAssigneVoucherClick = (email, examName, id) => {
+    navigate(`/voucher-dashboard/${email}/${examName}/${id}`);
+  };
+ 
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const handleChangePage = (event, newPage) => {
+      setPage(newPage);
+  };
+ 
+  const handleChangeRowsPerPage = (event) => {
+      setRowsPerPage(parseInt(event.target.value, 10));
+      setPage(0);
   };
   useEffect(() => {
     const fetchProfileImageURL = async () => {
@@ -284,23 +213,11 @@ function VoucherDashboard() {
 
     fetchProfileImageURL();
   }, [username]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const handleChangePage = (event, newPage) => {
-      setPage(newPage);
-  };
- 
-  const handleChangeRowsPerPage = (event) => {
-      setRowsPerPage(parseInt(event.target.value, 10));
-      setPage(0);
-  };
   return (
     <div className="headd">
-      <div>
-        <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
-      </div>
-
+ 
       <div className="navbar" style={{ backgroundColor: "rgb(112, 183, 184)" }}>
+ 
         <div className="user-info" style={{ marginLeft: "10px" }}>
           <p id="name">Welcome!!</p>
           <p id="date">
@@ -308,7 +225,7 @@ function VoucherDashboard() {
             {currentTime.toLocaleDateString(undefined, dateOptions)}
           </p>
         </div>
-
+ 
         <div className="user-info">
           <div>
           <Button color="inherit" onClick={openProfilePopup}>
@@ -340,186 +257,175 @@ function VoucherDashboard() {
           </div>
         </div>
       </div>
-
+ 
       <div className="wrap">
+ 
         <div className="dashboard-container">
-        <div className="back">
-  <p>
-    <Link to="/requests" style={{ color: "black", textDecoration: "none", fontSize: "16px", fontWeight: "bold" }}>
-      <FontAwesomeIcon icon={faArrowLeft} /> Back
-    </Link>
-  </p>
-</div>
-
-
-<div className="dashboard-dropdown">
+ 
+          <div className="dashboard-dropdown">
+            <select
+              className="search-text"
+              value={searchOption}
+              onChange={handleSearchOptionChange}
+              style={{
+                fontSize: "14px",
+                height: "40px",
+                borderRadius: "5px",
+                paddingLeft: "10px",
+                border: "1px solid #3498db",
+                background: "#ecf0f1", // Light gray background
+                color: "#2c3e50", // Dark text color
+                outline: "none",
+              }}
+            >
+              <option value="default">Search</option>
+              <option value="candidateName">Search Candidate</option>
+              <option value="plannedExamDate">Search Exam Date</option>
+              <option value="cloudPlatform">Search By Cloud</option>
+              <option value="cloudExam">Search By Exam name</option>
+              <option value="examResult">Search By Exam Result</option>
+            </select>
+            {(searchOption === 'candidateName' || searchOption === 'plannedExamDate' || searchOption === 'cloudPlatform' || searchOption === 'cloudExam'|| searchOption === 'examResult') && (
+              <input
+                type="text"
+                value={searchValue}
+                placeholder="Search..."
+                onChange={handleSearchInputChange}
+                style={{
+                  marginLeft: "10px",
+                  padding: "8px",
+                  borderRadius: "5px",
+                  border: "1px solid #3498db",
+                }}
+              />
+            )}
+          </div>
+ 
+          <div className="dashboard-dropdown">
   <select
     className="search-text"
-    value={searchOption}
-    onChange={handleSearchOptionChange}
+    value={requestsOption}
+    onChange={handleRequests}
     style={{
       fontSize: "14px",
       height: "40px",
       borderRadius: "5px",
       paddingLeft: "10px",
       border: "1px solid #3498db",
+      color: "black",
       background: "#ecf0f1", // Light gray background
-      color: "#2c3e50", // Dark text color
       outline: "none",
     }}
   >
-    <option value="default">Filters</option>
-    <option value="Expired">
-      All Expired Vouchers
-    </option>
-    <option value="Available">
-      All Available Vouchers
+    <option value="default" >
+      All Requests
     </option>
     <option value="Assigned" >
-      All Assigned Vouchers
+      Assigned Requests
     </option>
-    <option value="AssignedNotUsed" >
-      Assigned Not Used Vouchers
+    <option value="Pending" >
+      Pending Requests
+    </option>
+    <option value="Completed" >
+      Completed Exam
+    </option>
+    <option value="NotUpdated" >
+      Not Updated Result
     </option>
   </select>
+  {showReminderButton && (
+          <button
+            onClick={() => handleSendReminderEmail()}
+            style={{
+              marginLeft: "10px",
+              fontSize: "13px",
+              padding: "2px",
+              height: "40px",
+              width: "140px",
+              borderRadius: "5px",
+              // backgroundColor: "#3498db",
+              color: "#fff",
+              cursor: "pointer",
+              border: "none",
+            }}
+          >
+            Send Reminder Mail
+          </button>
+        )}
 </div>
-
-
-<div className="right-corner" >
-  <button
-    style={{
-      backgroundColor: "#2ecc71",
-      color: "#fff",
-      fontSize: "16px",
-      height: "45px",
-      width: "120px",
-      borderRadius: "8px",
-      cursor: "pointer",
-      marginRight: "20px",
-      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-      border: "none",
-
-      fontSize:"14px"
-    
-    
-
-    }}
-    onClick={openModal}
-  >
-    Add Voucher
-  </button>
-  <button
-          style={{
-            backgroundColor: "#3498db",
-            color: "#fff",
-            fontSize: "16px",
-            height: "45px",
-            width: "180px",
-            borderRadius: "8px",
-            cursor: "pointer",
-            marginRight: "20px",
-            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-            border: "none",
-            fontSize: "14px"
-          }}
-          onClick={handleDownloadSampleSheet}
-        >
-          Download Sample Sheet
-        </button>
-</div>
+ 
+          <div className="right-corner">
+ 
+          </div>
+ 
         </div>
-        <Modal
-  open={isModalOpen}
-  onClose={closeModal}
-  aria-labelledby="modal-title"
-  aria-describedby="modal-description"
->
-  <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper', boxShadow: 24, p: 4 }}>
-    <Typography id="modal-title" variant="h6" component="h2">
-      Choose File
-    </Typography>
-    <input
-      type="file"
-      accept=".xlsx"
-      style={{
-        border: "2px solid #3498db",
-        padding: "6px",
-        borderRadius: "8px",
-        width: "100%",
-        cursor: "pointer",
-        marginBottom: "20px",
-      }}
-      onChange={handleFileChange}
-    />
-    <Button onClick={handleModalSubmit} variant="contained" style={{ backgroundColor: "#2ecc71", color: "#fff" }}>
-      Submit
-    </Button>
-  </Box>
-</Modal>
+ 
         <div className="table-div">
           <table className="dashboard-table">
             <thead>
               <tr>
+                <th>Name</th>
+                <th>Email</th>
                 <th>Cloud</th>
                 <th>Exam</th>
-                <th>Voucher Code</th>
-                <th>Issue Date</th>
+                <th>DoSelect Score</th>
+                <th>Voucher code</th>
+                <th>Issued Date</th>
                 <th>Expiry Date</th>
-                <th>Issued To</th>
+                <th>Exam Date</th>
+                <th>Result</th>
                 <th>Actions</th>
               </tr>
             </thead>
-
+ 
             <tbody>
-            {vouchers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+              {requests.filter(filters).sort((a, b) => {
+                if (a.voucherCode === null && b.voucherCode !== null) {
+                  return -1; // Move rows with no voucher code to the top
+                } else if (a.voucherCode !== null && b.voucherCode === null) {
+                  return 1; // Move rows with voucher code to the bottom
+                } else {
+                  return 0; // Maintain the order for other rows
+                }
+              }).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
                 <tr key={index}>
+                  <td>{row.candidateName}</td>
+                  <td>{row.candidateEmail}</td>
                   <td>{row.cloudPlatform}</td>
-                  <td>{row.examName}</td>
+                  <td>{row.cloudExam}</td>
+                  <td>{row.doSelectScore}</td>
                   <td>{row.voucherCode}</td>
-                  <td>{row.issuedDate}</td>
-                  <td>{row.expiryDate}</td>
-                  <td>{row.issuedTo}</td>
+                  <td>{row.voucherIssueLocalDate}</td>
+                  <td>{row.voucherExpiryLocalDate}</td>
+                  <td>{row.plannedExamDate}</td>
+                  <td>{row.examResult}</td>
                   <td>
-  {(searchOption === 'Available' || searchOption === 'default') ? (
-    <button
-      style={{
-        backgroundColor: "#e3c449",
-        fontSize: "12px",
-        height: "40px",
-        color: "white",
-        borderRadius: "5px",
-        cursor: "pointer",
-        border: "none",
-      }}
-      onClick={() => handleActionButtonClick(row.id, false)}
-    >
-      Assign
-    </button>
-  ) : (
-    <button
-      style={{
-        backgroundColor: "#e74c3c",
-        fontSize: "12px",
-        height: "40px",
-        color: "white",
-        borderRadius: "5px",
-        cursor: "pointer",
-        border: "none",
-      }}
-      onClick={() => handleActionButtonClick(row.id, true)}
-    >
-      Delete
-    </button>
-  )}
-</td>
+                    <button
+                      className={row.voucherCode !== null ? 'disabled-button' : 'enabled-button'}
+                      onClick={() => handleAssigneVoucherClick(row.candidateEmail, row.cloudExam, row.id)}
+                      disabled={row.voucherCode !== null}
+                      style={{
+                        backgroundColor: row.voucherCode !== null ? "#95a5a6" : "#3498db", // Gray for disabled, Blue for enabled
+                        fontSize: "14px",
+                        height: "40px",
+                        color: "#fff",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                        border: "none",
+                        marginLeft: "10px",
+                      }}
+                    >
+                      Assign Voucher
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
           <TablePagination style={{ width: "70%", marginLeft: "2%" }}
-                                rowsPerPageOptions={[5,10,20,25, { label: 'All', value: vouchers.length }]}
+                                rowsPerPageOptions={[5,10, 20, 25, { label: 'All', value: requests.length }]}
                                 component="div"
-                                count={vouchers.length}
+                                count={requests.length}
                                 rowsPerPage={rowsPerPage}
                                 page={page}
                                 onPageChange={handleChangePage}
@@ -527,43 +433,41 @@ function VoucherDashboard() {
                                 labelRowsPerPage="Rows per page"
                             />
         </div>
+ 
       </div>
-    
-
-
-      <div className="footer-div" style={{"fontSize": "small", "height": "30px", "marginTop": "30px", "marginBottom": "2px"}}>
-        <footer> 
-          <p>&copy; 2023 Capgemini. All rights reserved.</p>
+ 
+      <div>
+        <footer className="footer-div">
+          <p>Capgemini 2023, All rights reserved.</p>
         </footer>
       </div>
-
+ 
       <div className="left-column">
         <h2 className="heading">Voucher Dashboard</h2>
-
+ 
         <hr />
-
+ 
         <div className="row">
+ 
           <div className="left-row">
-            <p><Link to='/dashboard' style={{ "color": "white" }}>
-              <FontAwesomeIcon icon={faTachometerAlt} size="1x" /> Dashboard</Link></p>
+            <p><Link to={'/dashboard'} style={{ "color": "white" }}>
+              <FontAwesomeIcon icon={faTachometerAlt} size="1x" />  Dashboard</Link></p>
           </div>
           <div className="left-row">
-            <p><Link to='/requests' style={{ "color": "white" }}>
+            <p><Link to={'/requests'} style={{ "color": "white" }}>
               <FontAwesomeIcon icon={faTachometerAlt} size="1x" /> Requests</Link></p>
           </div>
-
+ 
           <div className="left-row">
             <p><Link to={'/vouchers'} style={{ "color": "white" }}>
-              <FontAwesomeIcon icon={faClipboardCheck} size="1x" /> Vouchers</Link></p>
+              <FontAwesomeIcon icon={faClipboardCheck} size="1x" />  Vouchers</Link></p>
           </div>
+ 
         </div>
-      </div>
-
-      <div>
-        <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
+ 
       </div>
     </div>
   );
 }
-
-export default VoucherDashboard;
+ 
+export default VoucherRequests;
