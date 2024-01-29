@@ -273,22 +273,20 @@ button {
 .dashboard-table td:nth-child(3),
 .dashboard-table td:nth-child(5),
 .dashboard-table td:nth-child(6),
-.dashboard-table td:nth-child(7),
-.dashboard-table td:nth-child(8) {
-  width: 5%; /* Adjust the width for Cloud, DoSelect Score, DoSelect Image, Deny Voucher, Voucher code */
+.dashboard-table td:nth-child(7) {
+  width: 5%; /* Adjust the width for Cloud, DoSelect Score, DoSelect Image, Voucher code */
 }
 
 .dashboard-table td:nth-child(4) {
   width: 17%; /* Adjust the width for the fourth column (Exam) */
 }
 
+.dashboard-table td:nth-child(8),
 .dashboard-table td:nth-child(9),
 .dashboard-table td:nth-child(10),
-.dashboard-table td:nth-child(11),
-.dashboard-table td:nth-child(12) {
+.dashboard-table td:nth-child(11) {
   width: 12%; /* Adjust the width for Issued Date, Expiry Date, Exam Date, Result */
 }
-
 
 
 /* Add more styles for other columns */

@@ -371,12 +371,12 @@ function VoucherRequests() {
                 <th>Exam</th>
                 <th>DoSelect Score</th>
                 <th>DoSelect Image</th>
-                <th>Deny Voucher</th>
                 <th>Voucher code</th>
                 <th>Issued Date</th>
                 <th>Expiry Date</th>
                 <th>Exam Date</th>
                 <th>Result</th>
+                <th>Deny Voucher</th>
                 <th>Assign Voucher</th>
               </tr>
             </thead>
@@ -398,6 +398,11 @@ function VoucherRequests() {
                   <td>{row.cloudExam}</td>
                   <td>{row.doSelectScore}</td>
                   <td><a href="/requests">View</a></td>
+                  <td>{row.voucherCode}</td>
+                  <td>{row.voucherIssueLocalDate}</td>
+                  <td>{row.voucherExpiryLocalDate}</td>
+                  <td>{row.plannedExamDate}</td>
+                  <td>{row.examResult}</td>
                   <td><button className={row.voucherCode !== null ? 'disabled-button' : 'enabled-button'} 
                       disabled={row.voucherCode !== null}
                       style={{
@@ -409,11 +414,6 @@ function VoucherRequests() {
                         cursor: "pointer",
                         border: "none"
                       }}>Deny Request</button></td>
-                  <td>{row.voucherCode}</td>
-                  <td>{row.voucherIssueLocalDate}</td>
-                  <td>{row.voucherExpiryLocalDate}</td>
-                  <td>{row.plannedExamDate}</td>
-                  <td>{row.examResult}</td>
                   <td>
                     <button
                       className={row.voucherCode !== null ? 'disabled-button' : 'enabled-button'}
