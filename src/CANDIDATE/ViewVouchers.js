@@ -13,7 +13,6 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    TextField,
     IconButton,
     MenuItem,
     Select,
@@ -26,7 +25,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-import {  useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import axios from 'axios';
@@ -69,6 +68,10 @@ const ViewVouchers = () => {
  
     const [isEditing, setIsEditing] = useState(-1);
     const [error, setError] = useState(null);
+    const [isUploadDialogOpen, setUploadDialogOpen] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
+ 
+    const [certificateUploaded, setCertificateUploaded] = useState(false);
  
     useEffect(() => {
         const fetchVouchers = async () => {
@@ -182,6 +185,7 @@ const ViewVouchers = () => {
                 updatedData[index].examResult = updatedResult;
                 setData(updatedData);
                 setError(null);
+                setIsEditing(-1); // Set editing index to -1 to remove the edit icon
             } else {
                 console.error('Failed to update result');
             }
@@ -189,8 +193,56 @@ const ViewVouchers = () => {
             console.error('Error updating result:', error);
         }
         finally {
-            window.location.reload();  
-              }
+            window.location.reload();
+        }
+    };
+ 
+ 
+    const handleOpenUploadDialog = (index) => {
+        setUploadDialogOpen(true);
+        setSelectedExamIndex(index); // Set selectedExamIndex when opening the upload dialog
+    };
+ 
+ 
+    const handleCloseUploadDialog = () => {
+        setUploadDialogOpen(false);
+    };
+ 
+    const handleFileChange = (event) => {
+        const file = event.target.files[0];
+        setSelectedFile(file);
+    };
+ 
+    const handleUpload = async () => {
+        try {
+            const formData = new FormData();
+            formData.append('coupon', data[selectedExamIndex].voucherCode);
+            formData.append('image', selectedFile);
+ 
+            const response = await axios.post('http://localhost:8085/requests/uploadCertificate', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+ 
+            if (response.status === 200) {
+                // Assuming the response contains updated voucher data
+                const updatedData = [...data];
+                // Update the certificate information in the data array
+                updatedData[selectedExamIndex].certificateFileImage = response.data.certificateFileImage;
+                setData(updatedData);
+                setUploadDialogOpen(false);
+                setCertificateUploaded(true);
+                // Close the upload dialog
+                handleCloseUploadDialog();
+            } else {
+                console.error('Failed to upload certificate');
+                // Handle failure
+            }
+        } catch (error) {
+            console.error('Error uploading certificate:', error);
+            // Handle error
+        }
     };
  
  
@@ -203,22 +255,17 @@ const ViewVouchers = () => {
         setPage(0);
     };
  
- 
-   
- 
     return (
         <>
             <Navbar />
             <div style={{ position: 'relative' }}>
- 
                 <Button onClick={handleRequestVoucher} variant="contained" color="success" style={{ position: 'absolute', top: '20px', left: '20px', marginTop: '-30px', zIndex: 1 }}>
                     Request Voucher
- 
                 </Button>
                 <div className="container" style={{ marginTop: '30px', paddingTop: '80px' }}>
                     <Box>
                         <TableContainer component={Paper}>
-                            <Table aria-label="customized table" style={{ width: "70%", marginLeft: "2%" }}>
+                            <Table aria-label="customized table" style={{ width: "70%", marginLeft: "1%" }}>
                                 <TableHead>
                                     <StyledTableRow>
                                         <StyledTableCell style={{ minWidth: '200px' }}>Exam Name</StyledTableCell>
@@ -227,7 +274,8 @@ const ViewVouchers = () => {
                                         <StyledTableCell >Voucher Issued Date</StyledTableCell>
                                         <StyledTableCell >Voucher Expiry Date</StyledTableCell>
                                         <StyledTableCell style={{ minWidth: '150px' }}>Exam Date</StyledTableCell>
-                                        <StyledTableCell style={{ minWidth: '200px' }}>Result</StyledTableCell>
+                                        <StyledTableCell style={{ minWidth: '210px' }}>Result</StyledTableCell>
+                                        <StyledTableCell style={{ minWidth: '10px' }}>Certificate</StyledTableCell>
                                     </StyledTableRow>
                                 </TableHead>
                                 <TableBody>
@@ -262,7 +310,11 @@ const ViewVouchers = () => {
                                                             }}
                                                         >
                                                             {resultOptions.map((option, optionIndex) => (
-                                                                <MenuItem key={optionIndex} value={option}>
+                                                                <MenuItem
+                                                                    key={optionIndex}
+                                                                    value={option}
+                                                                    style={{ color: option === 'Pending due to issue' ? 'red' : 'inherit' }}
+                                                                >
                                                                     {option}
                                                                 </MenuItem>
                                                             ))}
@@ -275,15 +327,24 @@ const ViewVouchers = () => {
                                                             <IconButton onClick={() => handleSaveResult(index)}>
                                                                 <SaveIcon />
                                                             </IconButton>
- 
                                                         </>
                                                     ) : (
                                                         <IconButton onClick={() => handleEditResult(index)}>
                                                             <EditIcon />
                                                         </IconButton>
                                                     )}
+                                                </StyledTableCell>
+                                                <StyledTableCell>
+                                                    {voucher.examResult === 'Pass' ? (
+                                                        voucher.certification ? (
+                                                            <img src={voucher.certificateFileImage} alt="Certificate" style={{ width: '100px', height: 'auto' }} />
+                                                        ) : (
+                                                            <Button onClick={() => handleOpenUploadDialog(index)}>Upload</Button>
  
- 
+                                                        )
+                                                    ) : (
+                                                        <span>N/A</span>
+                                                    )}
                                                 </StyledTableCell>
                                             </StyledTableRow>
                                         ))
@@ -324,6 +385,35 @@ const ViewVouchers = () => {
                         <Button onClick={handleCancelEditDate}>Cancel</Button>
                     </DialogActions>
                 </Dialog>
+                <Dialog open={isUploadDialogOpen} onClose={handleCloseUploadDialog}>
+                    <DialogTitle>Upload Certificate</DialogTitle>
+                    <DialogContent>
+                        <input type="file" onChange={handleFileChange} />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleUpload}>Upload</Button>
+                        <Button onClick={handleCloseUploadDialog}>Cancel</Button>
+                    </DialogActions>
+                </Dialog>
+ 
+                {/* Insert Snackbar component here */}
+                <Snackbar
+                    open={certificateUploaded}
+                    autoHideDuration={6000}
+                    onClose={() => setCertificateUploaded(false)}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                    style={{ bottom: '80px' }}
+                >
+                    <MuiAlert
+                        onClose={() => setCertificateUploaded(false)}
+                        severity="success"
+                        sx={{ width: '100%', maxWidth: '100%' }}
+                        style={{ backgroundColor: 'green', color: 'white', fontSize: '20px', padding: '20px' }}
+                    >
+                        Certificate uploaded successfully
+                    </MuiAlert>
+                </Snackbar>
+ 
                 {error && (
                     <Snackbar
                         open={!!error}
@@ -341,6 +431,7 @@ const ViewVouchers = () => {
                             {error}
                         </MuiAlert>
                     </Snackbar>
+ 
                 )}
             </div>
         </>

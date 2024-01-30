@@ -11,8 +11,11 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Typography from '@mui/material/Typography';
 import Popover from '@mui/material/Popover';
 import UserProfile from "../CANDIDATE/UserProfile";
-
+import Modal from 'react-modal'; 
+import Draggable from 'react-draggable';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
+
 import {
   faCalendar,
   faBell,
@@ -214,9 +217,53 @@ function VoucherRequests() {
 
     fetchProfileImageURL();
   }, [username]);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Function to open the modal and set the selected image
+  const openModal = (imageUrl) => {
+    setSelectedImage(imageUrl);
+    setIsModalOpen(true);
+  };
+
+  // Function to close the modal
+  const closeModal = () => {
+    setSelectedImage(null);
+    setIsModalOpen(false);
+  };
   return (
     <div className="headd">
- 
+      
+      <Modal
+  isOpen={isModalOpen}
+  onRequestClose={closeModal}
+  style={{
+    overlay: {
+      backgroundColor: 'rgba(0, 0, 0, 0.5)'
+    },
+    content: {
+      border: 'none',
+      background: 'transparent',
+      marginLeft: '60%',
+      maxWidth: '35%',
+      maxHeight: '45%',
+    }
+  }}
+>
+  {/* Make the entire modal draggable */}
+  <Draggable>
+    <div className="modal-content">
+      {/* Styled close button */}
+      <button className="close-button" onClick={closeModal}>
+        <FontAwesomeIcon icon={faTimes} size="2x" />
+      </button>
+      {/* Modal content */}
+      <img src={selectedImage} alt="Selected" style={{ width: '100%', height: '100%' }} />
+    </div>
+  </Draggable>
+</Modal>
+
+
       <div className="navbar" style={{ backgroundColor: "rgb(112, 183, 184)" }}>
  
         <div className="user-info" style={{ marginLeft: "10px" }}>
@@ -397,7 +444,19 @@ function VoucherRequests() {
                   <td>{row.cloudPlatform}</td>
                   <td>{row.cloudExam}</td>
                   <td>{row.doSelectScore}</td>
-                  <td><a href="/requests">View</a></td>
+                  <td>
+              {row.doSelectScoreImage ? (
+                <img
+                  src={`http://localhost:8085/requests/getDoSelectImage/${row.id}`}
+                  alt="DoSelect Image"
+                  style={{ width: '50px', height: '50px', cursor: 'pointer' }}
+                  onClick={() => openModal(`http://localhost:8085/requests/getDoSelectImage/${row.id}`)}
+                />
+              ) : (
+                <span>No Image</span>
+              )}
+            </td>
+
                   <td>{row.voucherCode}</td>
                   <td>{row.voucherIssueLocalDate}</td>
                   <td>{row.voucherExpiryLocalDate}</td>
@@ -435,7 +494,9 @@ function VoucherRequests() {
                 </tr>
               ))}
             </tbody>
+            
           </table>
+          
           <TablePagination style={{ width: "70%", marginLeft: "2%" }}
                                 rowsPerPageOptions={[5,10, 20, 25, { label: 'All', value: requests.length }]}
                                 component="div"
