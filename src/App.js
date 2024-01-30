@@ -9,6 +9,7 @@ import RequestVoucherForm from './CANDIDATE/requestVoucher';
 import { useSelector } from 'react-redux';
 import React from 'react';
 import NotFound from './COMMON/404Page';
+import Dashboard from './ADMIN/Dashboard';
 
 function App() {
   const { isLoggedIn,roles } = useSelector((state) => state.auth.value);
@@ -26,6 +27,13 @@ function App() {
             path="/requests"
             element={
               isLoggedIn && isAdmin ? <VoucherRequests /> : <Navigate to="/" replace />
+            }
+          />
+          <Route
+            exact
+            path="/dashboard"
+            element={
+              isLoggedIn && isAdmin ? <Dashboard /> : <Navigate to="/" replace />
             }
           />
           <Route

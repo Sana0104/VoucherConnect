@@ -11,8 +11,11 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Typography from '@mui/material/Typography';
 import Popover from '@mui/material/Popover';
 import UserProfile from "../CANDIDATE/UserProfile";
-
+import Modal from 'react-modal'; 
+import Draggable from 'react-draggable';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
+
 import {
   faCalendar,
   faBell,
@@ -23,6 +26,7 @@ import {
   faCog
 } from "@fortawesome/free-solid-svg-icons";
 import { TablePagination } from "@mui/material";
+import { orange } from "@mui/material/colors";
  
 function VoucherRequests() {
   const obj = localStorage.getItem("userInfo");
@@ -213,9 +217,53 @@ function VoucherRequests() {
 
     fetchProfileImageURL();
   }, [username]);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Function to open the modal and set the selected image
+  const openModal = (imageUrl) => {
+    setSelectedImage(imageUrl);
+    setIsModalOpen(true);
+  };
+
+  // Function to close the modal
+  const closeModal = () => {
+    setSelectedImage(null);
+    setIsModalOpen(false);
+  };
   return (
     <div className="headd">
- 
+      
+      <Modal
+  isOpen={isModalOpen}
+  onRequestClose={closeModal}
+  style={{
+    overlay: {
+      backgroundColor: 'rgba(0, 0, 0, 0.5)'
+    },
+    content: {
+      border: 'none',
+      background: 'transparent',
+      marginLeft: '60%',
+      maxWidth: '35%',
+      maxHeight: '45%',
+    }
+  }}
+>
+  {/* Make the entire modal draggable */}
+  <Draggable>
+    <div className="modal-content">
+      {/* Styled close button */}
+      <button className="close-button" onClick={closeModal}>
+        <FontAwesomeIcon icon={faTimes} size="2x" />
+      </button>
+      {/* Modal content */}
+      <img src={selectedImage} alt="Selected" style={{ width: '100%', height: '100%' }} />
+    </div>
+  </Draggable>
+</Modal>
+
+
       <div className="navbar" style={{ backgroundColor: "rgb(112, 183, 184)" }}>
  
         <div className="user-info" style={{ marginLeft: "10px" }}>
@@ -226,11 +274,11 @@ function VoucherRequests() {
           </p>
         </div>
  
-        <div className="user-info">
+        <div className="user-info" style={{marginRight: "100px"}}>
           <div>
           <Button color="inherit" onClick={openProfilePopup}>
               {profileImageURL ? (
-                <img src={profileImageURL} alt="Profile" style={{ borderRadius: '50%', width: '60px', height: '60px', marginRight: '5px' }} />
+                <img src={profileImageURL} alt="Profile" style={{ borderRadius: '50%', width: '60px', height: '60px', marginRight: '5px', marginTop:"-15px" }} />
               ) : (
                 <AccountCircleIcon style={{ color: 'skyblue', fontSize: '45px', marginRight: '5px' }} />
               )}
@@ -369,12 +417,14 @@ function VoucherRequests() {
                 <th>Cloud</th>
                 <th>Exam</th>
                 <th>DoSelect Score</th>
+                <th>DoSelect Image</th>
                 <th>Voucher code</th>
                 <th>Issued Date</th>
                 <th>Expiry Date</th>
                 <th>Exam Date</th>
                 <th>Result</th>
-                <th>Actions</th>
+                <th>Deny Voucher</th>
+                <th>Assign Voucher</th>
               </tr>
             </thead>
  
@@ -394,11 +444,35 @@ function VoucherRequests() {
                   <td>{row.cloudPlatform}</td>
                   <td>{row.cloudExam}</td>
                   <td>{row.doSelectScore}</td>
+                  <td>
+              {row.doSelectScoreImage ? (
+                <img
+                  src={`http://localhost:8085/requests/getDoSelectImage/${row.id}`}
+                  alt="DoSelect Image"
+                  style={{ width: '50px', height: '50px', cursor: 'pointer' }}
+                  onClick={() => openModal(`http://localhost:8085/requests/getDoSelectImage/${row.id}`)}
+                />
+              ) : (
+                <span>No Image</span>
+              )}
+            </td>
+
                   <td>{row.voucherCode}</td>
                   <td>{row.voucherIssueLocalDate}</td>
                   <td>{row.voucherExpiryLocalDate}</td>
                   <td>{row.plannedExamDate}</td>
                   <td>{row.examResult}</td>
+                  <td><button className={row.voucherCode !== null ? 'disabled-button' : 'enabled-button'} 
+                      disabled={row.voucherCode !== null}
+                      style={{
+                        backgroundColor: row.voucherCode !== null ? "#95a5a6" : "rgb(230, 134, 134)",
+                        fontSize: "12px",
+                        height: "35px",
+                        color: "#fff",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                        border: "none"
+                      }}>Deny Request</button></td>
                   <td>
                     <button
                       className={row.voucherCode !== null ? 'disabled-button' : 'enabled-button'}
@@ -406,13 +480,12 @@ function VoucherRequests() {
                       disabled={row.voucherCode !== null}
                       style={{
                         backgroundColor: row.voucherCode !== null ? "#95a5a6" : "#3498db", // Gray for disabled, Blue for enabled
-                        fontSize: "14px",
-                        height: "40px",
+                        fontSize: "12px",
+                        height: "35px",
                         color: "#fff",
                         borderRadius: "5px",
                         cursor: "pointer",
-                        border: "none",
-                        marginLeft: "10px",
+                        border: "none"
                       }}
                     >
                       Assign Voucher
@@ -421,7 +494,9 @@ function VoucherRequests() {
                 </tr>
               ))}
             </tbody>
+            
           </table>
+          
           <TablePagination style={{ width: "70%", marginLeft: "2%" }}
                                 rowsPerPageOptions={[5,10, 20, 25, { label: 'All', value: requests.length }]}
                                 component="div"
@@ -436,9 +511,9 @@ function VoucherRequests() {
  
       </div>
  
-      <div>
-        <footer className="footer-div">
-          <p>Capgemini 2023, All rights reserved.</p>
+      <div className="footer-div" style={{ "height": "40px", "marginTop": "30px"}}>
+        <footer> 
+          <p>&copy; 2024 Capgemini. All rights reserved.</p>
         </footer>
       </div>
  
