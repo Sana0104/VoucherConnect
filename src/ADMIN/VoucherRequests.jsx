@@ -11,11 +11,11 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Typography from '@mui/material/Typography';
 import Popover from '@mui/material/Popover';
 import UserProfile from "../CANDIDATE/UserProfile";
-import Modal from 'react-modal'; 
+import Modal from 'react-modal';
 import Draggable from 'react-draggable';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faDownload } from "@fortawesome/free-solid-svg-icons"; // Import the download icon
-
+ 
 import {
   faCalendar,
   faBell,
@@ -34,12 +34,9 @@ function VoucherRequests() {
   const [requests, setRequests] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [showReminderButton, setShowReminderButton] = useState(false);
-
+ 
   const [profileImageURL, setProfileImageURL] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
-  
-  
-  
   const openProfilePopup = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -117,7 +114,7 @@ function VoucherRequests() {
       } catch (error) {
         console.error(error);
       }
-      
+     
     }else if (selectedOption === 'NotUpdated') {
       try {
        
@@ -162,12 +159,12 @@ function VoucherRequests() {
   };
  
   const [confirmationVisible, setConfirmationVisible] = useState(false); // State to manage visibility of confirmation message
-
+ 
   const handleSendReminderEmail = async () => {
     // Show confirmation dialog
     setConfirmationVisible(true);
   };
-
+ 
   const handleConfirmSendReminderEmail = async () => {
     // Proceed to send the mail
     try {
@@ -175,28 +172,28 @@ function VoucherRequests() {
       console.log(response.data);
       setShowReminderButton(false);
       setRequestsOption("default");
-
+ 
       // Show success toasty message
       toast.success('Mail sent successfully!!!');
-
+ 
       // Reload the current page
       window.location.reload();
     } catch (error) {
       console.error(error.response.data);
-
+ 
       // Show error toasty message
       toast.error('Failed to send email. Please try again.');
     }
     setConfirmationVisible(false);
   };
-
+ 
   const handleCancelSendReminderEmail = () => {
     setConfirmationVisible(false);
   };
-  
-  
-  
-
+ 
+ 
+ 
+ 
   const handleAssigneVoucherClick = (email, examName, id) => {
     navigate(`/voucher-dashboard/${email}/${examName}/${id}`);
   };
@@ -217,31 +214,31 @@ function VoucherRequests() {
         const response = await axios.get(`http://localhost:9092/user/getProfileImageURL/${username}`, {
           responseType: 'arraybuffer',
         });
-
+ 
         const blob = new Blob([response.data], { type: 'image/jpeg' });
         const reader = new FileReader();
-
+ 
         reader.onloadend = () => {
           setProfileImageURL(reader.result);
         };
-
+ 
         reader.readAsDataURL(blob);
       } catch (error) {
         console.error('Error fetching image URL:', error.message);
       }
     };
-
+ 
     fetchProfileImageURL();
   }, [username]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+ 
   // Function to open the modal and set the selected image
   const openModal = (imageUrl) => {
     setSelectedImage(imageUrl);
     setIsModalOpen(true);
   };
-
+ 
   // Function to close the modal
   const closeModal = () => {
     setSelectedImage(null);
@@ -249,6 +246,39 @@ function VoucherRequests() {
   };
   const [numPages, setNumPages] = useState(null);
 const [pageNumber, setPageNumber] = useState(1);
+const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+ 
+  const openDenyConfirmation = (request) => {
+    setSelectedRequest(request);
+    setDenyConfirmationVisible(true);
+  };
+ 
+  const closeDenyConfirmation = () => {
+    setDenyConfirmationVisible(false);
+  };
+ 
+  const handleDenyRequest = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8085/requests/denyRequest/${selectedRequest.id}`);
+      console.log(response.data);
+ 
+      // Send denial confirmation email here (similar to sending reminder email)
+ 
+      // Show success toasty message
+      toast.success('Request denied successfully!!!');
+ 
+      // Reload the current page
+      window.location.reload();
+    } catch (error) {
+      console.error(error.response.data);
+ 
+      // Show error toasty message
+      toast.error('Failed to deny request. Please try again.');
+    }
+ 
+    setDenyConfirmationVisible(false);
+  };
   return (
     <div className="headd">
         <div>
@@ -258,11 +288,21 @@ const [pageNumber, setPageNumber] = useState(1);
     <button onClick={handleConfirmSendReminderEmail}>Confirm</button>
     <button onClick={handleCancelSendReminderEmail}>Cancel</button>
   </div>
+ 
 )}
-
-      <button onClick={() => setConfirmationVisible(true)}>Send Reminder Mail</button>
+ 
+ 
+      {/* <button onClick={() => setConfirmationVisible(true)}>Send Reminder Mail</button> */}
     </div>
-      
+    <div>
+        {denyConfirmationVisible && (
+          <div className="confirmation-modal">
+            <p>Are you sure you want to deny the request?</p>
+            <button onClick={handleDenyRequest}>Confirm</button>
+            <button onClick={closeDenyConfirmation}>Cancel</button>
+          </div>
+        )}
+      </div>
       <Modal
   isOpen={isModalOpen}
   onRequestClose={closeModal}
@@ -276,11 +316,11 @@ const [pageNumber, setPageNumber] = useState(1);
       marginLeft: '40%',
       maxWidth: '100%',
       maxHeight: '45%',
-
+ 
     }
   }}
 >
-  
+ 
   {/* Make the entire modal draggable */}
   <Draggable>
     <div className="modal-content">
@@ -297,9 +337,9 @@ const [pageNumber, setPageNumber] = useState(1);
     </div>
   </Draggable>
 </Modal>
-
-
-      <div className="navbar" style={{ backgroundColor: "rgb(112, 183, 184)" }}>
+ 
+ 
+      <div className="navbar" style={{ backgroundColor: "rgb(112, 183, 184)", width:"auto" }}>
  
         <div className="user-info" style={{ marginLeft: "10px" }}>
           <p id="name">Welcome!!</p>
@@ -309,7 +349,7 @@ const [pageNumber, setPageNumber] = useState(1);
           </p>
         </div>
  
-        <div className="user-info" style={{marginRight: "100px"}}>
+        <div className="user-info" style={{alignItems: "flex-end"}}>
           <div>
           <Button color="inherit" onClick={openProfilePopup}>
               {profileImageURL ? (
@@ -461,7 +501,7 @@ const [pageNumber, setPageNumber] = useState(1);
                 <th>Deny Voucher</th>
                 <th>Assign Voucher</th>
                 <th>Certificate</th>
-
+ 
               </tr>
             </thead>
  
@@ -493,23 +533,30 @@ const [pageNumber, setPageNumber] = useState(1);
                 <span>No Image</span>
               )}
             </td>
-
+ 
                   <td>{row.voucherCode}</td>
                   <td>{row.voucherIssueLocalDate}</td>
                   <td>{row.voucherExpiryLocalDate}</td>
                   <td>{row.plannedExamDate}</td>
                   <td>{row.examResult}</td>
-                  <td><button className={row.voucherCode !== null ? 'disabled-button' : 'enabled-button'} 
-                      disabled={row.voucherCode !== null}
-                      style={{
-                        backgroundColor: row.voucherCode !== null ? "#95a5a6" : "rgb(230, 134, 134)",
-                        fontSize: "12px",
-                        height: "35px",
-                        color: "#fff",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                        border: "none"
-                      }}>Deny Request</button></td>
+                  <td>
+                <button
+                  className={row.voucherCode !== null ? 'disabled-button' : 'enabled-button'}
+                  onClick={() => openDenyConfirmation(row)}
+                  disabled={row.voucherCode !== null}
+                  style={{
+                    backgroundColor: row.voucherCode !== null ? "#95a5a6" : "rgb(230, 134, 134)",
+                    fontSize: "12px",
+                    height: "35px",
+                    color: "#fff",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                    border: "none"
+                  }}
+                >
+                  Deny Request
+                </button>
+              </td>
                   <td>
                     <button
                       className={row.voucherCode !== null ? 'disabled-button' : 'enabled-button'}
@@ -529,19 +576,19 @@ const [pageNumber, setPageNumber] = useState(1);
                     </button>
                   </td>
                  
-                  <td onClick={() => openModal(`http://localhost:8085/requests/getCertificate/${row.id}`)}>
+                  <td style={{color: "blue", textDecoration: "underline"}} onClick={() => openModal(`http://localhost:8085/requests/getCertificate/${row.id}`)}>
             {row.certificateFileImage}
           </td>
-
-
-
-                  
+ 
+ 
+ 
+                 
                 </tr>
               ))}
             </tbody>
-            
+           
           </table>
-          
+         
           <TablePagination style={{ width: "70%", marginLeft: "2%" }}
                                 rowsPerPageOptions={[5,10, 20, 25, { label: 'All', value: requests.length }]}
                                 component="div"
@@ -557,7 +604,7 @@ const [pageNumber, setPageNumber] = useState(1);
       </div>
  
       <div className="footer-div" style={{ "height": "40px", "marginTop": "30px"}}>
-        <footer> 
+        <footer>
           <p>&copy; 2024 Capgemini. All rights reserved.</p>
         </footer>
       </div>

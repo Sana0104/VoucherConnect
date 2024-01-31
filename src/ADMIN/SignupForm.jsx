@@ -75,7 +75,7 @@ function SignupForm() {
         errorMessage = 'Password must be at least 6 characters long';
       }
     } else if (field === 'userName') {
-      const nameRegex = /^[a-zA-Z]{5,}$/;
+      const nameRegex = /^[a-zA-Z ]{5,}$/;
       if (!nameRegex.test(value)) {
         errorMessage = 'Name must be at least 5 characters long and contain only alphabets.';
       }
