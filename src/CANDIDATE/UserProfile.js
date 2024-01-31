@@ -13,6 +13,7 @@ const UserProfile = ({ setProfileImageURL }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [imageURL, setImageURL] = useState(null);
     const [error, setError] = useState(null);
+    const [isLogoutConfirmationOpen, setIsLogoutConfirmationOpen] = useState(false); // New state
     const obj = localStorage.getItem("userInfo");
     const { username, name } = JSON.parse(obj);
     const navigate = useNavigate();
@@ -43,10 +44,21 @@ const UserProfile = ({ setProfileImageURL }) => {
   }, [username]);
  
     const handleLogout = () => {
+        // Open the logout confirmation dialog
+        setIsLogoutConfirmationOpen(true);
+    };
+ 
+    const confirmLogout = () => {
+        // Perform the logout action
         localStorage.removeItem('userInfo');
         localStorage.removeItem('id');
         console.log("Logged out...");
         navigate('/');
+    };
+ 
+    const cancelLogout = () => {
+        // Close the logout confirmation dialog
+        setIsLogoutConfirmationOpen(false);
     };
  
     const handleCameraIconClick = () => {
@@ -98,6 +110,21 @@ const UserProfile = ({ setProfileImageURL }) => {
             <Button variant="outlined" color="primary" onClick={handleLogout}>
                 Logout
             </Button>
+             {/* Logout Confirmation Dialog */}
+             <Dialog open={isLogoutConfirmationOpen} onClose={cancelLogout}>
+                <DialogTitle>Confirm Logout</DialogTitle>
+                <DialogContent>
+                    Are you sure you want to log out?
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={cancelLogout} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={confirmLogout} color="primary">
+                        Logout
+                    </Button>
+                </DialogActions>
+            </Dialog>
  
             {/* Modal for File Upload */}
             <Dialog open={isModalOpen} onClose={handleCloseModal}>
