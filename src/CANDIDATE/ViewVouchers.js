@@ -13,7 +13,6 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    TextField,
     IconButton,
     MenuItem,
     Select,
@@ -26,7 +25,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-import {  useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import axios from 'axios';
@@ -69,14 +68,25 @@ const ViewVouchers = () => {
  
     const [isEditing, setIsEditing] = useState(-1);
     const [error, setError] = useState(null);
+    const [isUploadDialogOpen, setUploadDialogOpen] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
+ 
+    const [certificateUploaded, setCertificateUploaded] = useState(false);
  
     useEffect(() => {
         const fetchVouchers = async () => {
             try {
- 
                 const response = await fetch(`http://localhost:8085/requests/${username}`);
                 const result = await response.json();
-                setData(result);
+ 
+                // Sort the data array by exam date
+                const sortedData = result.sort((a, b) => {
+                    const dateA = new Date(a.plannedExamDate);
+                    const dateB = new Date(b.plannedExamDate);
+                    return dateA - dateB;
+                });
+ 
+                setData(sortedData);
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -90,9 +100,11 @@ const ViewVouchers = () => {
     const handleRequestVoucher = () => {
         navigate('/requestform', { state: { username } });
     };
+    const [selectedIndexForDateEdit, setSelectedIndexForDateEdit] = useState(null);
  
     const handleEditExamDate = (index) => {
         setSelectedExamIndex(index);
+        setSelectedIndexForDateEdit(index);
         setEditDateModalOpen(true);
     };
  
@@ -173,6 +185,10 @@ const ViewVouchers = () => {
                 updatedData[index].examResult = updatedResult;
                 setData(updatedData);
                 setError(null);
+                // Reset the editing state if the result is not 'Pending due to issue'
+                if (updatedResult !== 'Pending due to issue') {
+                    setIsEditing(-1);
+                }
             } else {
                 console.error('Failed to update result');
             }
@@ -180,8 +196,63 @@ const ViewVouchers = () => {
             console.error('Error updating result:', error);
         }
         finally {
-            window.location.reload();  
-              }
+            window.location.reload();
+        }
+    };
+ 
+ 
+ 
+    const handleOpenUploadDialog = (index) => {
+        setUploadDialogOpen(true);
+        setSelectedExamIndex(index); // Set selectedExamIndex when opening the upload dialog
+    };
+ 
+ 
+    const handleCloseUploadDialog = () => {
+        setUploadDialogOpen(false);
+    };
+ 
+    const handleFileChange = (event) => {
+        const file = event.target.files[0];
+        setSelectedFile(file);
+    };
+ 
+    const handleUpload = async () => {
+        try {
+            const formData = new FormData();
+            formData.append('coupon', data[selectedExamIndex].voucherCode);
+            formData.append('image', selectedFile);
+ 
+            const response = await axios.post('http://localhost:8085/requests/uploadCertificate', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+ 
+            if (response.status === 200) {
+                // Assuming the response contains updated voucher data
+                const updatedData = [...data];
+                // Update the certificate information in the data array
+                updatedData[selectedExamIndex].certificateFileImage = response.data.certificateFileImage;
+                setData(updatedData);
+                setUploadDialogOpen(false);
+                setCertificateUploaded(true);
+                // Close the upload dialog
+                handleCloseUploadDialog();
+            } else {
+                console.error('Failed to upload certificate');
+                // Handle failure
+            }
+        } catch (error) {
+            console.error('Error uploading certificate:', error);
+            // Handle error
+        }
+    };
+ 
+    const getFileName = (filePath) => {
+        if (!filePath) return ''; // Handle cases where filePath is null or empty
+        const lastIndex = filePath.lastIndexOf('/');
+        return filePath.substring(lastIndex + 1);
     };
  
  
@@ -198,15 +269,13 @@ const ViewVouchers = () => {
         <>
             <Navbar />
             <div style={{ position: 'relative' }}>
- 
                 <Button onClick={handleRequestVoucher} variant="contained" color="success" style={{ position: 'absolute', top: '20px', left: '20px', marginTop: '-30px', zIndex: 1 }}>
                     Request Voucher
- 
                 </Button>
                 <div className="container" style={{ marginTop: '30px', paddingTop: '80px' }}>
                     <Box>
                         <TableContainer component={Paper}>
-                            <Table aria-label="customized table" style={{ width: "70%", marginLeft: "2%" }}>
+                            <Table aria-label="customized table" style={{ width: "70%", marginLeft: "1%" }}>
                                 <TableHead>
                                     <StyledTableRow>
                                         <StyledTableCell style={{ minWidth: '200px' }}>Exam Name</StyledTableCell>
@@ -215,14 +284,15 @@ const ViewVouchers = () => {
                                         <StyledTableCell >Voucher Issued Date</StyledTableCell>
                                         <StyledTableCell >Voucher Expiry Date</StyledTableCell>
                                         <StyledTableCell style={{ minWidth: '150px' }}>Exam Date</StyledTableCell>
-                                        <StyledTableCell style={{ minWidth: '200px' }}>Result</StyledTableCell>
+                                        <StyledTableCell style={{ minWidth: '210px' }}>Result</StyledTableCell>
+                                        <StyledTableCell style={{ minWidth: '200px' }}>Certificate</StyledTableCell>
                                     </StyledTableRow>
                                 </TableHead>
                                 <TableBody>
                                     {loading ? (
                                         <StyledTableRow>
                                             <TableCell colSpan={7} className="table-cell">
-                                                Loading Data.......
+                                                Loading...
                                             </TableCell>
                                         </StyledTableRow>
                                     ) : (
@@ -230,9 +300,9 @@ const ViewVouchers = () => {
                                             <StyledTableRow key={index}>
                                                 <StyledTableCell >{voucher.cloudExam}</StyledTableCell>
                                                 <StyledTableCell >{voucher.cloudPlatform}</StyledTableCell>
-                                                <StyledTableCell>{voucher.voucherCode ?? 'Pending'}</StyledTableCell>
-                                                <StyledTableCell >{voucher.voucherIssueLocalDate ? voucher.voucherIssueLocalDate : 'Pending'}</StyledTableCell>
-                                                <StyledTableCell >{voucher.voucherExpiryLocalDate ? voucher.voucherExpiryLocalDate : 'Pending'}</StyledTableCell>
+                                                <StyledTableCell>{voucher.voucherCode ?? 'Requested'}</StyledTableCell>
+                                                <StyledTableCell >{voucher.voucherIssueLocalDate ? voucher.voucherIssueLocalDate : 'Requested'}</StyledTableCell>
+                                                <StyledTableCell >{voucher.voucherExpiryLocalDate ? voucher.voucherExpiryLocalDate : 'Requested'}</StyledTableCell>
                                                 <StyledTableCell >
                                                     {voucher.plannedExamDate}
                                                     <IconButton onClick={() => handleEditExamDate(index)}>
@@ -250,7 +320,11 @@ const ViewVouchers = () => {
                                                             }}
                                                         >
                                                             {resultOptions.map((option, optionIndex) => (
-                                                                <MenuItem key={optionIndex} value={option}>
+                                                                <MenuItem
+                                                                    key={optionIndex}
+                                                                    value={option}
+                                                                    style={{ color: option === 'Pending' ? 'red' : 'inherit' }}
+                                                                >
                                                                     {option}
                                                                 </MenuItem>
                                                             ))}
@@ -258,21 +332,44 @@ const ViewVouchers = () => {
                                                     ) : (
                                                         voucher.examResult
                                                     )}
-                                                    {isEditing === index ? (
-                                                        <>
-                                                            <IconButton onClick={() => handleSaveResult(index)}>
-                                                                <SaveIcon />
-                                                            </IconButton>
- 
-                                                        </>
-                                                    ) : (
+                                                    {(voucher.examResult === 'Pending' && editIndex !== index) && (
                                                         <IconButton onClick={() => handleEditResult(index)}>
                                                             <EditIcon />
                                                         </IconButton>
                                                     )}
- 
- 
+                                                    {(voucher.examResult !== 'Pending' && isEditing === index) && (
+                                                        <IconButton onClick={() => handleSaveResult(index)}>
+                                                            <SaveIcon />
+                                                        </IconButton>
+                                                    )}
                                                 </StyledTableCell>
+ 
+ 
+                                                <StyledTableCell>
+                                                    {voucher.examResult === 'Pass' ? (
+                                                        voucher.certification ? (
+                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                                <img src={voucher.certificateFileImage} alt="Certificate" style={{ width: '100px', height: 'auto' }} />
+                                                                <div style={{ marginLeft: '10px' }}>{getFileName(voucher.certificateFileImage)}</div>
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                <Button onClick={() => handleOpenUploadDialog(index)}>Upload</Button>
+                                                                {selectedExamIndex === index && selectedFile && (
+                                                                    <div style={{ marginLeft: '10px' }}>{selectedFile.name}</div>
+                                                                )}
+                                                            </>
+                                                        )
+                                                    ) : (
+                                                        <span>N/A</span>
+                                                    )}
+                                                </StyledTableCell>
+ 
+ 
+ 
+ 
+ 
+ 
                                             </StyledTableRow>
                                         ))
                                     )}
@@ -300,6 +397,11 @@ const ViewVouchers = () => {
                             dateFormat="yyyy-MM-dd"
                             utcOffset={0}
                             minDate={new Date()}
+                            maxDate={
+                                data[selectedIndexForDateEdit]?.voucherExpiryLocalDate
+                                    ? new Date(data[selectedIndexForDateEdit].voucherExpiryLocalDate)
+                                    : null
+                            }
                         />
                     </DialogContent>
                     <DialogActions>
@@ -307,6 +409,35 @@ const ViewVouchers = () => {
                         <Button onClick={handleCancelEditDate}>Cancel</Button>
                     </DialogActions>
                 </Dialog>
+                <Dialog open={isUploadDialogOpen} onClose={handleCloseUploadDialog}>
+                    <DialogTitle>Upload Certificate</DialogTitle>
+                    <DialogContent>
+                        <input type="file" onChange={handleFileChange} />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleUpload}>Upload</Button>
+                        <Button onClick={handleCloseUploadDialog}>Cancel</Button>
+                    </DialogActions>
+                </Dialog>
+ 
+                {/* Insert Snackbar component here */}
+                <Snackbar
+                    open={certificateUploaded}
+                    autoHideDuration={6000}
+                    onClose={() => setCertificateUploaded(false)}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                    style={{ bottom: '80px' }}
+                >
+                    <MuiAlert
+                        onClose={() => setCertificateUploaded(false)}
+                        severity="success"
+                        sx={{ width: '100%', maxWidth: '100%' }}
+                        style={{ backgroundColor: 'green', color: 'white', fontSize: '20px', padding: '20px' }}
+                    >
+                        Certificate uploaded successfully
+                    </MuiAlert>
+                </Snackbar>
+ 
                 {error && (
                     <Snackbar
                         open={!!error}
@@ -324,6 +455,7 @@ const ViewVouchers = () => {
                             {error}
                         </MuiAlert>
                     </Snackbar>
+ 
                 )}
             </div>
         </>
