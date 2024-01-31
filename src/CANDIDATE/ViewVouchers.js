@@ -185,7 +185,10 @@ const ViewVouchers = () => {
                 updatedData[index].examResult = updatedResult;
                 setData(updatedData);
                 setError(null);
-                setIsEditing(-1); // Set editing index to -1 to remove the edit icon
+                // Reset the editing state if the result is not 'Pending due to issue'
+                if (updatedResult !== 'Pending due to issue') {
+                    setIsEditing(-1);
+                }
             } else {
                 console.error('Failed to update result');
             }
@@ -196,6 +199,7 @@ const ViewVouchers = () => {
             window.location.reload();
         }
     };
+ 
  
  
     const handleOpenUploadDialog = (index) => {
@@ -245,6 +249,12 @@ const ViewVouchers = () => {
         }
     };
  
+    const getFileName = (filePath) => {
+        if (!filePath) return ''; // Handle cases where filePath is null or empty
+        const lastIndex = filePath.lastIndexOf('/');
+        return filePath.substring(lastIndex + 1);
+    };
+ 
  
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -275,7 +285,7 @@ const ViewVouchers = () => {
                                         <StyledTableCell >Voucher Expiry Date</StyledTableCell>
                                         <StyledTableCell style={{ minWidth: '150px' }}>Exam Date</StyledTableCell>
                                         <StyledTableCell style={{ minWidth: '210px' }}>Result</StyledTableCell>
-                                        <StyledTableCell style={{ minWidth: '10px' }}>Certificate</StyledTableCell>
+                                        <StyledTableCell style={{ minWidth: '200px' }}>Certificate</StyledTableCell>
                                     </StyledTableRow>
                                 </TableHead>
                                 <TableBody>
@@ -313,7 +323,7 @@ const ViewVouchers = () => {
                                                                 <MenuItem
                                                                     key={optionIndex}
                                                                     value={option}
-                                                                    style={{ color: option === 'Pending due to issue' ? 'red' : 'inherit' }}
+                                                                    style={{ color: option === 'Pending' ? 'red' : 'inherit' }}
                                                                 >
                                                                     {option}
                                                                 </MenuItem>
@@ -322,30 +332,44 @@ const ViewVouchers = () => {
                                                     ) : (
                                                         voucher.examResult
                                                     )}
-                                                    {isEditing === index ? (
-                                                        <>
-                                                            <IconButton onClick={() => handleSaveResult(index)}>
-                                                                <SaveIcon />
-                                                            </IconButton>
-                                                        </>
-                                                    ) : (
+                                                    {(voucher.examResult === 'Pending' && editIndex !== index) && (
                                                         <IconButton onClick={() => handleEditResult(index)}>
                                                             <EditIcon />
                                                         </IconButton>
                                                     )}
+                                                    {(voucher.examResult !== 'Pending' && isEditing === index) && (
+                                                        <IconButton onClick={() => handleSaveResult(index)}>
+                                                            <SaveIcon />
+                                                        </IconButton>
+                                                    )}
                                                 </StyledTableCell>
+ 
+ 
                                                 <StyledTableCell>
                                                     {voucher.examResult === 'Pass' ? (
                                                         voucher.certification ? (
-                                                            <img src={voucher.certificateFileImage} alt="Certificate" style={{ width: '100px', height: 'auto' }} />
+                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                                <img src={voucher.certificateFileImage} alt="Certificate" style={{ width: '100px', height: 'auto' }} />
+                                                                <div style={{ marginLeft: '10px' }}>{getFileName(voucher.certificateFileImage)}</div>
+                                                            </div>
                                                         ) : (
-                                                            <Button onClick={() => handleOpenUploadDialog(index)}>Upload</Button>
- 
+                                                            <>
+                                                                <Button onClick={() => handleOpenUploadDialog(index)}>Upload</Button>
+                                                                {selectedExamIndex === index && selectedFile && (
+                                                                    <div style={{ marginLeft: '10px' }}>{selectedFile.name}</div>
+                                                                )}
+                                                            </>
                                                         )
                                                     ) : (
                                                         <span>N/A</span>
                                                     )}
                                                 </StyledTableCell>
+ 
+ 
+ 
+ 
+ 
+ 
                                             </StyledTableRow>
                                         ))
                                     )}

@@ -222,15 +222,10 @@ const RequestVoucherForm = () => {
             }
           });
       } else {
-        setFormData({
-          candidateName: '',
-          cloudPlatform: '',
-          cloudExam: '',
-          doSelectScore: '',
-          plannedExamDate: '',
+        setFormErrors({
+          ...formErrors,
+          doSelectScore: 'Since your score is less than 80, you are not eligible for the exam',
         });
-        document.getElementById('fileInput').value = '';
-        setOpenDialog(true);
       }
     }
   };

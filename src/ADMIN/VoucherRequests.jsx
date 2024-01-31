@@ -14,7 +14,7 @@ import UserProfile from "../CANDIDATE/UserProfile";
 import Modal from 'react-modal'; 
 import Draggable from 'react-draggable';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faTimes, faDownload } from "@fortawesome/free-solid-svg-icons"; // Import the download icon
 
 import {
   faCalendar,
@@ -27,7 +27,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { TablePagination } from "@mui/material";
 import { orange } from "@mui/material/colors";
- 
+Modal.setAppElement("#root");
 function VoucherRequests() {
   const obj = localStorage.getItem("userInfo");
   const { name, username } = JSON.parse(obj);
@@ -36,8 +36,10 @@ function VoucherRequests() {
   const [showReminderButton, setShowReminderButton] = useState(false);
 
   const [profileImageURL, setProfileImageURL] = useState(null);
- 
-
+  const [isOpen, setIsOpen] = useState(false);
+  
+  
+  
   const openProfilePopup = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -159,25 +161,39 @@ function VoucherRequests() {
     }
   };
  
+  const [confirmationVisible, setConfirmationVisible] = useState(false); // State to manage visibility of confirmation message
+
   const handleSendReminderEmail = async () => {
+    // Show confirmation dialog
+    setConfirmationVisible(true);
+  };
+
+  const handleConfirmSendReminderEmail = async () => {
+    // Proceed to send the mail
     try {
       const response = await axios.get(`http://localhost:8085/requests/sendPendingEmails`);
       console.log(response.data);
       setShowReminderButton(false);
       setRequestsOption("default");
-  
+
       // Show success toasty message
       toast.success('Mail sent successfully!!!');
-      
+
       // Reload the current page
       window.location.reload();
     } catch (error) {
       console.error(error.response.data);
-  
+
       // Show error toasty message
       toast.error('Failed to send email. Please try again.');
     }
+    setConfirmationVisible(false);
   };
+
+  const handleCancelSendReminderEmail = () => {
+    setConfirmationVisible(false);
+  };
+  
   
   
 
@@ -231,8 +247,21 @@ function VoucherRequests() {
     setSelectedImage(null);
     setIsModalOpen(false);
   };
+  const [numPages, setNumPages] = useState(null);
+const [pageNumber, setPageNumber] = useState(1);
   return (
     <div className="headd">
+        <div>
+        {confirmationVisible && (
+  <div className="confirmation-modal">
+    <p>Are you sure you want to send the mail?</p>
+    <button onClick={handleConfirmSendReminderEmail}>Confirm</button>
+    <button onClick={handleCancelSendReminderEmail}>Cancel</button>
+  </div>
+)}
+
+      <button onClick={() => setConfirmationVisible(true)}>Send Reminder Mail</button>
+    </div>
       
       <Modal
   isOpen={isModalOpen}
@@ -244,12 +273,14 @@ function VoucherRequests() {
     content: {
       border: 'none',
       background: 'transparent',
-      marginLeft: '60%',
-      maxWidth: '35%',
+      marginLeft: '40%',
+      maxWidth: '100%',
       maxHeight: '45%',
+
     }
   }}
 >
+  
   {/* Make the entire modal draggable */}
   <Draggable>
     <div className="modal-content">
@@ -259,6 +290,10 @@ function VoucherRequests() {
       </button>
       {/* Modal content */}
       <img src={selectedImage} alt="Selected" style={{ width: '100%', height: '100%' }} />
+      {/* Download button */}
+      <a  className="download-ref" href={selectedImage} download>
+        <FontAwesomeIcon icon={faDownload} size="2x" />
+      </a>
     </div>
   </Draggable>
 </Modal>
@@ -425,6 +460,8 @@ function VoucherRequests() {
                 <th>Result</th>
                 <th>Deny Voucher</th>
                 <th>Assign Voucher</th>
+                <th>Certificate</th>
+
               </tr>
             </thead>
  
@@ -491,6 +528,14 @@ function VoucherRequests() {
                       Assign Voucher
                     </button>
                   </td>
+                 
+                  <td onClick={() => openModal(`http://localhost:8085/requests/getCertificate/${row.id}`)}>
+            {row.certificateFileImage}
+          </td>
+
+
+
+                  
                 </tr>
               ))}
             </tbody>
