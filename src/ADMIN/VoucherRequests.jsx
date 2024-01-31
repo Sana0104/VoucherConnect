@@ -37,9 +37,6 @@ function VoucherRequests() {
 
   const [profileImageURL, setProfileImageURL] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
-  
-  
-  
   const openProfilePopup = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -249,6 +246,39 @@ function VoucherRequests() {
   };
   const [numPages, setNumPages] = useState(null);
 const [pageNumber, setPageNumber] = useState(1);
+const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+
+  const openDenyConfirmation = (request) => {
+    setSelectedRequest(request);
+    setDenyConfirmationVisible(true);
+  };
+
+  const closeDenyConfirmation = () => {
+    setDenyConfirmationVisible(false);
+  };
+
+  const handleDenyRequest = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8085/requests/denyRequest/${selectedRequest.id}`);
+      console.log(response.data);
+
+      // Send denial confirmation email here (similar to sending reminder email)
+
+      // Show success toasty message
+      toast.success('Request denied successfully!!!');
+
+      // Reload the current page
+      window.location.reload();
+    } catch (error) {
+      console.error(error.response.data);
+
+      // Show error toasty message
+      toast.error('Failed to deny request. Please try again.');
+    }
+
+    setDenyConfirmationVisible(false);
+  };
   return (
     <div className="headd">
         <div>
@@ -258,11 +288,21 @@ const [pageNumber, setPageNumber] = useState(1);
     <button onClick={handleConfirmSendReminderEmail}>Confirm</button>
     <button onClick={handleCancelSendReminderEmail}>Cancel</button>
   </div>
+
 )}
 
-      <button onClick={() => setConfirmationVisible(true)}>Send Reminder Mail</button>
+
+      {/* <button onClick={() => setConfirmationVisible(true)}>Send Reminder Mail</button> */}
     </div>
-      
+    <div>
+        {denyConfirmationVisible && (
+          <div className="confirmation-modal">
+            <p>Are you sure you want to deny the request?</p>
+            <button onClick={handleDenyRequest}>Confirm</button>
+            <button onClick={closeDenyConfirmation}>Cancel</button>
+          </div>
+        )}
+      </div>
       <Modal
   isOpen={isModalOpen}
   onRequestClose={closeModal}
@@ -499,17 +539,24 @@ const [pageNumber, setPageNumber] = useState(1);
                   <td>{row.voucherExpiryLocalDate}</td>
                   <td>{row.plannedExamDate}</td>
                   <td>{row.examResult}</td>
-                  <td><button className={row.voucherCode !== null ? 'disabled-button' : 'enabled-button'} 
-                      disabled={row.voucherCode !== null}
-                      style={{
-                        backgroundColor: row.voucherCode !== null ? "#95a5a6" : "rgb(230, 134, 134)",
-                        fontSize: "12px",
-                        height: "35px",
-                        color: "#fff",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                        border: "none"
-                      }}>Deny Request</button></td>
+                  <td>
+                <button
+                  className={row.voucherCode !== null ? 'disabled-button' : 'enabled-button'}
+                  onClick={() => openDenyConfirmation(row)}
+                  disabled={row.voucherCode !== null}
+                  style={{
+                    backgroundColor: row.voucherCode !== null ? "#95a5a6" : "rgb(230, 134, 134)",
+                    fontSize: "12px",
+                    height: "35px",
+                    color: "#fff",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                    border: "none"
+                  }}
+                >
+                  Deny Request
+                </button>
+              </td>
                   <td>
                     <button
                       className={row.voucherCode !== null ? 'disabled-button' : 'enabled-button'}
