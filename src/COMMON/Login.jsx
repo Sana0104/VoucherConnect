@@ -85,7 +85,7 @@ function Login() {
       }
     } catch (error) {
       setFormErrors({ ...formErrors, password: 'Incorrect password. Please try again.', usermail: formErrors.usermail });
-      console.error('Login error:', error);
+      console.error('Login error:', error.response.data.message);
     }
   };
 

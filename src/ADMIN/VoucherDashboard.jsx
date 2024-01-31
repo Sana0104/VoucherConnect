@@ -457,7 +457,7 @@ function VoucherDashboard() {
   </Box>
 </Modal>
         <div className="table-div">
-          <table className="dashboard-table">
+          <table className="dashboard-table" style={{width: "100%"}}>
           <thead>
   <tr>
     <th>Cloud</th>

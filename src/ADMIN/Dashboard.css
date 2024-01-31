@@ -56,9 +56,7 @@ p {
 
 .navbar {
   position: fixed;
-  margin-top: 5px;
-  margin-bottom: 1px;
-  margin-left: 180px;
+  margin-left: 175px;
   display: flex;
   flex-direction: row;
   width: 93%;
@@ -66,6 +64,9 @@ p {
   font-weight: bold;
   color: black;
   height: 75px;
+  background-color: #fff; /* Set the background color for the navbar */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+  /* z-index: 1000; Ensure the navbar appears above other elements */
 }
 
 #name {
@@ -151,13 +152,13 @@ button {
 .wrap{
   background-color: white;
   position: relative;
-  min-height: 70vh;
-  margin-left: 180px;
+  min-height: 73vh;
+  margin-left: 175px;
   margin-right: 0px;
   margin-top: 5px;
   border-radius: 1px;
-  width: 93%; 
-  
+  width: 100%;
+  overflow-x: auto; /* Enable horizontal scrolling if content overflows */
 }
 
 .dashboard-container {
@@ -243,7 +244,7 @@ button {
 }
 
 .dashboard-table {
-  width: 100%;
+  width: 105%;
   border-collapse: collapse;
   margin-top: 10px;
 }
@@ -262,33 +263,43 @@ button {
   color: white;
 }
 
-.dashboard-table td:nth-child(1) {
-  width: 7%; /* Adjust the width for the first column (Name) */
+ /* adjust width of table  */
+.dashboard-table td:nth-child(1),
+.dashboard-table td:nth-child(12) {
+  width: 9%; /* Adjust the width for the first column (Name), Certificate */
 }
 
 .dashboard-table td:nth-child(2) {
-  width: 14%; /* Adjust the width for the second column (Email) */
+  width: 20%; /* Adjust the width for the second column (Email) */
 }
 
 .dashboard-table td:nth-child(3),
 .dashboard-table td:nth-child(5),
 .dashboard-table td:nth-child(6),
-.dashboard-table td:nth-child(7),
-.dashboard-table td:nth-child(8) {
-  width: 5%; /* Adjust the width for Cloud, DoSelect Score, DoSelect Image, Deny Voucher, Voucher code */
+.dashboard-table td:nth-child(7) {
+  width: 6%; /* Adjust the width for Cloud, DoSelect Score, DoSelect Image, Voucher code */
 }
 
 .dashboard-table td:nth-child(4) {
-  width: 17%; /* Adjust the width for the fourth column (Exam) */
+  width: 15%; /* Adjust the width for the fourth column (Exam) */
 }
 
+.dashboard-table td:nth-child(8),
 .dashboard-table td:nth-child(9),
 .dashboard-table td:nth-child(10),
-.dashboard-table td:nth-child(11),
-.dashboard-table td:nth-child(12) {
-  width: 12%; /* Adjust the width for Issued Date, Expiry Date, Exam Date, Result */
+.dashboard-table td:nth-child(13),
+.dashboard-table td:nth-child(14) {
+  width: 10%; /* Adjust the width for Issued Date, Expiry Date, Exam Date, Deny Voucher, Assign Voucher */
 }
 
+.dashboard-table td:nth-child(13) button,
+.dashboard-table td:nth-child(14) button {
+  width: 100%; /* Ensure buttons have the same width */
+}
+
+.dashboard-table td:nth-child(11) {
+  width: 9%; /* Adjust the width for Result, Certificate */
+}
 
 
 /* Add more styles for other columns */
