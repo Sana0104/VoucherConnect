@@ -345,3 +345,48 @@ button {
 .close-button:hover {
   color: red; /* Change color on hover */
 }
+
+.download-ref {
+  position: absolute;
+  top: 8px;
+  left: 500px;
+  border: none;
+  cursor: pointer;
+}
+.confirmation-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 9999; /* Ensure modal is above other content */
+}
+
+.confirmation-modal p {
+  margin-bottom: 10px;
+}
+
+.confirmation-modal button {
+  margin-right: 10px;
+  padding: 8px 16px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.confirmation-modal button:hover {
+  background-color: #2980b9;
+}
+
+.confirmation-modal button:last-child {
+  background-color: #e74c3c;
+}
+
+.confirmation-modal button:last-child:hover {
+  background-color: #c0392b;
+}

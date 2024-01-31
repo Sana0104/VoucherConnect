@@ -458,63 +458,69 @@ function VoucherDashboard() {
 </Modal>
         <div className="table-div">
           <table className="dashboard-table">
-            <thead>
-              <tr>
-                <th>Cloud</th>
-                <th>Exam</th>
-                <th>Voucher Code</th>
-                <th>Issue Date</th>
-                <th>Expiry Date</th>
-                <th>Issued To</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
+          <thead>
+  <tr>
+    <th>Cloud</th>
+    <th>Exam</th>
+    <th>Voucher Code</th>
+    <th>Issue Date</th>
+    <th>Expiry Date</th>
+    <th>Issued To</th>
+    {/* Conditionally render the Actions header based on the selected filter */}
+    {searchOption !== 'Available' ? <th>Actions</th> : null}
+  </tr>
+</thead>
 
-            <tbody>
-            {vouchers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
-                <tr key={index}>
-                  <td>{row.cloudPlatform}</td>
-                  <td>{row.examName}</td>
-                  <td>{row.voucherCode}</td>
-                  <td>{row.issuedDate}</td>
-                  <td>{row.expiryDate}</td>
-                  <td>{row.issuedTo}</td>
-                  <td>
-  {(searchOption === 'Available' || searchOption === 'default') ? (
-    <button
-      style={{
-        backgroundColor: "#e3c449",
-        fontSize: "12px",
-        height: "35px",
-        color: "white",
-        borderRadius: "5px",
-        cursor: "pointer",
-        border: "none",
-      }}
-      onClick={() => handleActionButtonClick(row.id, false)}
-    >
-      Assign
-    </button>
-  ) : (
-    <button
-      style={{
-        backgroundColor: "#e74c3c",
-        fontSize: "12px",
-        height: "35px",
-        color: "white",
-        borderRadius: "5px",
-        cursor: "pointer",
-        border: "none",
-      }}
-      onClick={() => handleActionButtonClick(row.id, true)}
-    >
-      Delete
-    </button>
-  )}
-</td>
-                </tr>
-              ))}
-            </tbody>
+
+<tbody>
+  {vouchers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+    <tr key={index}>
+      <td>{row.cloudPlatform}</td>
+      <td>{row.examName}</td>
+      <td>{row.voucherCode}</td>
+      <td>{row.issuedDate}</td>
+      <td>{row.expiryDate}</td>
+      <td>{row.issuedTo}</td>
+      {/* Conditionally render the Actions column based on the selected filter */}
+      {searchOption !== 'Available' && (
+        <td>
+          {(searchOption === 'Available' || searchOption === 'default') ? (
+            <button
+              style={{
+                backgroundColor: "#e3c449",
+                fontSize: "12px",
+                height: "35px",
+                color: "white",
+                borderRadius: "5px",
+                cursor: "pointer",
+                border: "none",
+              }}
+              onClick={() => handleActionButtonClick(row.id, false)}
+            >
+              Assign
+            </button>
+          ) : (
+            <button
+              style={{
+                backgroundColor: "#e74c3c",
+                fontSize: "12px",
+                height: "35px",
+                color: "white",
+                borderRadius: "5px",
+                cursor: "pointer",
+                border: "none",
+              }}
+              onClick={() => handleActionButtonClick(row.id, true)}
+            >
+              Delete
+            </button>
+          )}
+        </td>
+      )}
+    </tr>
+  ))}
+</tbody>
+
           </table>
           <TablePagination style={{ width: "70%", marginLeft: "2%" }}
                                 rowsPerPageOptions={[5,10,20,25, { label: 'All', value: vouchers.length }]}

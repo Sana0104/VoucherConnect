@@ -59,7 +59,7 @@ function Login() {
       password: formData.password,
     };
 
-    var url = 'http://localhost:9092/app/login';
+    var url = 'http://localhost:9092/user/login';
 
     try {
       const response = await axios.post(url, payload);
