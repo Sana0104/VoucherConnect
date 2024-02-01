@@ -183,9 +183,16 @@ function SignupForm() {
   className='input-container'
 />
 <FontAwesomeIcon
-  icon={showPassword ? faEyeSlash : faEye}
+  icon={showPassword ? faEye : faEyeSlash}
   onClick={toggleShowPassword}
-  className='password-icon'
+  style={{ 
+    position: 'absolute', 
+    right: '10px', 
+    bottom: '50%', 
+    transform: 'translateY(-50%)',
+    cursor: 'pointer',
+    marginRight:'15px'
+  }}
 />
 
 
@@ -203,9 +210,17 @@ function SignupForm() {
   className='input-container'
 />
 <FontAwesomeIcon
-  icon={showPassword ? faEyeSlash : faEye}
+
+  icon={showPassword ? faEye : faEyeSlash}
   onClick={toggleShowPassword}
-  className='reenter-password-icon'
+  style={{ 
+    position: 'absolute', 
+    right: '10px', 
+    bottom: '50%', 
+    transform: 'translateY(-50%)',
+    cursor: 'pointer',
+    marginRight:'15px'
+  }}
 />
 
                       {formErrors.reenterPassword && <span className='text-danger'>{formErrors.reenterPassword}</span>}

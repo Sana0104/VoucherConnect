@@ -3,12 +3,18 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { login, logout } from '../features/auth';
 import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { username } = useSelector((state) => state.auth.value);
+  const [showPassword, setShowPassword] = useState(false);
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
   const [formData, setFormData] = useState({
     usermail: '',
     password: '',
@@ -22,36 +28,36 @@ function Login() {
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData({ ...formData, [id]: value });
-    validateField(id, value);
+    if (id === 'usermail') {
+      validateEmail(value);
+    } else if (id === 'password') {
+      validatePassword(value);
+    }
   };
 
-  const validateField = (field, value) => {
+  const validateEmail = (value) => {
     let errorMessage = '';
+    if (!value) {
+      errorMessage = 'Email is required';
+    } else if (!value.match(/^[a-zA-Z0-9._%+-]+@capgemini\.com$/)) {
+      errorMessage = 'Invalid email address. Must contain @ and .com';
+    }
+    setFormErrors({ ...formErrors, usermail: errorMessage });
+  };
 
-    if (field === 'usermail') {
-      if (!value) {
-        errorMessage = 'Email is required';
-      } else if (!value.match(/^[a-zA-Z0-9._%+-]+@capgemini\.com$/)) {
-        errorMessage = 'Invalid email address. Must contain @ and .com';
-      }
-      setFormErrors({ ...formErrors, usermail: errorMessage, password: formErrors.password });
-    } else if (field === 'password') {
-      if (!value) {
-        
-        errorMessage = 'Password is required';
-      }else if (value.length < 6) {
-        errorMessage = 'Password must be at least 6 characters long';
+  const validatePassword = (value) => {
+    let errorMessage = '';
+    if (!value) {
+      errorMessage = 'Password is required';
+    } else if (value.length < 6) {
+      errorMessage = 'Password must be at least 6 characters long';
     }
-      setFormErrors({ ...formErrors, password: errorMessage, usermail: formErrors.usermail });
-    }
+    setFormErrors({ ...formErrors, password: errorMessage });
   };
 
   const handleLogin = async () => {
-    for (const field in formErrors) {
-      if (formErrors[field]) {
-        setFormErrors({ ...formErrors, [field]: formErrors[field] });
-        return;
-      }
+    if (formErrors.usermail) {
+      return; // If email validation fails, do not attempt login
     }
 
     var payload = {
@@ -63,28 +69,24 @@ function Login() {
 
     try {
       const response = await axios.post(url, payload);
-    
       const res = response.data;
-     
-      localStorage.setItem("id", res.username);
-      localStorage.setItem("userInfo", JSON.stringify(res));
-      console.log("Response data:", res);
-      const role = res.roles[0];
-      console.log("Role: ", role);
+
+      localStorage.setItem('id', res.username);
+      localStorage.setItem('userInfo', JSON.stringify(res));
 
       dispatch(login(res));
 
       if (res.roles[0] === 'ROLE_CANDIDATE') {
         setTimeout(() => {
-          navigate('/candidatedashboard'); 
+          navigate('/candidatedashboard');
         }, 1000);
       } else if (res.roles[0] === 'ROLE_ADMIN') {
         setTimeout(() => {
-          navigate('/requests'); 
+          navigate('/requests');
         }, 1000);
       }
     } catch (error) {
-      setFormErrors({ ...formErrors, password: 'Incorrect password. Please try again.', usermail: formErrors.usermail });
+      setFormErrors({ ...formErrors, password: 'Please Give Correct Email and Password.' });
       console.error('Login error:', error.response.data.message);
     }
   };
@@ -127,25 +129,39 @@ function Login() {
           )}
         </div>
 
-        <div style={{ marginBottom: '20px' }}>
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            style={{ 
-              width: '90%', 
-              padding: '8px', 
-              boxSizing: 'border-box', 
-              borderRadius: '4px', 
-              border: '1px solid #ccc', 
-              marginBottom: '5px',
-            }}
-          />
-          {formErrors.password && (
-            <div style={{ color: 'red', marginTop: '5px' }}>{formErrors.password}</div>
-          )}
+        <div>
+      <label htmlFor="password">Password:</label>
+      <div style={{ position: 'relative' }}>
+        <input
+          type={showPassword ? 'text' : 'password'}
+          id="password"
+          value={formData.password}
+          onChange={handleInputChange}
+          style={{ 
+            width: '90%', 
+            padding: '8px', 
+            boxSizing: 'border-box', 
+            borderRadius: '4px', 
+            border: '1px solid #ccc', 
+            marginBottom: '5px',
+          }}
+        />
+        <FontAwesomeIcon
+          icon={showPassword ? faEye : faEyeSlash}
+          onClick={togglePasswordVisibility}
+          style={{ 
+            position: 'absolute', 
+            right: '10px', 
+            top: '50%', 
+            transform: 'translateY(-50%)',
+            cursor: 'pointer',
+            marginRight:'15px'
+          }}
+        />
+      </div>
+      {formErrors.password && (
+        <div style={{ color: 'red', marginTop: '5px' }}>{formErrors.password}</div>
+      )}
         </div>
 
         <button onClick={handleLogin} style={{ 

@@ -14,8 +14,9 @@ import UserProfile from "../CANDIDATE/UserProfile";
 import Modal from 'react-modal';
 import Draggable from 'react-draggable';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes, faDownload } from "@fortawesome/free-solid-svg-icons"; // Import the download icon
- 
+import { faTimes } from "@fortawesome/free-solid-svg-icons"; // Import the download icon
+import { faDownload } from '@fortawesome/free-solid-svg-icons';
+
 import {
   faCalendar,
   faBell,
@@ -90,7 +91,7 @@ function VoucherRequests() {
       } catch (error) {
         console.error(error);
       }
-    } else if (selectedOption === 'Pending') {
+    } else if (selectedOption === 'Not Assigned') {
       try {
         const response = await axios.get('http://localhost:8085/requests/allUnAssignedVoucher');
         setRequests(response.data);
@@ -323,19 +324,20 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
  
   {/* Make the entire modal draggable */}
   <Draggable>
-    <div className="modal-content">
-      {/* Styled close button */}
-      <button className="close-button" onClick={closeModal}>
-        <FontAwesomeIcon icon={faTimes} size="2x" />
-      </button>
-      {/* Modal content */}
-      <img src={selectedImage} alt="Selected" style={{ width: '100%', height: '100%' }} />
-      {/* Download button */}
-      <a  className="download-ref" href={selectedImage} download>
-        <FontAwesomeIcon icon={faDownload} size="2x" />
-      </a>
-    </div>
-  </Draggable>
+  <div className="modal-content">
+    {/* Styled close button */}
+    <button className="close-button" onClick={closeModal}>
+      <FontAwesomeIcon icon={faTimes} size="2x" />
+    </button>
+    {/* Modal content */}
+    <img src={selectedImage} alt="Selected" style={{ width: '100%', height: '100%' }} />
+    {/* Download button */}
+    <a className="download-ref" href={selectedImage} download>
+      {/* Unique download icon */}
+      <FontAwesomeIcon icon={faDownload} size="2x" style={{ color: 'blue' }} />
+    </a>
+  </div>
+</Draggable>
 </Modal>
  
  
@@ -446,8 +448,8 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
     <option value="Assigned" >
       Assigned Requests
     </option>
-    <option value="Pending" >
-      Pending Requests
+    <option value="Not Assigned" >
+      Not Assigned Requests
     </option>
     <option value="Completed" >
       Completed Exam
@@ -498,9 +500,10 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
                 <th>Expiry Date</th>
                 <th>Exam Date</th>
                 <th>Result</th>
+                <th>Certificate</th>
                 <th>Deny Voucher</th>
                 <th>Assign Voucher</th>
-                <th>Certificate</th>
+               
  
               </tr>
             </thead>
@@ -539,6 +542,10 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
                   <td>{row.voucherExpiryLocalDate}</td>
                   <td>{row.plannedExamDate}</td>
                   <td>{row.examResult}</td>
+                  <td style={{color: "blue", textDecoration: "underline"}} onClick={() => openModal(`http://localhost:8085/requests/getCertificate/${row.id}`)}>
+            {row.certificateFileImage}
+          </td>
+ 
                   <td>
                 <button
                   className={row.voucherCode !== null ? 'disabled-button' : 'enabled-button'}
@@ -576,10 +583,7 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
                     </button>
                   </td>
                  
-                  <td style={{color: "blue", textDecoration: "underline"}} onClick={() => openModal(`http://localhost:8085/requests/getCertificate/${row.id}`)}>
-            {row.certificateFileImage}
-          </td>
- 
+                  
  
  
                  

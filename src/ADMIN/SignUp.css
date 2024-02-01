@@ -1,23 +1,23 @@
-.input-container {
+/* .input-container {
     position: relative;
-  }
+  } */
   
-  .password-icon {
+  /* .password-icon {
     position: absolute;
     top: 30%;
     transform: translateY(-50%);
     cursor: pointer;
     z-index: 1;
-    right: 10px; /* Common right positioning for both icons */
-  }
+    right: 10px; 
+  } */
   
-  .reenter-password-icon {
+  /* .reenter-password-icon {
     position: absolute;
     top: 70%;
     margin-right: 20px;
     transform: translateY(-50%);
     cursor: pointer;
     z-index: 1;
-    right: 10px; /* Common right positioning for both icons */
-  }
+    right: 10px; 
+  } */
   

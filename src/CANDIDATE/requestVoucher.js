@@ -121,7 +121,7 @@ const RequestVoucherForm = () => {
  
     if (!isValidScore || doSelectScore < 0 || doSelectScore > 100) {
       errorsCopy.doSelectScore =
-        'Please enter a valid score. It should be a number between 0 and 100 and the negative symbol should be at the beginning.';
+        'Please enter a valid score. It should be a number between 0 and 100.';
     } else if (doSelectScore < 80) {
       errorsCopy.doSelectScore =
         'Since your score is less than 80, you are not eligible for the exam';

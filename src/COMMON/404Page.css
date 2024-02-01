@@ -72,3 +72,15 @@ a.more-link {
 a.more-link:hover {
   background-color: #d89ca4;
 }
+.goback-button{
+  
+  background-color: #e27b7e;
+}
+.goback-link{
+  color: #f5f5f5;
+  text-decoration: none;
+}
+.goback-button:hover{
+  background-color: #e27b7e;
+
+}
