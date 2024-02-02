@@ -56,17 +56,16 @@ p {
 
 .navbar {
   position: fixed;
-  margin-left: 175px;
+  margin-left: 175px; /* Adjusted margin-left to start from the left edge */
   display: flex;
   flex-direction: row;
-  width: 93%;
+  width: 100%; /* Set the width to 100% to match the width of the wrap */
   align-items: center;
   font-weight: bold;
   color: black;
   height: 75px;
-  background-color: #fff; /* Set the background color for the navbar */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-  /* z-index: 1000; Ensure the navbar appears above other elements */
+  background-color: rgb(112, 183, 184);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 #name {
@@ -81,7 +80,6 @@ p {
 #profile{
   margin-left: 40px;
 }
-
 
 .search-box {
   flex: 1;
@@ -157,13 +155,12 @@ button {
   margin-right: 0px;
   margin-top: 5px;
   border-radius: 1px;
-  width: 100%;
+  width: calc(100% - 175px); /* Adjusted width */
   overflow-x: auto; /* Enable horizontal scrolling if content overflows */
 }
 
 .dashboard-container {
   text-align: center;
-  /* margin-right: 0px; */
   padding: 10px;
   display: flex;
 }
@@ -243,10 +240,14 @@ button {
   font-size: 12px;
 }
 
+.table-div {
+  width: 100%; /* Ensure the table takes the full width of the wrap */
+  overflow-x: auto; /* Enable horizontal scrolling for the table */
+}
+
 .dashboard-table {
-  width: 105%;
+  width: 113%; /* Ensure the table takes the full width of its container */
   border-collapse: collapse;
-  margin-top: 10px;
 }
 
 .dashboard-table th,
@@ -264,20 +265,19 @@ button {
 }
 
  /* adjust width of table  */
-.dashboard-table td:nth-child(1),
-.dashboard-table td:nth-child(12) {
-  width: 9%; /* Adjust the width for the first column (Name), Certificate */
+.dashboard-table td:nth-child(1){
+  width: 9%; /* Adjust the width for the first column (Name) */
 }
 
 .dashboard-table td:nth-child(2) {
-  width: 20%; /* Adjust the width for the second column (Email) */
+  width: 18%; /* Adjust the width for the second column (Email) */
 }
 
 .dashboard-table td:nth-child(3),
 .dashboard-table td:nth-child(5),
 .dashboard-table td:nth-child(6),
 .dashboard-table td:nth-child(7) {
-  width: 6%; /* Adjust the width for Cloud, DoSelect Score, DoSelect Image, Voucher code */
+  width: 7%; /* Adjust the width for Cloud, DoSelect Score, DoSelect Image, Voucher code */
 }
 
 .dashboard-table td:nth-child(4) {
@@ -297,8 +297,9 @@ button {
   width: 100%; /* Ensure buttons have the same width */
 }
 
-.dashboard-table td:nth-child(11) {
-  width: 9%; /* Adjust the width for Result, Certificate */
+.dashboard-table td:nth-child(11),
+.dashboard-table td:nth-child(12)  {
+  width: 7%; /* Adjust the width for Result, Certificate */
 }
 
 
@@ -312,7 +313,7 @@ button {
   justify-content: center;
   position: relative; 
   bottom: 0; /* Stick to the bottom */
-  width: 107%;
+  width: 100%;
   background-color: rgb(229, 235, 234); 
 }
 
