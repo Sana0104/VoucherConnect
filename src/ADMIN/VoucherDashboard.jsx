@@ -537,7 +537,7 @@ function VoucherDashboard() {
     
 
 
-      <div className="footer-div" style={{"height": "40px", "marginTop": "30px", width: "100%"}}>
+      <div className="footer-div" style={{"height": "35px", "marginTop": "15px", width: "100%"}}>
         <footer> 
           <p>&copy; 2024 Capgemini. All rights reserved.</p>
         </footer>

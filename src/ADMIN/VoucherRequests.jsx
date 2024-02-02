@@ -353,9 +353,9 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
 
  
  
-      <div className="navbar" style={{ backgroundColor: "rgb(112, 183, 184)", width:"auto" }}>
+      <div className="navbar" style={{ backgroundColor: "rgb(112, 183, 184)", width: "auto" }}>
  
-        <div className="user-info" style={{ marginLeft: "10px" }}>
+        <div className="user-info" style={{ marginLeft: "20px" }}>
           <p id="name">Welcome!!</p>
           <p id="date">
             {currentTime.toLocaleTimeString(undefined, timeOptions)}{" "}
@@ -623,7 +623,7 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
  
       </div>
  
-      <div className="footer-div" style={{ "height": "40px", "marginTop": "30px"}}>
+      <div className="footer-div" style={{ "height": "35px", "marginTop": "15px"}}>
         <footer>
           <p>&copy; 2024 Capgemini. All rights reserved.</p>
         </footer>
