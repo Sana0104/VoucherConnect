@@ -265,23 +265,292 @@ button {
 }
 
  /* adjust width of table  */
-.dashboard-table td:nth-child(1){
-  width: 9%; /* Adjust the width for the first column (Name) */
+ 
+.left-column {
+  position: fixed;
+  top: 0;
+  left: 0;
+  color: black;
+  width: 13%;
+  height: 100%;
+  background-color: rgb(112, 183, 184);
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.enabled-button {
+  background-color: #f0d35c;
+  color: rgb(21, 1, 1); /* Set the text color for better visibility */
+  font-size: 12px;
+  height: 35px;
+}
+
+.disabled-button {
+  background-color: rgb(225, 196, 196); /* Grey color for disabled state */
+  color: white; /* Set the text color for better visibility */
+  font-size: 12px;
+  height: 35px;
+  cursor: not-allowed; /* Change cursor to not-allowed for better UX */
+}
+
+.left-column p:hover{
+    color: rgb(150, 145, 173);
+    transition: background-color 300ms;
+    background-color: rgb(15, 2, 0);
+}
+
+.heading {
+  margin-top: 5px;
+  font-family: 'Times New Roman', Times, serif;
+  color:white;
+}
+.h1 {
+  text-align: center;
+  color: black;
+}
+
+.head {
+  /* justify-content: center; */
+  margin-top: -600px;
+  position: relative;
+  width: 50%;
+}
+
+p {
+  margin: 0;
+  padding-right: 10px;
+}
+
+.navbar {
+  position: fixed;
+  margin-left: 175px; /* Adjusted margin-left to start from the left edge */
+  display: flex;
+  flex-direction: row;
+  width: 100%; /* Set the width to 100% to match the width of the wrap */
+  align-items: center;
+  font-weight: bold;
+  color: black;
+  height: 75px;
+  background-color: rgb(112, 183, 184);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#name {
+  font-size: large;
+}
+
+#date {
+  color: rgb(247, 245, 245);
+  font-size: small;
+}
+
+#profile{
+  margin-left: 40px;
+}
+
+.search-box {
+  flex: 1;
+  padding: 5px;
+  margin-left: 50px;
+  /* margin-right: 2px; */
+  border: none;
+  height: 30px;
+  max-width: 300px;
+  border-radius: 10px;
+  background-color: #fff; /* Set the background color to white */
+}
+
+.notification {
+  padding: 5px 10px;
+  background-color: white;
+  color: black;
+  border-radius: 6px;
+  border-color:  white;
+  width: 40px;
+  font-size: 18px;
+  margin-left: 50px;
+  margin-right: -40px;
+}
+
+img {
+  width: 60px; /* Set the width to 150 pixels */
+  height: 50px; /* Set the height to 100 pixels */
+  border-radius: 10px;
+  margin-right: 5px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  
+}
+
+.row {
+  margin-top: 50px;
+}
+
+.left-row {
+  /* margin-bottom: 10px; */
+  text-align: justify;
+}
+
+.left-row p {
+  margin-top: 20px;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.left-row p:hover {
+  background-color: #dee3e2;
+  border-radius: 5px;
+}
+
+.image {
+  padding-left: 2px;
+}
+
+button {
+  border: none;
+  border-radius: 5px;
+}
+
+.wrap{
+  background-color: white;
+  position: relative;
+  min-height: 73vh;
+  margin-left: 175px;
+  margin-right: 0px;
+  margin-top: 5px;
+  border-radius: 1px;
+  width: calc(100% - 175px); /* Adjusted width */
+  overflow-x: auto; /* Enable horizontal scrolling if content overflows */
+}
+
+.dashboard-container {
+  text-align: center;
+  padding: 10px;
+  display: flex;
+}
+
+.back {
+  margin-left: 20px;
+  /* margin-top: 30px; */
+}
+
+/* Dropdown styles */
+
+.dashboard-dropdown {
+  display: flex; /* Change to flex to align items horizontally */
+  align-items: center; /* Align items vertically in the center */
+  margin-right: 25px;
+  position: relative;
+  padding: 10px;
+  box-sizing: border-box;
+}
+ 
+/* Add new styling for the button */
+.dashboard-dropdown button {
+  margin-left: 10px;
+  font-size: 13px;
+  font-weight: bold;
+  height: 40px;
+  width: 140px;
+  border-radius: 5px;
+  background-color: #0b5f97;
+  color: #fff;
+  cursor: pointer;
+  border: none;
+}
+
+.dashboard-dropdown select {
+  padding: 5px;
+  font-size: 16px;
+  /* border: none; */
+  border: 1px black solid;
+  border-bottom: 1px solid #007bff;
+  border-radius: 0;
+  background-color: transparent;
+  color: #007bff;
+  cursor: pointer;
+
+}
+
+.right-corner {
+  margin-left: 350px;
+  display: flex;
+  flex-direction: row;
+}
+
+.right-corner a{
+  display: flex;
+  margin-left: 250px;
+  /* margin-right: 5px; */
+  position:relative;
+  padding: 10px;
+  box-sizing: border-box;
+  
+}
+
+.right {
+  padding: 10px;
+}
+
+.dashboard-dropdown select:focus {
+  border-color: #e6c46f;
+  color: #007bff;
+}
+
+/* Table styles */
+
+.table-div td{
+  width: 95%;
+  font-size: 12px;
+}
+
+.table-div {
+  width: 100%; /* Ensure the table takes the full width of the wrap */
+  overflow-x: auto; /* Enable horizontal scrolling for the table */
+}
+
+.dashboard-table {
+  width: 113%; /* Ensure the table takes the full width of its container */
+  border-collapse: collapse;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+  padding: 5px; /* Adjust the padding as needed */
+  border: 1px solid #ccc;
+  text-align: center; /* Adjust the text alignment as needed */
+}
+
+.dashboard-table th {
+  /* background-color: rgb(60, 139, 0); */
+  background-color: #0f64bf;
+  font-family:'Times New Roman', Times, serif;
+  color: white;
+}
+
+ /* adjust width of table  */
+/* Existing styles remain unchanged */
+
+.dashboard-table td:nth-child(1) {
+  width: 9%; /* Name */
 }
 
 .dashboard-table td:nth-child(2) {
-  width: 18%; /* Adjust the width for the second column (Email) */
+  width: 18%; /* Email */
 }
 
 .dashboard-table td:nth-child(3),
 .dashboard-table td:nth-child(5),
 .dashboard-table td:nth-child(6),
 .dashboard-table td:nth-child(7) {
-  width: 7%; /* Adjust the width for Cloud, DoSelect Score, DoSelect Image, Voucher code */
+  width: 7%; /* Cloud, DoSelect Score, DoSelect Image, Voucher Code */
 }
 
 .dashboard-table td:nth-child(4) {
-  width: 15%; /* Adjust the width for the fourth column (Exam) */
+  width: 15%; /* Exam */
 }
 
 .dashboard-table td:nth-child(8),
@@ -289,17 +558,134 @@ button {
 .dashboard-table td:nth-child(10),
 .dashboard-table td:nth-child(13),
 .dashboard-table td:nth-child(14) {
-  width: 10%; /* Adjust the width for Issued Date, Expiry Date, Exam Date, Deny Voucher, Assign Voucher */
-}
-
-.dashboard-table td:nth-child(13) button,
-.dashboard-table td:nth-child(14) button {
-  width: 100%; /* Ensure buttons have the same width */
+  width: 10%; /* Issued Date, Expiry Date, Exam Date, Deny Voucher, Assign Voucher */
 }
 
 .dashboard-table td:nth-child(11),
-.dashboard-table td:nth-child(12)  {
-  width: 7%; /* Adjust the width for Result, Certificate */
+.dashboard-table td:nth-child(12) {
+  width: 7%; /* Result, Certificate */
+}
+
+/* Set the width for DoSelect Score, Cloud, Voucher Code, and Result to be the same */
+.dashboard-table td:nth-child(3),
+.dashboard-table td:nth-child(5),
+.dashboard-table td:nth-child(6),
+.dashboard-table td:nth-child(11) {
+  width: 10%; /* Adjust the width as needed */
+}
+
+/* Set the width for buttons and date fields to be the same */
+.dashboard-table td:nth-child(8),
+.dashboard-table td:nth-child(9),
+.dashboard-table td:nth-child(10),
+.dashboard-table td:nth-child(13),
+.dashboard-table td:nth-child(14) {
+  width: 10%; /* Adjust the width as needed */
+}
+
+/* Add more styles for other columns */
+
+/* Existing styles remain unchanged */
+
+
+/* Add more styles for other columns */
+
+
+.footer-div {
+  display: flex;
+  font-size: small;
+  align-items: center;
+  justify-content: center;
+  position: relative; 
+  bottom: 0; /* Stick to the bottom */
+  width: 100%;
+  background-color: rgb(229, 235, 234); 
+}
+
+.footer-div p {
+  margin: 0;
+}
+.popup-container {
+  position: fixed;
+  margin-top: 50%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+}
+
+.popup-box {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Drop shadow effect */
+  text-align: center;
+  width: 300px; /* Adjust width as needed */
+}
+.modal-content {
+  overflow-y: auto; /* Enable vertical scrolling */
+  max-height: calc(80vh - 50px); /* Adjust the max height as needed */
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.close-button:hover {
+  color: red; /* Change color on hover */
+}
+
+.download-ref {
+  position: absolute;
+  top: 8px;
+  left: 500px;
+  border: none;
+  cursor: pointer;
+}
+.confirmation-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 9999; /* Ensure modal is above other content */
+}
+
+.confirmation-modal p {
+  margin-bottom: 10px;
+}
+
+.confirmation-modal button {
+  margin-right: 10px;
+  padding: 8px 16px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.confirmation-modal button:hover {
+  background-color: #2980b9;
+}
+
+.confirmation-modal button:last-child {
+  background-color: #e74c3c;
+}
+
+.confirmation-modal button:last-child:hover {
+  background-color: #c0392b;
 }
 
 
