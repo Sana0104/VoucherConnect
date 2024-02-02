@@ -344,26 +344,26 @@ button {
   max-height: calc(80vh - 50px); /* Adjust the max height as needed */
 }
 
-.close-button {
+/* .close-button {
   position: absolute;
   top: 10px;
   right: 10px;
   background-color: transparent;
   border: none;
   cursor: pointer;
-}
+} */
 
 .close-button:hover {
   color: red; /* Change color on hover */
 }
 
-.download-ref {
+/* .download-ref {
   position: absolute;
   top: 8px;
   left: 500px;
   border: none;
   cursor: pointer;
-}
+} */
 .confirmation-modal {
   position: fixed;
   top: 50%;
@@ -400,4 +400,42 @@ button {
 
 .confirmation-modal button:last-child:hover {
   background-color: #c0392b;
+}
+/* Styles for FontAwesome expand icon */
+.fa-expand {
+  color: rgb(243, 31, 38); /* Set the color of the icon */
+  cursor: pointer; /* Change cursor to pointer on hover */
+  top:3px;
+  position: absolute;
+  left: 260px;
+  border: none;
+
+  
+}
+.navbar-image {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color:  rgb(112, 183, 184); /* Change as needed */
+  padding: 20px;
+  border-bottom: 1px solid #ccc; /* Change as needed */
+ 
+}
+
+.close-button {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.download-ref {
+  position: absolute;
+  top: 5px;
+  left: 530px;
+  border: none;
+  cursor: pointer;
+ 
 }

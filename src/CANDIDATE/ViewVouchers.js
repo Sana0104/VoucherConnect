@@ -64,13 +64,10 @@ const ViewVouchers = () => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const obj = localStorage.getItem("userInfo");
-    const { username } = JSON.parse(obj);
- 
-    const [isEditing, setIsEditing] = useState(-1);
+    const { username } = obj ? JSON.parse(obj) : { username: '' };
     const [error, setError] = useState(null);
     const [isUploadDialogOpen, setUploadDialogOpen] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
- 
     const [certificateUploaded, setCertificateUploaded] = useState(false);
  
     useEffect(() => {
@@ -78,14 +75,11 @@ const ViewVouchers = () => {
             try {
                 const response = await fetch(`http://localhost:8085/requests/${username}`);
                 const result = await response.json();
- 
-                // Sort the data array by exam date
                 const sortedData = result.sort((a, b) => {
                     const dateA = new Date(a.plannedExamDate);
                     const dateB = new Date(b.plannedExamDate);
                     return dateA - dateB;
                 });
- 
                 setData(sortedData);
                 setLoading(false);
             } catch (error) {
@@ -100,32 +94,24 @@ const ViewVouchers = () => {
     const handleRequestVoucher = () => {
         navigate('/requestform', { state: { username } });
     };
-    const [selectedIndexForDateEdit, setSelectedIndexForDateEdit] = useState(null);
  
     const handleEditExamDate = (index) => {
         setSelectedExamIndex(index);
-        setSelectedIndexForDateEdit(index);
         setEditDateModalOpen(true);
     };
  
     const handleEditResult = (index) => {
         const voucher = data[index];
- 
         if (!voucher.voucherCode) {
-            console.log('Voucher code is not available. Cannot edit result.');
             setError('Voucher code is not available. Cannot edit result.');
             return;
         }
- 
         const currentDate = new Date();
         const enabledDate = new Date(data[index].plannedExamDate);
- 
         if (currentDate >= enabledDate) {
             setEditIndex(index);
-            setIsEditing(index);
             setError(null);
         } else {
-            console.log('Editing is not allowed before', enabledDate);
             setError('Editing result is not allowed before the exam date.');
         }
     };
@@ -140,73 +126,53 @@ const ViewVouchers = () => {
             if (!voucherToUpdate.voucherCode) {
                 throw new Error('Voucher code is not available. Cannot update exam date before receiving voucher code.');
             }
- 
             const voucherCode = voucherToUpdate.voucherCode;
             const formattedDate = selectedDate.toISOString().split('T')[0];
- 
             const response = await fetch(`http://localhost:8085/requests/updateExamDate/${voucherCode}/${formattedDate}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
- 
             if (response.ok) {
                 const updatedData = [...data];
                 updatedData[selectedExamIndex].plannedExamDate = formattedDate;
                 setData(updatedData);
                 setEditDateModalOpen(false);
- 
             } else {
-                console.error('Failed to update exam date:', response.status);
                 throw new Error('Failed to update exam date.');
             }
         } catch (error) {
-            console.error('Error updating exam date:', error.message);
             setError(error.message);
         }
-    };
- 
-    const handleCancelEditDate = () => {
-        setEditDateModalOpen(false);
-        setSelectedExamIndex(null);
     };
  
     const handleSaveResult = async (index) => {
         try {
             const voucherToUpdate = data[index];
             const updatedResult = data[index].examResult;
- 
             const response = await axios.put(`http://localhost:8085/requests/${voucherToUpdate.voucherCode}/${updatedResult}`);
-            console.log("code is", voucherToUpdate.voucherCode);
-            console.log(voucherToUpdate.examResult);
-            if (response.ok) {
+            if (response.status === 200) {
                 const updatedData = [...data];
                 updatedData[index].examResult = updatedResult;
                 setData(updatedData);
                 setError(null);
-                // Reset the editing state if the result is not 'Pending due to issue'
                 if (updatedResult !== 'Pending due to issue') {
-                    setIsEditing(-1);
+                    setEditIndex(-1);
                 }
             } else {
-                console.error('Failed to update result');
+                throw new Error('Failed to update result.');
             }
         } catch (error) {
             console.error('Error updating result:', error);
-        }
-        finally {
-            window.location.reload();
+            setError('Error updating result.');
         }
     };
- 
- 
  
     const handleOpenUploadDialog = (index) => {
+        setSelectedExamIndex(index);
         setUploadDialogOpen(true);
-        setSelectedExamIndex(index); // Set selectedExamIndex when opening the upload dialog
     };
- 
  
     const handleCloseUploadDialog = () => {
         setUploadDialogOpen(false);
@@ -222,39 +188,25 @@ const ViewVouchers = () => {
             const formData = new FormData();
             formData.append('coupon', data[selectedExamIndex].voucherCode);
             formData.append('image', selectedFile);
- 
             const response = await axios.post('http://localhost:8085/requests/uploadCertificate', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
- 
             if (response.status === 200) {
-                // Assuming the response contains updated voucher data
                 const updatedData = [...data];
-                // Update the certificate information in the data array
                 updatedData[selectedExamIndex].certificateFileImage = response.data.certificateFileImage;
                 setData(updatedData);
                 setUploadDialogOpen(false);
                 setCertificateUploaded(true);
-                // Close the upload dialog
-                handleCloseUploadDialog();
             } else {
-                console.error('Failed to upload certificate');
-                // Handle failure
+                throw new Error('Failed to upload certificate.');
             }
         } catch (error) {
             console.error('Error uploading certificate:', error);
-            // Handle error
+            setError('Error uploading certificate.');
         }
     };
- 
-    const getFileName = (filePath) => {
-        if (!filePath) return ''; // Handle cases where filePath is null or empty
-        const lastIndex = filePath.lastIndexOf('/');
-        return filePath.substring(lastIndex + 1);
-    };
- 
  
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -284,7 +236,7 @@ const ViewVouchers = () => {
                                         <StyledTableCell >Voucher Issued Date</StyledTableCell>
                                         <StyledTableCell >Voucher Expiry Date</StyledTableCell>
                                         <StyledTableCell style={{ minWidth: '150px' }}>Exam Date</StyledTableCell>
-                                        <StyledTableCell style={{ minWidth: '210px' }}>Result</StyledTableCell>
+                                        <StyledTableCell style={{ minWidth: '150px' }}>Result</StyledTableCell>
                                         <StyledTableCell style={{ minWidth: '200px' }}>Certificate</StyledTableCell>
                                     </StyledTableRow>
                                 </TableHead>
@@ -298,18 +250,18 @@ const ViewVouchers = () => {
                                     ) : (
                                         data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((voucher, index) => (
                                             <StyledTableRow key={index}>
-                                                <StyledTableCell >{voucher.cloudExam}</StyledTableCell>
-                                                <StyledTableCell >{voucher.cloudPlatform}</StyledTableCell>
+                                                <StyledTableCell>{voucher.cloudExam}</StyledTableCell>
+                                                <StyledTableCell>{voucher.cloudPlatform}</StyledTableCell>
                                                 <StyledTableCell>{voucher.voucherCode ?? 'Requested'}</StyledTableCell>
-                                                <StyledTableCell >{voucher.voucherIssueLocalDate ? voucher.voucherIssueLocalDate : 'Requested'}</StyledTableCell>
-                                                <StyledTableCell >{voucher.voucherExpiryLocalDate ? voucher.voucherExpiryLocalDate : 'Requested'}</StyledTableCell>
-                                                <StyledTableCell >
+                                                <StyledTableCell>{voucher.voucherIssueLocalDate ? voucher.voucherIssueLocalDate : 'Requested'}</StyledTableCell>
+                                                <StyledTableCell>{voucher.voucherExpiryLocalDate ? voucher.voucherExpiryLocalDate : 'Requested'}</StyledTableCell>
+                                                <StyledTableCell>
                                                     {voucher.plannedExamDate}
                                                     <IconButton onClick={() => handleEditExamDate(index)}>
                                                         <EditIcon />
                                                     </IconButton>
                                                 </StyledTableCell>
-                                                <StyledTableCell className="table-cell">
+                                                <StyledTableCell>
                                                     {editIndex === index ? (
                                                         <Select
                                                             value={voucher.examResult}
@@ -337,39 +289,29 @@ const ViewVouchers = () => {
                                                             <EditIcon />
                                                         </IconButton>
                                                     )}
-                                                    {(voucher.examResult !== 'Pending' && isEditing === index) && (
+                                                    {(voucher.examResult !== 'Pending' && editIndex === index) && (
                                                         <IconButton onClick={() => handleSaveResult(index)}>
                                                             <SaveIcon />
                                                         </IconButton>
                                                     )}
                                                 </StyledTableCell>
- 
- 
                                                 <StyledTableCell>
                                                     {voucher.examResult === 'Pass' ? (
-                                                        voucher.certification ? (
+                                                        voucher.certificateFileImage ? (
                                                             <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                                <img src={voucher.certificateFileImage} alt="Certificate" style={{ width: '100px', height: 'auto' }} />
-                                                                <div style={{ marginLeft: '10px' }}>{getFileName(voucher.certificateFileImage)}</div>
+                                                                <div style={{ marginLeft: '10px' }}>{voucher.certificateFileImage}</div>
                                                             </div>
                                                         ) : (
-                                                            <>
-                                                                <Button onClick={() => handleOpenUploadDialog(index)}>Upload</Button>
-                                                                {selectedExamIndex === index && selectedFile && (
-                                                                    <div style={{ marginLeft: '10px' }}>{selectedFile.name}</div>
-                                                                )}
-                                                            </>
+                                                            <Button
+                                                                onClick={() => handleOpenUploadDialog(index)}
+                                                            >
+                                                                Upload
+                                                            </Button>
                                                         )
                                                     ) : (
                                                         <span>N/A</span>
                                                     )}
                                                 </StyledTableCell>
- 
- 
- 
- 
- 
- 
                                             </StyledTableRow>
                                         ))
                                     )}
@@ -388,7 +330,7 @@ const ViewVouchers = () => {
                         </TableContainer>
                     </Box>
                 </div>
-                <Dialog open={isEditDateModalOpen} onClose={handleCancelEditDate}>
+                <Dialog open={isEditDateModalOpen} onClose={() => setEditDateModalOpen(false)}>
                     <DialogTitle>Edit Exam Date</DialogTitle>
                     <DialogContent sx={{ width: '300px', height: '300px' }}>
                         <DatePicker
@@ -398,15 +340,15 @@ const ViewVouchers = () => {
                             utcOffset={0}
                             minDate={new Date()}
                             maxDate={
-                                data[selectedIndexForDateEdit]?.voucherExpiryLocalDate
-                                    ? new Date(data[selectedIndexForDateEdit].voucherExpiryLocalDate)
+                                data[selectedExamIndex]?.voucherExpiryLocalDate
+                                    ? new Date(data[selectedExamIndex].voucherExpiryLocalDate)
                                     : null
                             }
                         />
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleSaveExamDate}>Save</Button>
-                        <Button onClick={handleCancelEditDate}>Cancel</Button>
+                        <Button onClick={() => setEditDateModalOpen(false)}>Cancel</Button>
                     </DialogActions>
                 </Dialog>
                 <Dialog open={isUploadDialogOpen} onClose={handleCloseUploadDialog}>
@@ -420,7 +362,6 @@ const ViewVouchers = () => {
                     </DialogActions>
                 </Dialog>
  
-                {/* Insert Snackbar component here */}
                 <Snackbar
                     open={certificateUploaded}
                     autoHideDuration={6000}
@@ -455,7 +396,6 @@ const ViewVouchers = () => {
                             {error}
                         </MuiAlert>
                     </Snackbar>
- 
                 )}
             </div>
         </>

@@ -15,7 +15,7 @@ import Modal from 'react-modal';
 import Draggable from 'react-draggable';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons"; // Import the download icon
-import { faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faDownload ,faExpand} from '@fortawesome/free-solid-svg-icons';
 
 import {
   faCalendar,
@@ -91,7 +91,7 @@ function VoucherRequests() {
       } catch (error) {
         console.error(error);
       }
-    } else if (selectedOption === 'Not Assigned') {
+    } else if (selectedOption === 'Pending') {
       try {
         const response = await axios.get('http://localhost:8085/requests/allUnAssignedVoucher');
         setRequests(response.data);
@@ -316,29 +316,41 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
       background: 'transparent',
       marginLeft: '40%',
       maxWidth: '100%',
-      maxHeight: '45%',
- 
+      maxHeight: '100%',
     }
   }}
 >
- 
   {/* Make the entire modal draggable */}
   <Draggable>
-  <div className="modal-content">
-    {/* Styled close button */}
-    <button className="close-button" onClick={closeModal}>
-      <FontAwesomeIcon icon={faTimes} size="2x" />
-    </button>
-    {/* Modal content */}
-    <img src={selectedImage} alt="Selected" style={{ width: '100%', height: '100%' }} />
-    {/* Download button */}
-    <a className="download-ref" href={selectedImage} download>
-      {/* Unique download icon */}
-      <FontAwesomeIcon icon={faDownload} size="2x" style={{ color: 'blue' }} />
-    </a>
-  </div>
-</Draggable>
+    <div className="modal-content">
+      {/* Navbar for icons */}
+      <div className="navbar-image">
+        {/* Styled close button */}
+        <button className="close-button" onClick={closeModal}>
+          <FontAwesomeIcon icon={faTimes} size="2x" />
+        </button>
+        {/* Download button */}
+        {selectedImage && selectedImage.includes("getCertificate") && (
+          <a className="download-ref" href={selectedImage} download>
+            <FontAwesomeIcon icon={faDownload} size="2x" style={{ color: 'blue' }} />
+          </a>
+        )}
+      </div>
+      {/* Modal content */}
+      <img src={selectedImage} alt="Selected" style={{ width: '100%', height: '100%' }} />
+      {/* Conditionally render full-screen icon */}
+      {selectedImage && selectedImage.includes("getDoSelectImage") && (
+        <a className="fa-expand" href={selectedImage} expand>
+          <FontAwesomeIcon icon={faExpand} size="2x" style={{ color: 'black', cursor: 'pointer' }} onClick={() => openModal(selectedImage)} />
+        </a>
+      )}
+    </div>
+  </Draggable>
 </Modal>
+
+
+
+
  
  
       <div className="navbar" style={{ backgroundColor: "rgb(112, 183, 184)", width:"auto" }}>
@@ -448,8 +460,8 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
     <option value="Assigned" >
       Assigned Requests
     </option>
-    <option value="Not Assigned" >
-      Not Assigned Requests
+    <option value="Pending" >
+      Pending Requests
     </option>
     <option value="Completed" >
       Completed Exam
@@ -500,7 +512,9 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
                 <th>Expiry Date</th>
                 <th>Exam Date</th>
                 <th>Result</th>
+                <th>Validation Number</th>
                 <th>Certificate</th>
+                <th>R2D2</th>
                 <th>Deny Voucher</th>
                 <th>Assign Voucher</th>
                
@@ -542,11 +556,13 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
                   <td>{row.voucherExpiryLocalDate}</td>
                   <td>{row.plannedExamDate}</td>
                   <td>{row.examResult}</td>
+                  <td></td>
                   <td style={{color: "blue", textDecoration: "underline"}} onClick={() => openModal(`http://localhost:8085/requests/getCertificate/${row.id}`)}>
             {row.certificateFileImage}
           </td>
- 
+ <td></td>
                   <td>
+                    
                 <button
                   className={row.voucherCode !== null ? 'disabled-button' : 'enabled-button'}
                   onClick={() => openDenyConfirmation(row)}

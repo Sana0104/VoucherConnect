@@ -13,8 +13,9 @@ const UserProfile = ({ setProfileImageURL }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [imageURL, setImageURL] = useState(null);
     const [error, setError] = useState(null);
+    const [isLogoutConfirmationOpen, setIsLogoutConfirmationOpen] = useState(false); // New state
     const obj = localStorage.getItem("userInfo");
-    const { username, name } = JSON.parse(obj);
+    const { username, name ,roles,mentorEmail} = JSON.parse(obj);
     const navigate = useNavigate();
     useEffect(() => {
       const fetchImageURL = async () => {
@@ -43,10 +44,21 @@ const UserProfile = ({ setProfileImageURL }) => {
   }, [username]);
  
     const handleLogout = () => {
+        // Open the logout confirmation dialog
+        setIsLogoutConfirmationOpen(true);
+    };
+ 
+    const confirmLogout = () => {
+        // Perform the logout action
         localStorage.removeItem('userInfo');
         localStorage.removeItem('id');
         console.log("Logged out...");
         navigate('/');
+    };
+ 
+    const cancelLogout = () => {
+        // Close the logout confirmation dialog
+        setIsLogoutConfirmationOpen(false);
     };
  
     const handleCameraIconClick = () => {
@@ -91,13 +103,29 @@ const UserProfile = ({ setProfileImageURL }) => {
                     <CameraAltIcon style={{ fontSize: 40 }} />
                 </Avatar>
             )}
- 
-            <h2>User Profile</h2>
-            <p>Name: {name}</p>
-            <p>Email: {username}</p>
+           
+           <p style={{ marginBottom: '5px', fontSize: '18px', fontWeight: 'bold' }}>Name: {name}</p>
+      <p style={{ marginBottom: '5px', fontSize: '16px' }}>Email: {username}</p>
+            {/* Display mentor's email if the user is a candidate */}
+            {roles.includes('ROLE_CANDIDATE') && <p>Mentor Email: {mentorEmail}</p>}
             <Button variant="outlined" color="primary" onClick={handleLogout}>
                 Logout
             </Button>
+             {/* Logout Confirmation Dialog */}
+             <Dialog open={isLogoutConfirmationOpen} onClose={cancelLogout}>
+                <DialogTitle>Confirm Logout</DialogTitle>
+                <DialogContent>
+                    Are you sure you want to log out?
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={cancelLogout} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={confirmLogout} color="primary">
+                        Logout
+                    </Button>
+                </DialogActions>
+            </Dialog>
  
             {/* Modal for File Upload */}
             <Dialog open={isModalOpen} onClose={handleCloseModal}>
