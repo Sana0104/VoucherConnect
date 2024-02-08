@@ -6,6 +6,7 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+    TextField,
     Paper,
     Button,
     Box,
@@ -29,19 +30,19 @@ import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import axios from 'axios';
- 
+
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
         backgroundColor: theme.palette.primary.main,
         color: theme.palette.common.white,
         whiteSpace: 'nowrap',
     },
- 
+
     [`&.${tableCellClasses.body}`]: {
         fontSize: 14,
     },
 }));
- 
+
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
     "&:nth-of-type(odd)": {
         backgroundColor: theme.palette.action.hover,
@@ -51,7 +52,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     },
     height: "2px",
 }));
- 
+
 const ViewVouchers = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -69,37 +70,46 @@ const ViewVouchers = () => {
     const [isUploadDialogOpen, setUploadDialogOpen] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
     const [certificateUploaded, setCertificateUploaded] = useState(false);
- 
+    const [uploadR2D2ScreenshotDialogOpen, setUploadR2D2ScreenshotDialogOpen] = useState(false);
+    const [validationNumber, setValidationNumber] = useState('');
+    const [isValidationNumberEnabled, setValidationNumberEnabled] = useState(false);
+    const [validationNumberError, setValidationNumberError] = useState('');
+    const [showValidationPopup, setShowValidationPopup] = useState(false);
+    const [validationNumberInput, setValidationNumberInput] = useState('');
+    const [isValidationNumberSaved, setIsValidationNumberSaved] = useState(false);
+
     useEffect(() => {
         const fetchVouchers = async () => {
             try {
                 const response = await fetch(`http://localhost:8085/requests/${username}`);
                 const result = await response.json();
-                const sortedData = result.sort((a, b) => {
-                    const dateA = new Date(a.plannedExamDate);
-                    const dateB = new Date(b.plannedExamDate);
-                    return dateA - dateB;
-                });
-                setData(sortedData);
+                setData(result); // Set the data without sorting
+                setLoading(false);
+                // const sortedData = result.sort((a, b) => {
+                //     const dateA = new Date(a.plannedExamDate);
+                //     const dateB = new Date(b.plannedExamDate);
+                //     return dateA - dateB;
+                // });
+                //  setData(sortedData);
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching data:', error);
                 setLoading(false);
             }
         };
- 
+
         fetchVouchers();
     }, []);
- 
+
     const handleRequestVoucher = () => {
         navigate('/requestform', { state: { username } });
     };
- 
+
     const handleEditExamDate = (index) => {
         setSelectedExamIndex(index);
         setEditDateModalOpen(true);
     };
- 
+
     const handleEditResult = (index) => {
         const voucher = data[index];
         if (!voucher.voucherCode) {
@@ -110,16 +120,19 @@ const ViewVouchers = () => {
         const enabledDate = new Date(data[index].plannedExamDate);
         if (currentDate >= enabledDate) {
             setEditIndex(index);
+            if (voucher.examResult === 'Pass') {
+                setValidationNumberEnabled(true); // Enable validation number input
+            }
             setError(null);
         } else {
             setError('Editing result is not allowed before the exam date.');
         }
     };
- 
+
     const handleDateChange = (date) => {
         setSelectedDate(date);
     };
- 
+
     const handleSaveExamDate = async () => {
         try {
             const voucherToUpdate = data[selectedExamIndex];
@@ -146,18 +159,30 @@ const ViewVouchers = () => {
             setError(error.message);
         }
     };
- 
+
     const handleSaveResult = async (index) => {
         try {
             const voucherToUpdate = data[index];
             const updatedResult = data[index].examResult;
+            if (updatedResult === 'Pass') {
+                if (!voucherToUpdate.certificateFileImage) {
+                    throw new Error('Certificate must be uploaded before changing the result to Pass');
+                }
+                if (!voucherToUpdate.validationNumber) {
+                    throw new Error('Validation number must be filled before  before changing the result to Pass');
+                }
+                if (!voucherToUpdate.r2d2Screenshot) {
+                    throw new Error('R2D2 screenshot must be uploaded before before changing the result to Pass');
+                }
+            }
+
             const response = await axios.put(`http://localhost:8085/requests/${voucherToUpdate.voucherCode}/${updatedResult}`);
             if (response.status === 200) {
                 const updatedData = [...data];
                 updatedData[index].examResult = updatedResult;
                 setData(updatedData);
                 setError(null);
-                if (updatedResult !== 'Pending due to issue') {
+                if (updatedResult !== ' ') {
                     setEditIndex(-1);
                 }
             } else {
@@ -165,24 +190,112 @@ const ViewVouchers = () => {
             }
         } catch (error) {
             console.error('Error updating result:', error);
-            setError('Error updating result.');
+            setError(error.message);
         }
     };
- 
     const handleOpenUploadDialog = (index) => {
         setSelectedExamIndex(index);
         setUploadDialogOpen(true);
     };
- 
+
     const handleCloseUploadDialog = () => {
         setUploadDialogOpen(false);
     };
- 
+    const handleOpenUploadR2D2ScreenshotDialog = (index) => {
+        setSelectedExamIndex(index);
+        setUploadR2D2ScreenshotDialogOpen(true);
+    };
+
+    const handleCloseUploadR2D2ScreenshotDialog = () => {
+        setUploadR2D2ScreenshotDialogOpen(false);
+    };
+
+    const handleUploadR2D2Screenshot = async () => {
+        try {
+            const formData = new FormData();
+            formData.append('coupon', data[selectedExamIndex].voucherCode);
+            formData.append('image', selectedFile);
+
+            const response = await axios.post('http://localhost:8085/requests/uploadR2d2Screenshot', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (response.status === 200) {
+                const updatedData = [...data];
+                updatedData[selectedExamIndex].r2d2Screenshot = response.data.r2d2Screenshot;
+                setData(updatedData);
+                setUploadR2D2ScreenshotDialogOpen(false);
+                // Optionally, you can show a success message here
+            } else {
+                throw new Error('Failed to upload R2D2 screenshot. Server responded with status: ' + response.status);
+            }
+        } catch (error) {
+            console.error('Error uploading R2D2 screenshot:', error);
+            setError('Error uploading R2D2 screenshot: ' + error.message);
+        }
+    };
+
+    const handleEnableValidationNumber = (index) => {
+        setSelectedExamIndex(index);
+        const voucher = data[index];
+        if (!voucher.voucherCode) {
+            setError('Voucher code is not available. Cannot enable validation number.');
+            return;
+        }
+        // You may need to adjust the condition for enabling validation number based on your business logic
+        const currentDate = new Date();
+        const enabledDate = new Date(voucher.plannedExamDate);
+        if (currentDate >= enabledDate) {
+            setValidationNumberEnabled(true);
+            setError(null);
+        } else {
+            setError('Enabling validation number is not allowed before the exam date.');
+        }
+    };
+
+
+    const handleSaveValidationNumber = async () => {
+        try {
+            const voucherToUpdate = data[selectedExamIndex];
+            const voucherRequestId = voucherToUpdate.id; // Assuming voucherRequestId is accessible in data
+
+            const validationNumberInputTrimmed = validationNumberInput.trim();
+
+            // Regular expression to match exactly 16 characters consisting of alphabets and numbers
+            const validationRegex = /^[A-Za-z0-9]{16}$/;
+
+            if (validationNumberInputTrimmed.length !== 16) {
+                throw new Error('Validation number must be exactly 16 characters long.');
+            }
+            const response = await axios.post(`http://localhost:8085/requests/provideValidationNumber/${voucherRequestId}`, null, {
+                params: {
+                    validationNumber: validationNumberInput
+                }
+            });
+            if (response.status === 200) {
+                const updatedData = [...data];
+                updatedData[selectedExamIndex].validationNumber = validationNumberInput;
+                setData(updatedData);
+                setValidationNumberError('');
+                setValidationNumberInput('');
+                setValidationNumberEnabled(false);
+                setShowValidationPopup(true);
+                setIsValidationNumberSaved(true); // Update the state to indicate validation number is saved
+            } else {
+                throw new Error('Failed to save validation number.');
+            }
+        } catch (error) {
+            console.error('Error saving validation number:', error);
+            setValidationNumberError('Error saving validation number: ' + error.message);
+        }
+    };
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         setSelectedFile(file);
     };
- 
+
     const handleUpload = async () => {
         try {
             const formData = new FormData();
@@ -207,16 +320,30 @@ const ViewVouchers = () => {
             setError('Error uploading certificate.');
         }
     };
- 
+
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
- 
+
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     };
- 
+    const getMaxDate = () => {
+        const voucherIssuedDate = data[selectedExamIndex]?.voucherIssueLocalDate; // This is a placeholder for the voucher issued date
+        if (voucherIssuedDate) {
+            const maxDate = new Date(voucherIssuedDate);
+            maxDate.setDate(maxDate.getDate() + 14); // Adding 14 days to voucher issued date
+            return maxDate;
+        } else {
+            // If voucherIssuedDate is not available, set a default max date (e.g., 14 days from today)
+            const defaultMaxDate = new Date();
+            defaultMaxDate.setDate(defaultMaxDate.getDate() + 14);
+            return defaultMaxDate;
+        }
+    };
+
+    const acceptedFileFormats = ['.jpg', '.jpeg', '.png'];
     return (
         <>
             <Navbar />
@@ -234,10 +361,12 @@ const ViewVouchers = () => {
                                         <StyledTableCell >Cloud Platform</StyledTableCell>
                                         <StyledTableCell >Voucher Code</StyledTableCell>
                                         <StyledTableCell >Voucher Issued Date</StyledTableCell>
-                                        <StyledTableCell >Voucher Expiry Date</StyledTableCell>
+
                                         <StyledTableCell style={{ minWidth: '150px' }}>Exam Date</StyledTableCell>
                                         <StyledTableCell style={{ minWidth: '150px' }}>Result</StyledTableCell>
                                         <StyledTableCell style={{ minWidth: '200px' }}>Certificate</StyledTableCell>
+                                        <StyledTableCell >Validation Number</StyledTableCell>
+                                        <StyledTableCell >R2D2 Screenshot</StyledTableCell>
                                     </StyledTableRow>
                                 </TableHead>
                                 <TableBody>
@@ -254,7 +383,7 @@ const ViewVouchers = () => {
                                                 <StyledTableCell>{voucher.cloudPlatform}</StyledTableCell>
                                                 <StyledTableCell>{voucher.voucherCode ?? 'Requested'}</StyledTableCell>
                                                 <StyledTableCell>{voucher.voucherIssueLocalDate ? voucher.voucherIssueLocalDate : 'Requested'}</StyledTableCell>
-                                                <StyledTableCell>{voucher.voucherExpiryLocalDate ? voucher.voucherExpiryLocalDate : 'Requested'}</StyledTableCell>
+
                                                 <StyledTableCell>
                                                     {voucher.plannedExamDate}
                                                     <IconButton onClick={() => handleEditExamDate(index)}>
@@ -299,11 +428,54 @@ const ViewVouchers = () => {
                                                     {voucher.examResult === 'Pass' ? (
                                                         voucher.certificateFileImage ? (
                                                             <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                                <div style={{ marginLeft: '10px' }}>{voucher.certificateFileImage}</div>
+                                                                <div>{voucher.certificateFileImage}</div>
                                                             </div>
                                                         ) : (
                                                             <Button
                                                                 onClick={() => handleOpenUploadDialog(index)}
+                                                            >
+                                                                Upload
+                                                            </Button>
+                                                        )
+                                                    ) : (
+                                                        <span>N/A</span>
+                                                    )}
+                                                </StyledTableCell>
+                                                {/* <StyledTableCell>
+                                                    {voucher.examResult === 'Pass' && !isValidationNumberSaved ? (
+                                                        <Button onClick={() => handleEnableValidationNumber(index)}>Enter</Button>
+                                                    ) : (
+                                                        voucher.validationNumber // Display the validation number if saved
+                                                    )}
+                                                </StyledTableCell> */}
+                                                <StyledTableCell>
+                                                    {voucher.examResult === 'Pass' ? (
+                                                        voucher.validationNumber ? (
+                                                            <div>{voucher.validationNumber}</div> // Display the validation number if saved
+                                                        ) : (
+                                                            !isValidationNumberSaved ? (
+                                                                <Button onClick={() => handleEnableValidationNumber(index)}>Enter</Button> // Enable "Enter" button if validation number is not saved and not already saved
+                                                            ) : (
+                                                                <span>N/A</span> // Display "N/A" if validation number is already saved
+                                                            )
+                                                        )
+                                                    ) : (
+                                                        <span>N/A</span> // Display "N/A" if exam result is not "Pass"
+                                                    )}
+                                                </StyledTableCell>
+
+
+
+
+                                                <StyledTableCell>
+                                                    {voucher.examResult === 'Pass' ? (
+                                                        voucher.r2d2Screenshot ? (
+                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                                <div>{voucher.r2d2Screenshot}</div>
+                                                            </div>
+                                                        ) : (
+                                                            <Button
+                                                                onClick={() => handleOpenUploadR2D2ScreenshotDialog(index)}
                                                             >
                                                                 Upload
                                                             </Button>
@@ -339,11 +511,12 @@ const ViewVouchers = () => {
                             dateFormat="yyyy-MM-dd"
                             utcOffset={0}
                             minDate={new Date()}
-                            maxDate={
-                                data[selectedExamIndex]?.voucherExpiryLocalDate
-                                    ? new Date(data[selectedExamIndex].voucherExpiryLocalDate)
-                                    : null
-                            }
+                            maxDate={getMaxDate()}
+                        // maxDate={
+                        //     data[selectedExamIndex]?.voucherExpiryLocalDate
+                        //         ? new Date(data[selectedExamIndex].voucherExpiryLocalDate)
+                        //         : null
+                        // }
                         />
                     </DialogContent>
                     <DialogActions>
@@ -356,12 +529,59 @@ const ViewVouchers = () => {
                     <DialogContent>
                         <input type="file" onChange={handleFileChange} />
                     </DialogContent>
+                    <span style={{marginLeft:"20px",marginTop:"-20px",}} className="file-format-info">
+            Accepted formats: {acceptedFileFormats.join(', ')}
+          </span>
                     <DialogActions>
                         <Button onClick={handleUpload}>Upload</Button>
                         <Button onClick={handleCloseUploadDialog}>Cancel</Button>
                     </DialogActions>
                 </Dialog>
- 
+                <Dialog
+                    open={isValidationNumberEnabled} // Change to isValidationNumberEnabled
+                    onClose={() => setValidationNumberEnabled(false)} // Adjust the closing action
+                    aria-labelledby="validation-dialog-title"
+                >
+                    <DialogTitle id="validation-dialog-title">Enter Validation Number</DialogTitle>
+                    <DialogContent>
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="validation-number"
+                            label="Validation Number"
+                            type="text"
+                            fullWidth
+                            value={validationNumberInput}
+                            onChange={(e) => {
+                                // Limit input length to 16 characters
+                                if (e.target.value.length <= 16) {
+                                    setValidationNumberInput(e.target.value);
+                                }
+                            }}
+                            error={!!validationNumberError} // Set error state
+                            helperText={validationNumberError} // Display error message
+                        />
+                    </DialogContent>
+
+                    <DialogActions>
+                        <Button onClick={handleSaveValidationNumber}>Save</Button>
+                    </DialogActions>
+                </Dialog>
+
+                <Dialog open={uploadR2D2ScreenshotDialogOpen} onClose={handleCloseUploadR2D2ScreenshotDialog}>
+                    <DialogTitle>Upload R2D2 Screenshot</DialogTitle>
+                    <DialogContent>
+                        <input type="file" onChange={handleFileChange} />
+                    </DialogContent>
+                    <span style={{marginLeft:"20px",marginTop:"-20px",}} className="file-format-info">
+            Accepted formats: {acceptedFileFormats.join(', ')}
+          </span>
+                    <DialogActions>
+                        <Button onClick={handleUploadR2D2Screenshot}>Upload</Button>
+                        <Button onClick={handleCloseUploadR2D2ScreenshotDialog}>Cancel</Button>
+                    </DialogActions>
+                </Dialog>
+
                 <Snackbar
                     open={certificateUploaded}
                     autoHideDuration={6000}
@@ -378,7 +598,7 @@ const ViewVouchers = () => {
                         Certificate uploaded successfully
                     </MuiAlert>
                 </Snackbar>
- 
+
                 {error && (
                     <Snackbar
                         open={!!error}
@@ -401,5 +621,5 @@ const ViewVouchers = () => {
         </>
     );
 };
- 
+
 export default ViewVouchers;

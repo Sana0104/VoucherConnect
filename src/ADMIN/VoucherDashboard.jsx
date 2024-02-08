@@ -294,6 +294,7 @@ function VoucherDashboard() {
       setRowsPerPage(parseInt(event.target.value, 10));
       setPage(0);
   };
+  const acceptedFileFormats = ['.xlsx'];
   return (
     <div className="headd">
       <div>
@@ -438,6 +439,7 @@ function VoucherDashboard() {
     <Typography id="modal-title" variant="h6" component="h2">
       Choose File
     </Typography>
+   
     <input
       type="file"
       accept=".xlsx"
@@ -451,6 +453,9 @@ function VoucherDashboard() {
       }}
       onChange={handleFileChange}
     />
+    <div style={{marginLeft:"10px",marginTop:"-20px",}}><span style={{fontSize: '12px', color: '#555'}}>
+            Accepted formats: {acceptedFileFormats.join(', ')}
+          </span> </div>
     <Button onClick={handleModalSubmit} variant="contained" style={{ backgroundColor: "#2ecc71", color: "#fff" }}>
       Submit
     </Button>
@@ -539,7 +544,9 @@ function VoucherDashboard() {
 
       <div className="footer-div" style={{"height": "35px", "marginTop": "15px", width: "100%"}}>
         <footer> 
-          <p>&copy; 2024 Capgemini. All rights reserved.</p>
+        <p>&copy; {currentTime.getFullYear()} Capgemini. All rights reserved.</p>
+
+         
         </footer>
       </div>
 

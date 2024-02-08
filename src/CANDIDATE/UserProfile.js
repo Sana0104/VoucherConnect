@@ -84,7 +84,7 @@ const UserProfile = ({ setProfileImageURL }) => {
             console.error('Error uploading file:', error.message);
         }
     };
- 
+    const acceptedFileFormats = ['.jpeg','jpg','png'];
     return (
         <div style={{ textAlign: 'center', padding: '20px' }}>
             {imageURL ? (
@@ -133,6 +133,9 @@ const UserProfile = ({ setProfileImageURL }) => {
                 <DialogContent>
                     <input type="file" accept="image/*" onChange={handleFileUpload} />
                 </DialogContent>
+                <span style={{marginLeft:"22px",marginTop:"-20px",}}>
+            Accepted formats: {acceptedFileFormats.join(', ')}
+          </span>
                 <DialogActions>
                     <Button onClick={handleCloseModal} color="primary">
                         Cancel

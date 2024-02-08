@@ -238,6 +238,7 @@ const RequestVoucherForm = () => {
     navigate(-1); // This function navigates back to the previous page in history
   };
  
+  const acceptedFileFormats = ['.jpg', '.jpeg', '.png'];
   return (
     <div>
       <Navbar />
@@ -332,7 +333,11 @@ const RequestVoucherForm = () => {
           />
           {formErrors.doSelectScoreImage && (
             <span className="errors">{formErrors.doSelectScoreImage}</span>
+
           )}
+           <span className="file-format-info">
+            Accepted formats: {acceptedFileFormats.join(', ')}
+          </span>
         </FormControl>
         <FormControl className='form-control-data' variant="outlined" size="sl" margin="normal">
           <TextField

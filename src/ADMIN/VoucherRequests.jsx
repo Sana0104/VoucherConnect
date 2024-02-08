@@ -280,6 +280,51 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
  
     setDenyConfirmationVisible(false);
   };
+  const fetchR2D2Image = async (id) => {
+    try {
+      const response = await axios.get(`http://localhost:8085/requests/getR2d2Screenshot/${id}`, {
+        responseType: 'arraybuffer',
+      });
+  
+      const blob = new Blob([response.data], { type: 'image/jpeg' });
+      const imageUrl = URL.createObjectURL(blob);
+      // Handle setting the image URL to state or directly displaying it
+      // For example:
+      setSelectedImage(imageUrl);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error('Error fetching R2D2 image:', error.message);
+    }
+  };
+  
+  
+  const [validationNumbers, setValidationNumbers] = useState([]); // New state for validation numbers
+
+  useEffect(() => {
+    axios.get(`http://localhost:8085/requests/getAllVouchers`)
+      .then(response => {
+        setRequests(response.data);
+        // Fetch validation numbers for each request
+        fetchValidationNumbers(response.data);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }, []);
+
+  const fetchValidationNumbers = async (requests) => {
+    try {
+      const validationNumbers = await Promise.all(
+        requests.map(request =>
+          axios.get(`http://localhost:8085/requests/getValidationNumber/${request.id}`)
+            .then(response => response.data)
+        )
+      );
+      setValidationNumbers(validationNumbers);
+    } catch (error) {
+      console.error('Error fetching validation numbers:', error.message);
+    }
+  };
   return (
     <div className="headd">
         <div>
@@ -492,6 +537,28 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
 </div>
  
           <div className="right-corner">
+          <button
+    style={{
+      backgroundColor: "#2ecc71",
+      color: "#fff",
+      fontSize: "16px",
+      height: "45px",
+      width: "140px",
+      borderRadius: "8px",
+      cursor: "pointer",
+      marginLeft: "100px",
+      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+      border: "none",
+
+      fontSize:"14px"
+    
+    
+
+    }}
+    onClick={openModal}
+  >
+   Add Supplier file
+  </button>
  
           </div>
  
@@ -512,9 +579,9 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
                 <th>Expiry Date</th>
                 <th>Exam Date</th>
                 <th>Result</th>
-                <th>Validation Number</th>
                 <th>Certificate</th>
-                <th>R2D2</th>
+                <th>Validation Number</th>
+                <th>R2D2 Image</th>
                 <th>Deny Voucher</th>
                 <th>Assign Voucher</th>
                
@@ -523,14 +590,12 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
             </thead>
  
             <tbody>
-              {requests.filter(filters).sort((a, b) => {
-                if (a.voucherCode === null && b.voucherCode !== null) {
-                  return -1; // Move rows with no voucher code to the top
-                } else if (a.voucherCode !== null && b.voucherCode === null) {
-                  return 1; // Move rows with voucher code to the bottom
-                } else {
-                  return 0; // Maintain the order for other rows
-                }
+            {requests
+              .filter(filters)
+              .sort((a, b) => {
+                const dateA = new Date(a.plannedExamDate);
+                const dateB = new Date(b.plannedExamDate);
+                return dateA - dateB;
               }).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
                 <tr key={index}>
                   <td>{row.candidateName}</td>
@@ -556,11 +621,21 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
                   <td>{row.voucherExpiryLocalDate}</td>
                   <td>{row.plannedExamDate}</td>
                   <td>{row.examResult}</td>
-                  <td></td>
                   <td style={{color: "blue", textDecoration: "underline"}} onClick={() => openModal(`http://localhost:8085/requests/getCertificate/${row.id}`)}>
             {row.certificateFileImage}
           </td>
- <td></td>
+          <td>{validationNumbers[index]}</td>
+                 
+          <td
+ 
+   
+ style={{color: "blue", textDecoration: "underline"}}
+   
+    onClick={() => fetchR2D2Image(row.id)}>
+    View
+ 
+</td>
+
                   <td>
                     
                 <button
@@ -625,7 +700,7 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
  
       <div className="footer-div" style={{ "height": "35px", "marginTop": "15px"}}>
         <footer>
-          <p>&copy; 2024 Capgemini. All rights reserved.</p>
+        <p>&copy; {currentTime.getFullYear()} Capgemini. All rights reserved.</p>
         </footer>
       </div>
  
