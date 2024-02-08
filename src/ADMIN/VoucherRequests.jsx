@@ -298,33 +298,48 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
   };
   
   
-  const [validationNumbers, setValidationNumbers] = useState([]); // New state for validation numbers
+ 
 
-  useEffect(() => {
-    axios.get(`http://localhost:8085/requests/getAllVouchers`)
-      .then(response => {
-        setRequests(response.data);
-        // Fetch validation numbers for each request
-        fetchValidationNumbers(response.data);
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  }, []);
+  // useEffect(() => {
+  //   axios.get(`http://localhost:8085/requests/getAllVouchers`)
+  //     .then(response => {
+  //       setRequests(response.data);
+       
+       
+  //     })
+  //     .catch(error => {
+  //       console.log(error);
+  //     });
+  // }, []);
 
-  const fetchValidationNumbers = async (requests) => {
+  const fetchValidationNumber = async (id) => {
     try {
-      const validationNumbers = await Promise.all(
-        requests.map(request =>
-          axios.get(`http://localhost:8085/requests/getValidationNumber/${request.id}`)
-            .then(response => response.data)
-        )
-      );
-      setValidationNumbers(validationNumbers);
+      const response = await axios.get(`http://localhost:8085/getValidationNumber/${id}`);
+      return response.data; // Assuming the validation number is returned as a string
     } catch (error) {
-      console.error('Error fetching validation numbers:', error.message);
+      console.error('Error fetching validation number:', error.message);
+      return null; // Handle error gracefully, returning null or any default value
     }
   };
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const response = await axios.get("http://localhost:8085/requests/getAllVouchers");
+        const requestsWithValidationNumbers = await Promise.all(
+          response.data.map(async (request) => {
+            const validationNumberResponse = await axios.get(`http://localhost:8085/getValidationNumber/${request.id}`);
+            return { ...request, validationNumber: validationNumberResponse.data };
+          })
+        );
+        setRequests(requestsWithValidationNumbers);
+      } catch (error) {
+        console.error("Error fetching requests:", error);
+      }
+    };
+
+    fetchRequests();
+  }, []);
+  
   return (
     <div className="headd">
         <div>
@@ -590,12 +605,14 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
             </thead>
  
             <tbody>
-            {requests
-              .filter(filters)
-              .sort((a, b) => {
-                const dateA = new Date(a.plannedExamDate);
-                const dateB = new Date(b.plannedExamDate);
-                return dateA - dateB;
+              {requests.filter(filters).sort((a, b) => {
+                if (a.voucherCode === null && b.voucherCode !== null) {
+                  return -1; // Move rows with no voucher code to the top
+                } else if (a.voucherCode !== null && b.voucherCode === null) {
+                  return 1; // Move rows with voucher code to the bottom
+                } else {
+                  return 0; // Maintain the order for other rows
+                }
               }).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
                 <tr key={index}>
                   <td>{row.candidateName}</td>
@@ -624,7 +641,9 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
                   <td style={{color: "blue", textDecoration: "underline"}} onClick={() => openModal(`http://localhost:8085/requests/getCertificate/${row.id}`)}>
             {row.certificateFileImage}
           </td>
-          <td>{validationNumbers[index]}</td>
+          <td>{row.validationNumber}</td>
+
+
                  
           <td
  
