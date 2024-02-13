@@ -339,7 +339,60 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
 
     fetchRequests();
   }, []);
+  const acceptedFileFormats = ['.xlsx'];
+  const [selectedSupplierFile, setSelectedSupplierFile] = useState(null);
+  const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false);
   
+ 
+  const closeSupplierModal = () => {
+    setIsSupplierModalOpen(false);
+  };
+  const handleSupplierFileChange = (event) => {
+    setSelectedSupplierFile(event.target.files[0]);
+  };
+  const handleSupplierFileUpload = async () => {
+    try {
+        if (!selectedSupplierFile) {
+            toast.error('Please select a file to upload.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('candidates', selectedSupplierFile);
+
+        // Make an HTTP request to upload the file
+        // Replace the URL with your backend endpoint
+        const response = await axios.post('http://localhost:9092/candidate/saveAllCandidate', formData);
+        console.log('Response from server:', response);
+
+        // Handle the response based on different scenarios
+        if (response.status === 200) {
+            const { data } = response;
+            if (data.startsWith('Total')) {
+                toast.success(data);
+            } else if (data === 'Data already exists') {
+                toast.warn(data);
+            } else if (data === 'Uploaded successfully') {
+                toast.success(data);
+            } else {
+                // Handle unexpected response
+                toast.error('Unexpected response from server.');
+            }
+        } else {
+            // Handle non-200 response status
+            toast.error('Error uploading supplier file. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error uploading supplier file:', error);
+        toast.error('Data Already Exists');
+    }
+};
+
+  const openSupplierModal = () => {
+    console.log("Opening supplier modal"); // Add this line
+    setIsSupplierModalOpen(true);
+  };
+    
   return (
     <div className="headd">
         <div>
@@ -552,16 +605,15 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
 </div>
  
           <div className="right-corner">
-          <button
-    style={{
+          <button  style={{
       backgroundColor: "#2ecc71",
       color: "#fff",
       fontSize: "16px",
       height: "45px",
-      width: "140px",
+      width: "120px",
       borderRadius: "8px",
       cursor: "pointer",
-      marginLeft: "100px",
+      marginRight: "20px",
       boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
       border: "none",
 
@@ -569,12 +621,58 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
     
     
 
-    }}
-    onClick={openModal}
-  >
-   Add Supplier file
-  </button>
- 
+    }} onClick={openSupplierModal}>Add Supplier File</button>
+
+      {/* Modal for adding a supplier file */}
+      <Modal
+  isOpen={isSupplierModalOpen}
+  onRequestClose={closeSupplierModal}
+  // Add other modal props as needed
+  style={{
+    overlay: {
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    content: {
+      background: '#fff',
+      borderRadius: '8px',
+      padding: '10px',
+      maxWidth: '400px',
+      maxHeight:'200px',
+      margin: '0 auto',
+      marginTop:'15%',
+      border: 'none'
+    }
+  }}
+>
+  {/* Modal content */}
+  <div>
+  <Typography id="modal-title" variant="h6" component="h2">
+      Choose File
+    </Typography>
+    {/* Add input for selecting file */}
+    <input  type="file"
+      accept=".xlsx"
+      style={{
+        border: "2px solid #3498db",
+        padding: "6px",
+        borderRadius: "8px",
+        width: "100%",
+        cursor: "pointer",
+        marginBottom: "20px",
+      }} onChange={handleSupplierFileChange}  />
+    {/* Add button for uploading file */}
+    <div style={{marginLeft:"10px",marginTop:"-20px",}}><span style={{fontSize: '12px', color: '#555'}}>
+            Accepted formats: {acceptedFileFormats.join(', ')}
+          </span> </div>
+    <button onClick={handleSupplierFileUpload} variant="contained" style={{ backgroundColor: "#2ecc71", font:'2x',color: "#fff" }}>Upload</button>
+  </div>
+</Modal>
+
+<ToastContainer position="top-center" autoClose={3000} hideProgressBar />
+
           </div>
  
         </div>

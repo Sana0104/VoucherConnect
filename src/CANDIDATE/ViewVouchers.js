@@ -185,6 +185,7 @@ const ViewVouchers = () => {
                 if (updatedResult !== ' ') {
                     setEditIndex(-1);
                 }
+                window.location.reload();
             } else {
                 throw new Error('Failed to update result.');
             }
@@ -317,7 +318,8 @@ const ViewVouchers = () => {
             }
         } catch (error) {
             console.error('Error uploading certificate:', error);
-            setError('Error uploading certificate.');
+            console.error('Error uploading certificate: ' + error.message);
+            setError('Change the File Name');
         }
     };
 
