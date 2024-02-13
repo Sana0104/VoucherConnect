@@ -110,7 +110,13 @@ function VoucherRequests() {
     } else if (selectedOption === 'Completed') {
       try {
         const response = await axios.get('http://localhost:8085/requests/getAllCompletedVoucherRequests');
-        setRequests(response.data);
+        console.log("Completed Requests " + response.data);
+        if(response.data.length>0){
+          setRequests(response.data);
+        } else{
+          setRequests([]);
+        }
+        
         setShowReminderButton(false);
       } catch (error) {
         console.error(error);
@@ -542,8 +548,9 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
                 placeholder="Search..."
                 onChange={handleSearchInputChange}
                 style={{
-                  marginLeft: "10px",
+                  marginTop: "5px",
                   padding: "8px",
+                  fontSize: "13px",
                   borderRadius: "5px",
                   border: "1px solid #3498db",
                 }}
@@ -587,7 +594,7 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
           <button
             onClick={() => handleSendReminderEmail()}
             style={{
-              marginLeft: "10px",
+              marginTop: "5px",
               fontSize: "13px",
               padding: "2px",
               height: "40px",
@@ -620,6 +627,7 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
       fontSize:"14px"
     
     
+
 
     }} onClick={openSupplierModal}>Add Supplier File</button>
 
@@ -673,12 +681,15 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
 
 <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
 
+
+  
+
           </div>
  
         </div>
  
         <div className="table-div">
-          <table className="dashboard-table">
+          <table className="dashboard-table" style={{width: "150%"}}>
             <thead>
               <tr>
                 <th>Name</th>
@@ -703,13 +714,15 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
             </thead>
  
             <tbody>
-              {requests.filter(filters).sort((a, b) => {
+            {requests.filter(filters).sort((a, b) => {
+                // Sort by voucher code availability (assigned requests first, then pending)
                 if (a.voucherCode === null && b.voucherCode !== null) {
-                  return -1; // Move rows with no voucher code to the top
+                  return -1; // Move rows with no voucher code (pending) to the top
                 } else if (a.voucherCode !== null && b.voucherCode === null) {
-                  return 1; // Move rows with voucher code to the bottom
+                  return 1; // Move rows with voucher code (assigned) to the bottom
                 } else {
-                  return 0; // Maintain the order for other rows
+                  // Sort by planned exam date
+                  return new Date(a.plannedExamDate) - new Date(b.plannedExamDate);
                 }
               }).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
                 <tr key={index}>
@@ -765,7 +778,6 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
                     height: "35px",
                     color: "#fff",
                     borderRadius: "5px",
-                    cursor: "pointer",
                     border: "none"
                   }}
                 >
@@ -783,7 +795,6 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
                         height: "35px",
                         color: "#fff",
                         borderRadius: "5px",
-                        cursor: "pointer",
                         border: "none"
                       }}
                     >
@@ -791,17 +802,20 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
                     </button>
                   </td>
                  
-                  
- 
- 
-                 
                 </tr>
               ))}
             </tbody>
            
           </table>
+          
+
+          {requests.length === 0 && (
+     <div style={{display:"flex", marginLeft: "350px", marginTop: "50px"} }> <p style={{ backgroundColor: "yellow", fontStyle: "-moz-initial"}}>No requests found in this category</p> 
+     </div> 
+    
+  )}
          
-          <TablePagination style={{ width: "70%", marginLeft: "2%" }}
+         {requests.length !== 0 && ( <TablePagination style={{ width: "70%", marginLeft: "2%" }}
                                 rowsPerPageOptions={[5,10, 20, 25, { label: 'All', value: requests.length }]}
                                 component="div"
                                 count={requests.length}
@@ -811,6 +825,7 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
                                 onRowsPerPageChange={handleChangeRowsPerPage}
                                 labelRowsPerPage="Rows per page"
                             />
+                            )}
         </div>
  
       </div>
