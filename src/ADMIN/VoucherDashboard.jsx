@@ -121,8 +121,8 @@ function VoucherDashboard() {
       }
     } else if (selectedOption === 'default') {
       try {
-        const response = await axios.get(`http://localhost:9091/voucher/vouchersByExamName/${exam}`);
-        setVouchers(response.data);
+        navigate("/vouchers");
+        
       } catch (error) {
         console.error(error);
       }
@@ -472,13 +472,14 @@ function VoucherDashboard() {
     <th>Expiry Date</th>
     <th>Issued To</th>
     {/* Conditionally render the Actions header based on the selected filter */}
-    {searchOption !== 'Available' ? <th>Actions</th> : null}
+    {/* {searchOption !== 'Available' ? <th>Actions</th> : null} */}
+    <th>Actions</th>
   </tr>
 </thead>
 
 
 <tbody>
-  {vouchers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+{vouchers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
     <tr key={index}>
       <td>{row.cloudPlatform}</td>
       <td>{row.examName}</td>
@@ -487,47 +488,66 @@ function VoucherDashboard() {
       <td>{row.expiryDate}</td>
       <td>{row.issuedTo}</td>
       {/* Conditionally render the Actions column based on the selected filter */}
-      {searchOption !== 'Available' && (
+      
         <td>
-          {(searchOption === 'Available' || searchOption === 'default') ? (
-            <button
-              style={{
-                backgroundColor: "#e3c449",
-                fontSize: "12px",
-                height: "35px",
-                color: "white",
-                borderRadius: "5px",
-                cursor: "pointer",
-                border: "none",
-              }}
-              onClick={() => handleActionButtonClick(row.id, false)}
-            >
-              Assign
-            </button>
-          ) : (
-            <button
-              style={{
-                backgroundColor: "#e74c3c",
-                fontSize: "12px",
-                height: "35px",
-                color: "white",
-                borderRadius: "5px",
-                cursor: "pointer",
-                border: "none",
-              }}
-              onClick={() => handleActionButtonClick(row.id, true)}
-            >
-              Delete
-            </button>
-          )}
-        </td>
-      )}
-    </tr>
-  ))}
+        {(searchOption === 'Available') ? (
+  <button
+    style={{
+      backgroundColor: "grey",
+      fontSize: "12px",
+      height: "35px",
+      color: "white",
+      borderRadius: "5px",
+      cursor: "not-allowed", // Change cursor to not-allowed when button is disabled
+      border: "none",
+    }}
+    disabled // Disable the button for available vouchers
+  >
+    Assign
+  </button>
+) : (
+  (searchOption === 'default') ? (
+    <button
+      style={{
+        backgroundColor: "#e3c449",
+        fontSize: "12px",
+        height: "35px",
+        color: "white",
+        borderRadius: "5px",
+        cursor: "pointer",
+        border: "none",
+      }}
+      onClick={() => handleActionButtonClick(row.id, false)}
+    >
+      Assign
+    </button>
+  ) : (
+    <button
+      style={{
+        backgroundColor: "#e74c3c",
+        fontSize: "12px",
+        height: "35px",
+        color: "white",
+        borderRadius: "5px",
+        cursor: "pointer",
+        border: "none",
+      }}
+      onClick={() => handleActionButtonClick(row.id, true)}
+    >
+      Delete
+    </button>
+  )
+)}
+   </td>
+      </tr>
+    ))}
 </tbody>
-
           </table>
-          <TablePagination style={{ width: "70%", marginLeft: "2%" }}
+
+  {vouchers.length === 0 && (
+     <div style={{display:"flex", marginLeft: "350px", marginTop: "50px"} }> <p style={{ backgroundColor: "yellow", fontStyle: "initial"}}> Check for all other voucher categories in filter</p> </div> 
+  )}
+  {vouchers.length !==0 && (   <TablePagination style={{ width: "70%", marginLeft: "2%" }}
                                 rowsPerPageOptions={[5,10,20,25, { label: 'All', value: vouchers.length }]}
                                 component="div"
                                 count={vouchers.length}
@@ -537,6 +557,7 @@ function VoucherDashboard() {
                                 onRowsPerPageChange={handleChangeRowsPerPage}
                                 labelRowsPerPage="Rows per page"
                             />
+  )}
         </div>
       </div>
     

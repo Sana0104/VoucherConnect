@@ -175,6 +175,7 @@ button {
 .dashboard-dropdown {
   display: flex; /* Change to flex to align items horizontally */
   align-items: center; /* Align items vertically in the center */
+  justify-content: space-between;
   margin-right: 25px;
   position: relative;
   padding: 10px;
@@ -246,7 +247,7 @@ button {
 }
 
 .dashboard-table {
-  width: 113%; /* Ensure the table takes the full width of its container */
+  width: 100%; /* Ensure the table takes the full width of its container */
   border-collapse: collapse;
 }
 
@@ -446,6 +447,7 @@ button {
   position: relative;
   padding: 10px;
   box-sizing: border-box;
+  flex-direction: column;
 }
  
 /* Add new styling for the button */
@@ -502,21 +504,6 @@ button {
 
 /* Table styles */
 
-.table-div td{
-  width: 95%;
-  font-size: 12px;
-}
-
-.table-div {
-  width: 100%; /* Ensure the table takes the full width of the wrap */
-  overflow-x: auto; /* Enable horizontal scrolling for the table */
-}
-
-.dashboard-table {
-  width: 113%; /* Ensure the table takes the full width of its container */
-  border-collapse: collapse;
-}
-
 .dashboard-table th,
 .dashboard-table td {
   padding: 5px; /* Adjust the padding as needed */
@@ -532,9 +519,9 @@ button {
 }
 
  /* adjust width of table  */
-/* Existing styles remain unchanged */
 
-.dashboard-table td:nth-child(1) {
+
+ .dashboard-table td:nth-child(1) {
   width: 9%; /* Name */
 }
 
@@ -558,12 +545,12 @@ button {
 .dashboard-table td:nth-child(10),
 .dashboard-table td:nth-child(13),
 .dashboard-table td:nth-child(14) {
-  width: 10%; /* Issued Date, Expiry Date, Exam Date, Deny Voucher, Assign Voucher */
+  width: 9%; /* Issued Date, Expiry Date, Exam Date, Deny Voucher, Assign Voucher */
 }
 
 .dashboard-table td:nth-child(11),
 .dashboard-table td:nth-child(12) {
-  width: 7%; /* Result, Certificate */
+  width: 9%; /* Result, Certificate */
 }
 
 /* Set the width for DoSelect Score, Cloud, Voucher Code, and Result to be the same */
@@ -582,11 +569,7 @@ button {
 .dashboard-table td:nth-child(14) {
   width: 10%; /* Adjust the width as needed */
 }
-
-/* Add more styles for other columns */
-
-/* Existing styles remain unchanged */
-
+ 
 
 /* Add more styles for other columns */
 
