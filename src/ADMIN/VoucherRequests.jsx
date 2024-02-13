@@ -346,7 +346,60 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
 
     fetchRequests();
   }, []);
+  const acceptedFileFormats = ['.xlsx'];
+  const [selectedSupplierFile, setSelectedSupplierFile] = useState(null);
+  const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false);
   
+ 
+  const closeSupplierModal = () => {
+    setIsSupplierModalOpen(false);
+  };
+  const handleSupplierFileChange = (event) => {
+    setSelectedSupplierFile(event.target.files[0]);
+  };
+  const handleSupplierFileUpload = async () => {
+    try {
+        if (!selectedSupplierFile) {
+            toast.error('Please select a file to upload.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('candidates', selectedSupplierFile);
+
+        // Make an HTTP request to upload the file
+        // Replace the URL with your backend endpoint
+        const response = await axios.post('http://localhost:9092/candidate/saveAllCandidate', formData);
+        console.log('Response from server:', response);
+
+        // Handle the response based on different scenarios
+        if (response.status === 200) {
+            const { data } = response;
+            if (data.startsWith('Total')) {
+                toast.success(data);
+            } else if (data === 'Data already exists') {
+                toast.warn(data);
+            } else if (data === 'Uploaded successfully') {
+                toast.success(data);
+            } else {
+                // Handle unexpected response
+                toast.error('Unexpected response from server.');
+            }
+        } else {
+            // Handle non-200 response status
+            toast.error('Error uploading supplier file. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error uploading supplier file:', error);
+        toast.error('Data Already Exists');
+    }
+};
+
+  const openSupplierModal = () => {
+    console.log("Opening supplier modal"); // Add this line
+    setIsSupplierModalOpen(true);
+  };
+    
   return (
     <div className="headd">
         <div>
@@ -560,7 +613,7 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
 </div>
  
           <div className="right-corner">
- 
+          
           </div>
  
         </div>
