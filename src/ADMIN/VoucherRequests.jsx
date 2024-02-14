@@ -368,7 +368,7 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
 
         // Make an HTTP request to upload the file
         // Replace the URL with your backend endpoint
-        const response = await axios.post('http://localhost:9092/candidate/saveAllCandidate', formData);
+        const response = await axios.post('http://localhost:8085/candidate/saveAllCandidate', formData);
         console.log('Response from server:', response);
 
         // Handle the response based on different scenarios
