@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Modal from '@mui/material/Modal';
+import Modal from 'react-modal';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { saveAs } from 'file-saver';
@@ -52,24 +52,12 @@ function CandidateList() {
 
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [vouchers, setVouchers] = useState([]);
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
   
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
  
   
-  const handleModalSubmit = () => {
-    handleFileUpload();
-    closeModal();
-  };
-  
+ 
   useEffect(() => {
     axios.get(`http://localhost:8085/candidate/getAllCandidate`)
       .then(response => {
@@ -117,67 +105,57 @@ const handleSearchOptionChange = (event) => {
     setSearchValue(event.target.value);
   };
 
-  const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
+  const [selectedSupplierFile, setSelectedSupplierFile] = useState(null);
+  const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false);
+  
+ 
+  const closeSupplierModal = () => {
+    setIsSupplierModalOpen(false);
   };
-
-  const handleFileUpload = async () => {
+  const handleSupplierFileChange = (event) => {
+    setSelectedSupplierFile(event.target.files[0]);
+  };
+  const handleSupplierFileUpload = async () => {
     try {
-      if (!selectedFile) {
-        toast.error('Please select a file to upload.');
-        return;
-      }
-  
-      const formData = new FormData();
-      formData.append('file', selectedFile);
-  
-      const response = await axios.post('http://localhost:9091/voucher/addVouchers', formData);
-  
-      console.log('Backend Response:', response.data);
-  
-      const newVouchersArray = response.data;
-  
-      // Check for duplicate voucher codes before adding
-      const duplicates = newVouchersArray.filter((newVoucher) =>
-        vouchers.some((existingVoucher) => existingVoucher.voucherCode === newVoucher.voucherCode)
-      );
-  
-      if (duplicates.length > 0) {
-        // If duplicates are found, show an error message
-        console.error('Duplicate vouchers found:', duplicates);
-  
-        // Check if the error response has a 'message' property
-        const errorMessage = duplicates.map((v) => v.voucherCode);
-        toast.error(`Duplicate vouchers found. These vouchers were not added: ${errorMessage.join(', ')}`);
-        return; // Return to avoid executing the next part if duplicates are found
-      }
-  
-      // If no duplicates, update the state with new vouchers
-      setVouchers((prevVouchers) => [...prevVouchers, ...newVouchersArray]);
-      toast.success('Data added successfully');
-    } catch (error) {
-      console.error('Error uploading file', error);
-  
-      if (error.response && error.response.data && error.response.data.message) {
-        // Check if the error response has a 'message' property
-        const errorMessage = error.response.data.message;
-  
-        // Check if the message is an array (indicating duplicate vouchers)
-        if (Array.isArray(errorMessage)) {
-          const duplicateVoucherCodes = errorMessage.map((v) => v.voucherCode).join(', ');
-          toast.error(`Duplicate vouchers found. These vouchers were not added: ${duplicateVoucherCodes}`);
-        } else {
-          // If not an array, treat it as a regular error message
-          toast.error(`Error: ${errorMessage}`);
+        if (!selectedSupplierFile) {
+            toast.error('Please select a file to upload.');
+            return;
         }
-      } else if (error.request) {
-        console.error('Error request:', error.request);
-        toast.error('Error: No response from the server.');
-      } else {
-        console.error('Other error:', error);
-        toast.error('Error: Something went wrong.');
-      }
+
+        const formData = new FormData();
+        formData.append('candidates', selectedSupplierFile);
+
+        // Make an HTTP request to upload the file
+        // Replace the URL with your backend endpoint
+        const response = await axios.post('http://localhost:8085/candidate/saveAllCandidate', formData);
+        console.log('Response from server:', response);
+
+        // Handle the response based on different scenarios
+        if (response.status === 200) {
+            const { data } = response;
+            if (data.startsWith('Total')) {
+                toast.success(data);
+            } else if (data === 'Data already exists') {
+                toast.warn(data);
+            } else if (data === 'Uploaded successfully') {
+                toast.success(data);
+            } else {
+                // Handle unexpected response
+                toast.error('Unexpected response from server.');
+            }
+        } else {
+            // Handle non-200 response status
+            toast.error('Error uploading supplier file. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error uploading supplier file:', error);
+        toast.error('Data Already Exists');
     }
+};
+
+  const openSupplierModal = () => {
+    console.log("Opening supplier modal"); // Add this line
+    setIsSupplierModalOpen(true);
   };
   
   
@@ -236,7 +214,7 @@ const handleSearchOptionChange = (event) => {
   };
 
   const acceptedFileFormats = ['.xlsx'];
-
+  
   return (
     <div className="headd">
       <div>
@@ -332,8 +310,7 @@ const handleSearchOptionChange = (event) => {
     </div>
 
 <div className="right-corner" style={{marginLeft:"350px"}}>
-  <button
-    style={{
+<button  style={{
       backgroundColor: "#2ecc71",
       color: "#fff",
       fontSize: "16px",
@@ -344,49 +321,44 @@ const handleSearchOptionChange = (event) => {
       marginRight: "20px",
       boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
       border: "none",
-
+ 
       fontSize:"14px"
-    
-    
-
-    }}
-    onClick={openModal}
-  >
-    Add Candidates
-  </button>
-  <button
-          style={{
-            backgroundColor: "#3498db",
-            color: "#fff",
-            fontSize: "16px",
-            height: "45px",
-            width: "180px",
-            borderRadius: "8px",
-            cursor: "pointer",
-            marginRight: "20px",
-            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-            border: "none",
-            fontSize: "14px"
-          }}
-          onClick={handleDownloadSampleSheet}
-        >
-          Download Sample Sheet
-        </button>
-</div>
-        </div>
-        <Modal
-  open={isModalOpen}
-  onClose={closeModal}
-  aria-labelledby="modal-title"
-  aria-describedby="modal-description"
+   
+   
+ 
+    }} onClick={openSupplierModal}>Add Supplier File</button>
+ 
+      {/* Modal for adding a supplier file */}
+      <Modal
+  isOpen={isSupplierModalOpen}
+  onRequestClose={closeSupplierModal}
+  // Add other modal props as needed
+  style={{
+    overlay: {
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    content: {
+      background: '#fff',
+      borderRadius: '8px',
+      padding: '10px',
+      maxWidth: '400px',
+      maxHeight:'200px',
+      margin: '0 auto',
+      marginTop:'15%',
+      border: 'none'
+    }
+  }}
 >
-  <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper', boxShadow: 24, p: 4 }}>
-    <Typography id="modal-title" variant="h6" component="h2">
+  {/* Modal content */}
+  <div>
+  <Typography id="modal-title" variant="h6" component="h2">
       Choose File
     </Typography>
-   
-    <input
-      type="file"
+    {/* Add input for selecting file */}
+    <input  type="file"
       accept=".xlsx"
       style={{
         border: "2px solid #3498db",
@@ -395,17 +367,20 @@ const handleSearchOptionChange = (event) => {
         width: "100%",
         cursor: "pointer",
         marginBottom: "20px",
-      }}
-      onChange={handleFileChange}
-    />
+      }} onChange={handleSupplierFileChange}  />
+    {/* Add button for uploading file */}
     <div style={{marginLeft:"10px",marginTop:"-20px",}}><span style={{fontSize: '12px', color: '#555'}}>
             Accepted formats: {acceptedFileFormats.join(', ')}
           </span> </div>
-    <Button onClick={handleModalSubmit} variant="contained" style={{ backgroundColor: "#2ecc71", color: "#fff" }}>
-      Submit
-    </Button>
-  </Box>
+    <button onClick={handleSupplierFileUpload} variant="contained" style={{ backgroundColor: "#2ecc71", font:'2x',color: "#fff" }}>Upload</button>
+  </div>
 </Modal>
+ 
+<ToastContainer position="top-center" autoClose={3000} hideProgressBar />
+ 
+          </div>
+ 
+        </div>
         <div className="table-div">
           <table className="dashboard-table" style={{width: "100%"}}>
           <thead>
