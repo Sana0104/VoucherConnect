@@ -30,19 +30,19 @@ import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import axios from 'axios';
-
+ 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
         backgroundColor: theme.palette.primary.main,
         color: theme.palette.common.white,
         whiteSpace: 'nowrap',
     },
-
+ 
     [`&.${tableCellClasses.body}`]: {
         fontSize: 14,
     },
 }));
-
+ 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
     "&:nth-of-type(odd)": {
         backgroundColor: theme.palette.action.hover,
@@ -52,7 +52,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     },
     height: "2px",
 }));
-
+ 
 const ViewVouchers = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -71,13 +71,13 @@ const ViewVouchers = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [certificateUploaded, setCertificateUploaded] = useState(false);
     const [uploadR2D2ScreenshotDialogOpen, setUploadR2D2ScreenshotDialogOpen] = useState(false);
-    const [validationNumber, setValidationNumber] = useState('');
+   
     const [isValidationNumberEnabled, setValidationNumberEnabled] = useState(false);
     const [validationNumberError, setValidationNumberError] = useState('');
     const [showValidationPopup, setShowValidationPopup] = useState(false);
     const [validationNumberInput, setValidationNumberInput] = useState('');
     const [isValidationNumberSaved, setIsValidationNumberSaved] = useState(false);
-
+    const [r2d2ScreenshotUploaded, setR2D2ScreenshotUploaded] = useState(false);
     useEffect(() => {
         const fetchVouchers = async () => {
             try {
@@ -97,19 +97,19 @@ const ViewVouchers = () => {
                 setLoading(false);
             }
         };
-
+ 
         fetchVouchers();
     }, []);
-
+ 
     const handleRequestVoucher = () => {
         navigate('/requestform', { state: { username } });
     };
-
+ 
     const handleEditExamDate = (index) => {
         setSelectedExamIndex(index);
         setEditDateModalOpen(true);
     };
-
+ 
     const handleEditResult = (index) => {
         const voucher = data[index];
         if (!voucher.voucherCode) {
@@ -128,11 +128,11 @@ const ViewVouchers = () => {
             setError('Editing result is not allowed before the exam date.');
         }
     };
-
+ 
     const handleDateChange = (date) => {
         setSelectedDate(date);
     };
-
+ 
     const handleSaveExamDate = async () => {
         try {
             const voucherToUpdate = data[selectedExamIndex];
@@ -159,7 +159,7 @@ const ViewVouchers = () => {
             setError(error.message);
         }
     };
-
+ 
     const handleSaveResult = async (index) => {
         try {
             const voucherToUpdate = data[index];
@@ -175,13 +175,14 @@ const ViewVouchers = () => {
                     throw new Error('R2D2 screenshot must be uploaded before before changing the result to Pass');
                 }
             }
-
+ 
             const response = await axios.put(`http://localhost:8085/requests/${voucherToUpdate.voucherCode}/${updatedResult}`);
             if (response.status === 200) {
                 const updatedData = [...data];
                 updatedData[index].examResult = updatedResult;
                 setData(updatedData);
                 setError(null);
+ 
                 if (updatedResult !== ' ') {
                     setEditIndex(-1);
                 }
@@ -198,7 +199,7 @@ const ViewVouchers = () => {
         setSelectedExamIndex(index);
         setUploadDialogOpen(true);
     };
-
+ 
     const handleCloseUploadDialog = () => {
         setUploadDialogOpen(false);
     };
@@ -206,38 +207,40 @@ const ViewVouchers = () => {
         setSelectedExamIndex(index);
         setUploadR2D2ScreenshotDialogOpen(true);
     };
-
+ 
     const handleCloseUploadR2D2ScreenshotDialog = () => {
         setUploadR2D2ScreenshotDialogOpen(false);
     };
-
+ 
     const handleUploadR2D2Screenshot = async () => {
         try {
             const formData = new FormData();
             formData.append('coupon', data[selectedExamIndex].voucherCode);
             formData.append('image', selectedFile);
-
+ 
             const response = await axios.post('http://localhost:8085/requests/uploadR2d2Screenshot', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-
+ 
             if (response.status === 200) {
                 const updatedData = [...data];
                 updatedData[selectedExamIndex].r2d2Screenshot = response.data.r2d2Screenshot;
                 setData(updatedData);
                 setUploadR2D2ScreenshotDialogOpen(false);
+                setR2D2ScreenshotUploaded(true);
                 // Optionally, you can show a success message here
             } else {
                 throw new Error('Failed to upload R2D2 screenshot. Server responded with status: ' + response.status);
             }
         } catch (error) {
             console.error('Error uploading R2D2 screenshot:', error);
-            setError('Error uploading R2D2 screenshot: ' + error.message);
+            console.log('Error uploading R2D2 screenshot: ' + error.message);
+            setError('Check the file is uploaded or not');
         }
     };
-
+ 
     const handleEnableValidationNumber = (index) => {
         setSelectedExamIndex(index);
         const voucher = data[index];
@@ -255,22 +258,22 @@ const ViewVouchers = () => {
             setError('Enabling validation number is not allowed before the exam date.');
         }
     };
-
-
+ 
+ 
     const handleSaveValidationNumber = async () => {
         try {
             const voucherToUpdate = data[selectedExamIndex];
             const voucherRequestId = voucherToUpdate.id; // Assuming voucherRequestId is accessible in data
-
+ 
             const validationNumberInputTrimmed = validationNumberInput.trim();
-
+ 
             // Regular expression to match exactly 16 characters consisting of alphabets and numbers
             const validationRegex = /^[A-Za-z0-9]{16}$/;
-
+ 
             if (validationNumberInputTrimmed.length !== 16) {
                 throw new Error('Validation number must be exactly 16 characters long.');
             }
-            const response = await axios.post(`http://localhost:8085/requests/provideValidationNumber/${voucherRequestId}`, null, {
+            const response = await axios.put(`http://localhost:8085/requests/provideValidationNumber/${voucherRequestId}`, null, {
                 params: {
                     validationNumber: validationNumberInput
                 }
@@ -296,7 +299,7 @@ const ViewVouchers = () => {
         const file = event.target.files[0];
         setSelectedFile(file);
     };
-
+ 
     const handleUpload = async () => {
         try {
             const formData = new FormData();
@@ -319,14 +322,14 @@ const ViewVouchers = () => {
         } catch (error) {
             console.error('Error uploading certificate:', error);
             console.error('Error uploading certificate: ' + error.message);
-            setError('Change the File Name');
+            setError('Check File is uploaded or not ');
         }
     };
-
+ 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
-
+ 
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
@@ -344,7 +347,7 @@ const ViewVouchers = () => {
             return defaultMaxDate;
         }
     };
-
+ 
     const acceptedFileFormats = ['.jpg', '.jpeg', '.png'];
     return (
         <>
@@ -363,7 +366,7 @@ const ViewVouchers = () => {
                                         <StyledTableCell >Cloud Platform</StyledTableCell>
                                         <StyledTableCell >Voucher Code</StyledTableCell>
                                         <StyledTableCell >Voucher Issued Date</StyledTableCell>
-
+ 
                                         <StyledTableCell style={{ minWidth: '150px' }}>Exam Date</StyledTableCell>
                                         <StyledTableCell style={{ minWidth: '150px' }}>Result</StyledTableCell>
                                         <StyledTableCell style={{ minWidth: '200px' }}>Certificate</StyledTableCell>
@@ -385,7 +388,7 @@ const ViewVouchers = () => {
                                                 <StyledTableCell>{voucher.cloudPlatform}</StyledTableCell>
                                                 <StyledTableCell>{voucher.voucherCode ?? 'Requested'}</StyledTableCell>
                                                 <StyledTableCell>{voucher.voucherIssueLocalDate ? voucher.voucherIssueLocalDate : 'Requested'}</StyledTableCell>
-
+ 
                                                 <StyledTableCell>
                                                     {voucher.plannedExamDate}
                                                     <IconButton onClick={() => handleEditExamDate(index)}>
@@ -465,10 +468,10 @@ const ViewVouchers = () => {
                                                         <span>N/A</span> // Display "N/A" if exam result is not "Pass"
                                                     )}
                                                 </StyledTableCell>
-
-
-
-
+ 
+ 
+ 
+ 
                                                 <StyledTableCell>
                                                     {voucher.examResult === 'Pass' ? (
                                                         voucher.r2d2Screenshot ? (
@@ -531,9 +534,9 @@ const ViewVouchers = () => {
                     <DialogContent>
                         <input type="file" onChange={handleFileChange} />
                     </DialogContent>
-                    <span style={{marginLeft:"20px",marginTop:"-20px",}} className="file-format-info">
-            Accepted formats: {acceptedFileFormats.join(', ')}
-          </span>
+                    <span style={{ marginLeft: "20px", marginTop: "-20px", }} className="file-format-info">
+                        Accepted formats: {acceptedFileFormats.join(', ')}
+                    </span>
                     <DialogActions>
                         <Button onClick={handleUpload}>Upload</Button>
                         <Button onClick={handleCloseUploadDialog}>Cancel</Button>
@@ -564,26 +567,26 @@ const ViewVouchers = () => {
                             helperText={validationNumberError} // Display error message
                         />
                     </DialogContent>
-
+ 
                     <DialogActions>
                         <Button onClick={handleSaveValidationNumber}>Save</Button>
                     </DialogActions>
                 </Dialog>
-
+ 
                 <Dialog open={uploadR2D2ScreenshotDialogOpen} onClose={handleCloseUploadR2D2ScreenshotDialog}>
                     <DialogTitle>Upload R2D2 Screenshot</DialogTitle>
                     <DialogContent>
                         <input type="file" onChange={handleFileChange} />
                     </DialogContent>
-                    <span style={{marginLeft:"20px",marginTop:"-20px",}} className="file-format-info">
-            Accepted formats: {acceptedFileFormats.join(', ')}
-          </span>
+                    <span style={{ marginLeft: "20px", marginTop: "-20px", }} className="file-format-info">
+                        Accepted formats: {acceptedFileFormats.join(', ')}
+                    </span>
                     <DialogActions>
                         <Button onClick={handleUploadR2D2Screenshot}>Upload</Button>
                         <Button onClick={handleCloseUploadR2D2ScreenshotDialog}>Cancel</Button>
                     </DialogActions>
                 </Dialog>
-
+ 
                 <Snackbar
                     open={certificateUploaded}
                     autoHideDuration={6000}
@@ -600,7 +603,22 @@ const ViewVouchers = () => {
                         Certificate uploaded successfully
                     </MuiAlert>
                 </Snackbar>
-
+                <Snackbar
+                    open={r2d2ScreenshotUploaded}
+                    autoHideDuration={6000}
+                    onClose={() => setR2D2ScreenshotUploaded(false)}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                    style={{ bottom: '80px' }}
+                >
+                    <MuiAlert
+                        onClose={() => setR2D2ScreenshotUploaded(false)}
+                        severity="success"
+                        sx={{ width: '100%', maxWidth: '100%' }}
+                        style={{ backgroundColor: 'green', color: 'white', fontSize: '20px', padding: '20px' }}
+                    >
+                        R2D2 screenshot uploaded successfully
+                    </MuiAlert>
+                </Snackbar>
                 {error && (
                     <Snackbar
                         open={!!error}
@@ -623,5 +641,5 @@ const ViewVouchers = () => {
         </>
     );
 };
-
+ 
 export default ViewVouchers;
