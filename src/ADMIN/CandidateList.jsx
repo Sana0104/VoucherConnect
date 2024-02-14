@@ -163,7 +163,7 @@ const handleSearchOptionChange = (event) => {
   
   const handleDownloadSampleSheet = () => {
     const sheetContent = [
-      ['EXAM NAME', 'CLOUD PLATFORM', 'VOUCHER CODE', 'ISSUED DATE', 'EXPIRY DATE']
+      ['EmailID', 'Practice', 'Status']
      
     ];
   
@@ -172,7 +172,7 @@ const handleSearchOptionChange = (event) => {
   
    
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'data');
+    XLSX.utils.book_append_sheet(wb, ws, 'candidates');
   
     
     XLSX.writeFile(wb, 'SampleSheet.xlsx', { bookType: 'xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -326,8 +326,25 @@ const handleSearchOptionChange = (event) => {
    
    
  
-    }} onClick={openSupplierModal}>Add Supplier File</button>
- 
+    }} onClick={openSupplierModal}>Add Candidate File</button>
+ <button
+          style={{
+            backgroundColor: "#3498db",
+            color: "#fff",
+            fontSize: "16px",
+            height: "45px",
+            width: "180px",
+            borderRadius: "8px",
+            cursor: "pointer",
+            marginRight: "20px",
+            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+            border: "none",
+            fontSize: "14px"
+          }}
+          onClick={handleDownloadSampleSheet}
+        >
+          Download Sample Sheet
+        </button>
       {/* Modal for adding a supplier file */}
       <Modal
   isOpen={isSupplierModalOpen}
@@ -377,6 +394,7 @@ const handleSearchOptionChange = (event) => {
 </Modal>
  
 <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
+
  
           </div>
  
