@@ -22,7 +22,8 @@ import {
   faBell,
   faArrowLeft,
   faClipboardCheck,
-  faUser,
+  faUsers,
+  faList,
   faTachometerAlt,
   faCog
 } from "@fortawesome/free-solid-svg-icons";
@@ -534,12 +535,12 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
                 outline: "none",
               }}
             >
-              <option value="default">Search</option>
-              <option value="candidateName">Search Candidate</option>
-              <option value="plannedExamDate">Search Exam Date</option>
-              <option value="cloudPlatform">Search By Cloud</option>
-              <option value="cloudExam">Search By Exam name</option>
-              <option value="examResult">Search By Exam Result</option>
+              <option value="default">Search Request</option>
+              <option value="candidateName">By Candidate Email</option>
+              <option value="plannedExamDate">By Exam Date</option>
+              <option value="cloudPlatform">By Cloud</option>
+              <option value="cloudExam">By Exam name</option>
+              <option value="examResult">By Exam Result</option>
             </select>
             {(searchOption === 'candidateName' || searchOption === 'plannedExamDate' || searchOption === 'cloudPlatform' || searchOption === 'cloudExam'|| searchOption === 'examResult') && (
               <input
@@ -612,78 +613,7 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
 </div>
  
           <div className="right-corner">
-          <button  style={{
-      backgroundColor: "#2ecc71",
-      color: "#fff",
-      fontSize: "16px",
-      height: "45px",
-      width: "120px",
-      borderRadius: "8px",
-      cursor: "pointer",
-      marginRight: "20px",
-      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-      border: "none",
-
-      fontSize:"14px"
-    
-    
-
-
-    }} onClick={openSupplierModal}>Add Supplier File</button>
-
-      {/* Modal for adding a supplier file */}
-      <Modal
-  isOpen={isSupplierModalOpen}
-  onRequestClose={closeSupplierModal}
-  // Add other modal props as needed
-  style={{
-    overlay: {
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    },
-    content: {
-      background: '#fff',
-      borderRadius: '8px',
-      padding: '10px',
-      maxWidth: '400px',
-      maxHeight:'200px',
-      margin: '0 auto',
-      marginTop:'15%',
-      border: 'none'
-    }
-  }}
->
-  {/* Modal content */}
-  <div>
-  <Typography id="modal-title" variant="h6" component="h2">
-      Choose File
-    </Typography>
-    {/* Add input for selecting file */}
-    <input  type="file"
-      accept=".xlsx"
-      style={{
-        border: "2px solid #3498db",
-        padding: "6px",
-        borderRadius: "8px",
-        width: "100%",
-        cursor: "pointer",
-        marginBottom: "20px",
-      }} onChange={handleSupplierFileChange}  />
-    {/* Add button for uploading file */}
-    <div style={{marginLeft:"10px",marginTop:"-20px",}}><span style={{fontSize: '12px', color: '#555'}}>
-            Accepted formats: {acceptedFileFormats.join(', ')}
-          </span> </div>
-    <button onClick={handleSupplierFileUpload} variant="contained" style={{ backgroundColor: "#2ecc71", font:'2x',color: "#fff" }}>Upload</button>
-  </div>
-</Modal>
-
-<ToastContainer position="top-center" autoClose={3000} hideProgressBar />
-
-
-  
-
+          
           </div>
  
         </div>
@@ -849,12 +779,17 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
           </div>
           <div className="left-row">
             <p><Link to={'/requests'} style={{ "color": "white" }}>
-              <FontAwesomeIcon icon={faTachometerAlt} size="1x" /> Requests</Link></p>
+              <FontAwesomeIcon icon={faList} size="1x" /> Requests</Link></p>
           </div>
  
           <div className="left-row">
             <p><Link to={'/vouchers'} style={{ "color": "white" }}>
               <FontAwesomeIcon icon={faClipboardCheck} size="1x" />  Vouchers</Link></p>
+          </div>
+
+          <div className="left-row">
+            <p><Link to={'/candidates'} style={{ "color": "white" }}>
+              <FontAwesomeIcon icon={faUsers} size="1x" /> Eligibility</Link></p>
           </div>
  
         </div>

@@ -1,4 +1,3 @@
-// Dashboard.js
 import React, { useState, useEffect, useRef } from "react";
 import "./Dashboard.css";
 import Button from '@mui/material/Button';
@@ -18,22 +17,19 @@ import UserProfile from "../CANDIDATE/UserProfile";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import {
-  faCalendar,
-  faBell,
   faArrowLeft,
   faClipboardCheck,
   faUsers,
   faList,
   faTachometerAlt,
-  faCog
 } from "@fortawesome/free-solid-svg-icons";
 
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-function VoucherDashboard() {
+function CandidateList() {
   const obj = localStorage.getItem("userInfo");
   const { name, username } = JSON.parse(obj);
-  const [requests, setRequests] = useState([]);
+  const [candidates, setCandidates] = useState([]);
   
   const [anchorEl, setAnchorEl] = useState(null);
   const [profileImageURL, setProfileImageURL] = useState(null);
@@ -52,15 +48,13 @@ function VoucherDashboard() {
   const [searchOption, setSearchOption] = useState("default");
   const [searchValue, setSearchValue] = useState("");
 
-  const [vouchers, setVouchers] = useState([]);
-
-  const { email, exam, id } = useParams();
-
   const navigate = useNavigate();
 
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [vouchers, setVouchers] = useState([]);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -77,10 +71,10 @@ function VoucherDashboard() {
   };
   
   useEffect(() => {
-    axios.get(`http://localhost:9091/voucher/vouchersByExamName/${exam}`)
+    axios.get(`http://localhost:8085/candidate/getAllCandidate`)
       .then(response => {
         console.log(response.data);
-        setVouchers(response.data);
+        setCandidates(response.data);
       })
       .catch(error => {
         console.log(error);
@@ -102,82 +96,26 @@ function VoucherDashboard() {
   const dateOptions = { day: "numeric", month: "long", year: "numeric" };
   const timeOptions = { hour: "2-digit", minute: "2-digit", hour12: true };
 
-  const handleSearchOptionChange = async (event) => {
-    const selectedOption = event.target.value;
-    setSearchOption(selectedOption);
-
-    if (selectedOption === 'Expired') {
-      try {
-        const response = await axios.get('http://localhost:9091/voucher/getAllExpiredVouchers');
-        setVouchers(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    } else if (selectedOption === 'Available') {
-      try {
-        const response = await axios.get('http://localhost:9091/voucher/getAllVouchers');
-        setVouchers(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    } else if (selectedOption === 'default') {
-      try {
-        navigate("/vouchers");
-        
-      } catch (error) {
-        console.error(error);
-      }
-    } else if (selectedOption === 'Assigned') {
-      try {
-        const response = await axios.get('http://localhost:9091/voucher/getAllAssignedVoucher');
-        setVouchers(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    } else if (selectedOption === 'AssignedNotUsed') {
-      try {
-        const response = await axios.get('http://localhost:9091/voucher/getAllAssignedButNotUtilizedVoucher');
-        setVouchers(response.data);
-      } catch (error) {
-        console.error(error);
-      }
+  const filters = (resource) => {
+    if (!resource) {
+      return false; // or true, depending on your logic for handling null requests.....
     }
-
-    // Notify user about the filter change
-    toast.info(`Showing ${selectedOption} vouchers`);
-  };
-
-  const handleActionButtonClick = async (voucherid, isExpired) => {
-    if (isExpired) {
-      try {
-        const response = await axios.delete(`http://localhost:9091/voucher/deleteVoucher/${voucherid}`);
-        console.log(response.data);
-        const updatedVouchers = vouchers.filter(voucher => voucher.id !== voucherid);
-        setVouchers(updatedVouchers);
-        navigate(`/voucher-dashboard/${email}/${exam}/${id}`);
-  
-        // Show success toasty message
-        toast.success('Voucher Deleted Successfully!!!');
-      } catch (error) {
-        console.error(error.response.data);
-        alert(error.data);
-      }
-    } else {
-      try {
-        const response = await axios.get(`http://localhost:8085/requests/assignvoucher/${voucherid}/${email}/${id}`);
-        console.log(response.data);
-        navigate("/requests");
-  
-        // Show success toasty message
-        toast.success('Voucher Assigned Successfully!!!');
-      } catch (error) {
-        console.error(error.response.data);
-        alert(error.data);
-      }
+    if (searchOption === 'default') {
+      return true;
+    } else if (searchOption === 'email') {
+      return resource.email && resource.email.toLowerCase().includes(searchValue.toLowerCase());
+    } else if (searchOption === 'status') {
+  return resource.status && resource.status.toLowerCase().includes(searchValue.toLowerCase());
     }
   };
+
+const handleSearchOptionChange = (event) => {
+    setSearchOption(event.target.value);
+  };
  
- 
+  const handleSearchInputChange = (event) => {
+    setSearchValue(event.target.value);
+  };
 
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
@@ -285,6 +223,7 @@ function VoucherDashboard() {
 
     fetchProfileImageURL();
   }, [username]);
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const handleChangePage = (event, newPage) => {
@@ -295,7 +234,9 @@ function VoucherDashboard() {
       setRowsPerPage(parseInt(event.target.value, 10));
       setPage(0);
   };
+
   const acceptedFileFormats = ['.xlsx'];
+
   return (
     <div className="headd">
       <div>
@@ -353,41 +294,44 @@ function VoucherDashboard() {
   </p>
 </div>
 
+    <div className="dashboard-dropdown">
+            <select
+              className="search-text"
+              value={searchOption}
+              onChange={handleSearchOptionChange}
+              style={{
+                fontSize: "14px",
+                height: "40px",
+                borderRadius: "5px",
+                paddingLeft: "10px",
+                border: "1px solid #3498db",
+                background: "#ecf0f1", // Light gray background
+                color: "#2c3e50", // Dark text color
+                outline: "none",
+              }}
+            >
+              <option value="default">Search Candidate</option>
+              <option value="email">By Email</option>
+              <option value="status">By Availability</option>
+            </select>
+            {(searchOption === 'email' || searchOption === 'status') && (
+              <input
+                type="text"
+                value={searchValue}
+                placeholder="Search..."
+                onChange={handleSearchInputChange}
+                style={{
+                  marginTop: "5px",
+                  padding: "8px",
+                  fontSize: "13px",
+                  borderRadius: "5px",
+                  border: "1px solid #3498db",
+                }}
+              />
+            )}
+    </div>
 
-<div className="dashboard-dropdown">
-  <select
-    className="search-text"
-    value={searchOption}
-    onChange={handleSearchOptionChange}
-    style={{
-      fontSize: "14px",
-      height: "40px",
-      borderRadius: "5px",
-      paddingLeft: "10px",
-      border: "1px solid #3498db",
-      background: "#ecf0f1", // Light gray background
-      color: "#2c3e50", // Dark text color
-      outline: "none",
-    }}
-  >
-    <option value="default">Filters</option>
-    <option value="Expired">
-      All Expired Vouchers
-    </option>
-    <option value="Available">
-      All Available Vouchers
-    </option>
-    <option value="Assigned" >
-      All Assigned Vouchers
-    </option>
-    <option value="AssignedNotUsed" >
-      Assigned Not Used Vouchers
-    </option>
-  </select>
-</div>
-
-
-<div className="right-corner" >
+<div className="right-corner" style={{marginLeft:"350px"}}>
   <button
     style={{
       backgroundColor: "#2ecc71",
@@ -408,7 +352,7 @@ function VoucherDashboard() {
     }}
     onClick={openModal}
   >
-    Add Voucher
+    Add Candidates
   </button>
   <button
           style={{
@@ -466,92 +410,31 @@ function VoucherDashboard() {
           <table className="dashboard-table" style={{width: "100%"}}>
           <thead>
   <tr>
-    <th>Cloud</th>
-    <th>Exam</th>
-    <th>Voucher Code</th>
-    <th>Issue Date</th>
-    <th>Expiry Date</th>
-    <th>Issued To</th>
-    {/* Conditionally render the Actions header based on the selected filter */}
-    {/* {searchOption !== 'Available' ? <th>Actions</th> : null} */}
-    <th>Actions</th>
+    <th>Email</th>
+    <th>Practice</th>
+    <th>Staffing Availabilty</th>
   </tr>
 </thead>
 
 
 <tbody>
-{vouchers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+{candidates.filter(filters).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
     <tr key={index}>
-      <td>{row.cloudPlatform}</td>
-      <td>{row.examName}</td>
-      <td>{row.voucherCode}</td>
-      <td>{row.issuedDate}</td>
-      <td>{row.expiryDate}</td>
-      <td>{row.issuedTo}</td>
-      {/* Conditionally render the Actions column based on the selected filter */}
-      
-        <td>
-        {(searchOption === 'Available') ? (
-  <button
-    style={{
-      backgroundColor: "grey",
-      fontSize: "12px",
-      height: "35px",
-      color: "white",
-      borderRadius: "5px",
-      cursor: "not-allowed", // Change cursor to not-allowed when button is disabled
-      border: "none",
-    }}
-    disabled // Disable the button for available vouchers
-  >
-    Assign
-  </button>
-) : (
-  (searchOption === 'default') ? (
-    <button
-      style={{
-        backgroundColor: "#e3c449",
-        fontSize: "12px",
-        height: "35px",
-        color: "white",
-        borderRadius: "5px",
-        cursor: "pointer",
-        border: "none",
-      }}
-      onClick={() => handleActionButtonClick(row.id, false)}
-    >
-      Assign
-    </button>
-  ) : (
-    <button
-      style={{
-        backgroundColor: "#e74c3c",
-        fontSize: "12px",
-        height: "35px",
-        color: "white",
-        borderRadius: "5px",
-        cursor: "pointer",
-        border: "none",
-      }}
-      onClick={() => handleActionButtonClick(row.id, true)}
-    >
-      Delete
-    </button>
-  )
-)}
-   </td>
+      <td>{row.email}</td>
+      <td>{row.practice}</td>
+      <td>{row.status}</td>
       </tr>
     ))}
 </tbody>
           </table>
 
-  {vouchers.length === 0 && (
-     <div style={{display:"flex", marginLeft: "350px", marginTop: "50px"} }> <p style={{ backgroundColor: "yellow", fontStyle: "initial"}}> Check for all other voucher categories in filter</p> </div> 
+  {candidates.length === 0 && (
+     <div style={{display:"flex", marginLeft: "350px", marginTop: "50px"} }> <p style={{ backgroundColor: "yellow", fontStyle: "initial"}}> No candidates data present. Please upload the data.</p> </div> 
   )}
-  {vouchers.length !==0 && (   <TablePagination style={{ width: "70%", marginLeft: "2%" }}
-                                rowsPerPageOptions={[5,10,20,25, { label: 'All', value: vouchers.length }]}
+  {candidates.length !==0 && (   <TablePagination style={{ width: "70%", marginLeft: "2%" }}
+                                rowsPerPageOptions={[5,10,20,25, { label: 'All', value: candidates.length }]}
                                 component="div"
-                                count={vouchers.length}
+                                count={candidates.length}
                                 rowsPerPage={rowsPerPage}
                                 page={page}
                                 onPageChange={handleChangePage}
@@ -606,4 +489,4 @@ function VoucherDashboard() {
   );
 }
 
-export default VoucherDashboard;
+export default CandidateList;
