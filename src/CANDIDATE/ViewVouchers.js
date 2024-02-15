@@ -197,6 +197,7 @@ const ViewVouchers = () => {
     };
     const handleOpenUploadDialog = (index) => {
         setSelectedExamIndex(index);
+        setSelectedFile(null);
         setUploadDialogOpen(true);
     };
  
@@ -205,6 +206,7 @@ const ViewVouchers = () => {
     };
     const handleOpenUploadR2D2ScreenshotDialog = (index) => {
         setSelectedExamIndex(index);
+        setSelectedFile(null); // Reset selected file
         setUploadR2D2ScreenshotDialogOpen(true);
     };
  
@@ -270,8 +272,8 @@ const ViewVouchers = () => {
             // Regular expression to match exactly 16 characters consisting of alphabets and numbers
             const validationRegex = /^[A-Za-z0-9]{16}$/;
  
-            if (validationNumberInputTrimmed.length !== 16) {
-                throw new Error('Validation number must be exactly 16 characters long.');
+            if (!validationRegex.test(validationNumberInputTrimmed)) {
+                throw new Error('Validation number must be exactly 16 characters long and contain only alphabets and numbers.');
             }
             const response = await axios.put(`http://localhost:8085/requests/provideValidationNumber/${voucherRequestId}`, null, {
                 params: {
