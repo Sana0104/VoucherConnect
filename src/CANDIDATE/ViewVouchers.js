@@ -30,19 +30,19 @@ import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import axios from 'axios';
-
+ 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
         backgroundColor: theme.palette.primary.main,
         color: theme.palette.common.white,
         whiteSpace: 'nowrap',
     },
-
+ 
     [`&.${tableCellClasses.body}`]: {
         fontSize: 14,
     },
 }));
-
+ 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
     "&:nth-of-type(odd)": {
         backgroundColor: theme.palette.action.hover,
@@ -52,7 +52,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     },
     height: "2px",
 }));
-
+ 
 const ViewVouchers = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -97,19 +97,19 @@ const ViewVouchers = () => {
                 setLoading(false);
             }
         };
-
+ 
         fetchVouchers();
     }, []);
-
+ 
     const handleRequestVoucher = () => {
         navigate('/requestform', { state: { username } });
     };
-
+ 
     const handleEditExamDate = (index) => {
         setSelectedExamIndex(index);
         setEditDateModalOpen(true);
     };
-
+ 
     const handleEditResult = (index) => {
         const voucher = data[index];
         if (!voucher.voucherCode) {
@@ -128,11 +128,11 @@ const ViewVouchers = () => {
             setError('Editing result is not allowed before the exam date.');
         }
     };
-
+ 
     const handleDateChange = (date) => {
         setSelectedDate(date);
     };
-
+ 
     const handleSaveExamDate = async () => {
         try {
             const voucherToUpdate = data[selectedExamIndex];
@@ -159,7 +159,7 @@ const ViewVouchers = () => {
             setError(error.message);
         }
     };
-
+ 
     const handleSaveResult = async (index) => {
         try {
             const voucherToUpdate = data[index];
@@ -175,7 +175,7 @@ const ViewVouchers = () => {
                     throw new Error('R2D2 screenshot must be uploaded before before changing the result to Pass');
                 }
             }
-
+ 
             const response = await axios.put(`http://localhost:8085/requests/${voucherToUpdate.voucherCode}/${updatedResult}`);
             if (response.status === 200) {
                 const updatedData = [...data];
@@ -199,7 +199,7 @@ const ViewVouchers = () => {
         setSelectedExamIndex(index);
         setUploadDialogOpen(true);
     };
-
+ 
     const handleCloseUploadDialog = () => {
         setUploadDialogOpen(false);
     };
@@ -207,23 +207,23 @@ const ViewVouchers = () => {
         setSelectedExamIndex(index);
         setUploadR2D2ScreenshotDialogOpen(true);
     };
-
+ 
     const handleCloseUploadR2D2ScreenshotDialog = () => {
         setUploadR2D2ScreenshotDialogOpen(false);
     };
-
+ 
     const handleUploadR2D2Screenshot = async () => {
         try {
             const formData = new FormData();
             formData.append('coupon', data[selectedExamIndex].voucherCode);
             formData.append('image', selectedFile);
-
+ 
             const response = await axios.post('http://localhost:8085/requests/uploadR2d2Screenshot', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-
+ 
             if (response.status === 200) {
                 const updatedData = [...data];
                 updatedData[selectedExamIndex].r2d2Screenshot = response.data.r2d2Screenshot;
@@ -240,7 +240,7 @@ const ViewVouchers = () => {
             setError('Check the file is uploaded or not');
         }
     };
-
+ 
     const handleEnableValidationNumber = (index) => {
         setSelectedExamIndex(index);
         const voucher = data[index];
@@ -258,18 +258,18 @@ const ViewVouchers = () => {
             setError('Enabling validation number is not allowed before the exam date.');
         }
     };
-
-
+ 
+ 
     const handleSaveValidationNumber = async () => {
         try {
             const voucherToUpdate = data[selectedExamIndex];
             const voucherRequestId = voucherToUpdate.id; // Assuming voucherRequestId is accessible in data
-
+ 
             const validationNumberInputTrimmed = validationNumberInput.trim();
-
+ 
             // Regular expression to match exactly 16 characters consisting of alphabets and numbers
             const validationRegex = /^[A-Za-z0-9]{16}$/;
-
+ 
             if (validationNumberInputTrimmed.length !== 16) {
                 throw new Error('Validation number must be exactly 16 characters long.');
             }
@@ -299,7 +299,7 @@ const ViewVouchers = () => {
         const file = event.target.files[0];
         setSelectedFile(file);
     };
-
+ 
     const handleUpload = async () => {
         try {
             const formData = new FormData();
@@ -325,11 +325,11 @@ const ViewVouchers = () => {
             setError('Check File is uploaded or not ');
         }
     };
-
+ 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
-
+ 
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
@@ -347,7 +347,7 @@ const ViewVouchers = () => {
             return defaultMaxDate;
         }
     };
-
+ 
     const acceptedFileFormats = ['.jpg', '.jpeg', '.png'];
     return (
         <>
@@ -366,7 +366,7 @@ const ViewVouchers = () => {
                                         <StyledTableCell >Cloud Platform</StyledTableCell>
                                         <StyledTableCell >Voucher Code</StyledTableCell>
                                         <StyledTableCell >Voucher Issued Date</StyledTableCell>
-
+ 
                                         <StyledTableCell style={{ minWidth: '150px' }}>Exam Date</StyledTableCell>
                                         <StyledTableCell style={{ minWidth: '150px' }}>Result</StyledTableCell>
                                         <StyledTableCell style={{ minWidth: '200px' }}>Certificate</StyledTableCell>
@@ -388,7 +388,7 @@ const ViewVouchers = () => {
                                                 <StyledTableCell>{voucher.cloudPlatform}</StyledTableCell>
                                                 <StyledTableCell>{voucher.voucherCode ?? 'Requested'}</StyledTableCell>
                                                 <StyledTableCell>{voucher.voucherIssueLocalDate ? voucher.voucherIssueLocalDate : 'Requested'}</StyledTableCell>
-
+ 
                                                 <StyledTableCell>
                                                     {voucher.plannedExamDate}
                                                     <IconButton onClick={() => handleEditExamDate(index)}>
@@ -468,10 +468,10 @@ const ViewVouchers = () => {
                                                         <span>N/A</span> // Display "N/A" if exam result is not "Pass"
                                                     )}
                                                 </StyledTableCell>
-
-
-
-
+ 
+ 
+ 
+ 
                                                 <StyledTableCell>
                                                     {voucher.examResult === 'Pass' ? (
                                                         voucher.r2d2Screenshot ? (
@@ -567,12 +567,12 @@ const ViewVouchers = () => {
                             helperText={validationNumberError} // Display error message
                         />
                     </DialogContent>
-
+ 
                     <DialogActions>
                         <Button onClick={handleSaveValidationNumber}>Save</Button>
                     </DialogActions>
                 </Dialog>
-
+ 
                 <Dialog open={uploadR2D2ScreenshotDialogOpen} onClose={handleCloseUploadR2D2ScreenshotDialog}>
                     <DialogTitle>Upload R2D2 Screenshot</DialogTitle>
                     <DialogContent>
@@ -586,7 +586,7 @@ const ViewVouchers = () => {
                         <Button onClick={handleCloseUploadR2D2ScreenshotDialog}>Cancel</Button>
                     </DialogActions>
                 </Dialog>
-
+ 
                 <Snackbar
                     open={certificateUploaded}
                     autoHideDuration={6000}
@@ -641,5 +641,5 @@ const ViewVouchers = () => {
         </>
     );
 };
-
+ 
 export default ViewVouchers;

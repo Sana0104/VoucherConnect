@@ -22,7 +22,8 @@ import {
   faBell,
   faArrowLeft,
   faClipboardCheck,
-  faUser,
+  faUsers,
+  faList,
   faTachometerAlt,
   faCog
 } from "@fortawesome/free-solid-svg-icons";
@@ -345,7 +346,60 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
 
     fetchRequests();
   }, []);
+  const acceptedFileFormats = ['.xlsx'];
+  const [selectedSupplierFile, setSelectedSupplierFile] = useState(null);
+  const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false);
   
+ 
+  const closeSupplierModal = () => {
+    setIsSupplierModalOpen(false);
+  };
+  const handleSupplierFileChange = (event) => {
+    setSelectedSupplierFile(event.target.files[0]);
+  };
+  const handleSupplierFileUpload = async () => {
+    try {
+        if (!selectedSupplierFile) {
+            toast.error('Please select a file to upload.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('candidates', selectedSupplierFile);
+
+        // Make an HTTP request to upload the file
+        // Replace the URL with your backend endpoint
+        const response = await axios.post('http://localhost:8085/candidate/saveAllCandidate', formData);
+        console.log('Response from server:', response);
+
+        // Handle the response based on different scenarios
+        if (response.status === 200) {
+            const { data } = response;
+            if (data.startsWith('Total')) {
+                toast.success(data);
+            } else if (data === 'Data already exists') {
+                toast.warn(data);
+            } else if (data === 'Uploaded successfully') {
+                toast.success(data);
+            } else {
+                // Handle unexpected response
+                toast.error('Unexpected response from server.');
+            }
+        } else {
+            // Handle non-200 response status
+            toast.error('Error uploading supplier file. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error uploading supplier file:', error);
+        toast.error('Data Already Exists');
+    }
+};
+
+  const openSupplierModal = () => {
+    console.log("Opening supplier modal"); // Add this line
+    setIsSupplierModalOpen(true);
+  };
+    
   return (
     <div className="headd">
         <div>
@@ -360,6 +414,8 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
  
  
       {/* <button onClick={() => setConfirmationVisible(true)}>Send Reminder Mail</button> */}
+     
+    
     </div>
     <div>
         {denyConfirmationVisible && (
@@ -481,12 +537,12 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
                 outline: "none",
               }}
             >
-              <option value="default">Search</option>
-              <option value="candidateName">Search Candidate</option>
-              <option value="plannedExamDate">Search Exam Date</option>
-              <option value="cloudPlatform">Search By Cloud</option>
-              <option value="cloudExam">Search By Exam name</option>
-              <option value="examResult">Search By Exam Result</option>
+              <option value="default">Search Request</option>
+              <option value="candidateName">By Candidate Email</option>
+              <option value="plannedExamDate">By Exam Date</option>
+              <option value="cloudPlatform">By Cloud</option>
+              <option value="cloudExam">By Exam name</option>
+              <option value="examResult">By Exam Result</option>
             </select>
             {(searchOption === 'candidateName' || searchOption === 'plannedExamDate' || searchOption === 'cloudPlatform' || searchOption === 'cloudExam'|| searchOption === 'examResult') && (
               <input
@@ -559,29 +615,7 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
 </div>
  
           <div className="right-corner">
-          <button
-    style={{
-      backgroundColor: "#2ecc71",
-      color: "#fff",
-      fontSize: "16px",
-      height: "45px",
-      width: "140px",
-      borderRadius: "8px",
-      cursor: "pointer",
-      marginLeft: "100px",
-      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-      border: "none",
-
-      fontSize:"14px"
-    
-    
-
-    }}
-    onClick={openModal}
-  >
-   Add Supply file
-  </button>
- 
+          
           </div>
  
         </div>
@@ -747,12 +781,17 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
           </div>
           <div className="left-row">
             <p><Link to={'/requests'} style={{ "color": "white" }}>
-              <FontAwesomeIcon icon={faTachometerAlt} size="1x" /> Requests</Link></p>
+              <FontAwesomeIcon icon={faList} size="1x" /> Requests</Link></p>
           </div>
  
           <div className="left-row">
             <p><Link to={'/vouchers'} style={{ "color": "white" }}>
               <FontAwesomeIcon icon={faClipboardCheck} size="1x" />  Vouchers</Link></p>
+          </div>
+
+          <div className="left-row">
+            <p><Link to={'/candidates'} style={{ "color": "white" }}>
+              <FontAwesomeIcon icon={faUsers} size="1x" /> Eligibility</Link></p>
           </div>
  
         </div>

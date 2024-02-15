@@ -29,6 +29,7 @@ const RequestVoucherForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [openDialog, setOpenDialog] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState(false);
   const username = location.state?.username || '';
   const [formErrors, setFormErrors] = useState({});
   const [examOptions, setExamOptions] = useState([]);
@@ -219,6 +220,7 @@ const RequestVoucherForm = () => {
             if (error.response && error.response.status === 404) {
               // Handle 404 error - show a dialog box with the error message
               setOpenDialog(true);
+              setDialogMessage(error.response.data.message);
             }
           });
       } else {
@@ -239,6 +241,8 @@ const RequestVoucherForm = () => {
   };
  
   const acceptedFileFormats = ['.jpg', '.jpeg', '.png'];
+ 
+ 
   return (
     <div>
       <Navbar />
@@ -333,7 +337,7 @@ const RequestVoucherForm = () => {
           />
           {formErrors.doSelectScoreImage && (
             <span className="errors">{formErrors.doSelectScoreImage}</span>
-
+ 
           )}
            <span className="file-format-info">
             Accepted formats: {acceptedFileFormats.join(', ')}
@@ -366,7 +370,8 @@ const RequestVoucherForm = () => {
         <DialogContent sx={{ textAlign: 'center' }}>
           <WarningIcon sx={{ fontSize: 80, color: 'orange' }} />
           <Typography variant="body1" sx={{ textShadow: '1px  #000' }}>
-            You have already requested a voucher for this exam.
+            {/* You have already requested a voucher for this exam. */}
+            {dialogMessage}
           </Typography>
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'center' }}>

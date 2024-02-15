@@ -22,7 +22,8 @@ import {
   faBell,
   faArrowLeft,
   faClipboardCheck,
-  faUser,
+  faUsers,
+  faList,
   faTachometerAlt,
   faCog
 } from "@fortawesome/free-solid-svg-icons";
@@ -583,12 +584,17 @@ function VoucherDashboard() {
           </div>
           <div className="left-row">
             <p><Link to='/requests' style={{ "color": "white" }}>
-              <FontAwesomeIcon icon={faTachometerAlt} size="1x" /> Requests</Link></p>
+              <FontAwesomeIcon icon={faList} size="1x" /> Requests</Link></p>
           </div>
 
           <div className="left-row">
             <p><Link to={'/vouchers'} style={{ "color": "white" }}>
               <FontAwesomeIcon icon={faClipboardCheck} size="1x" /> Vouchers</Link></p>
+          </div>
+
+          <div className="left-row">
+            <p><Link to={'/candidates'} style={{ "color": "white" }}>
+              <FontAwesomeIcon icon={faUsers} size="1x" /> Eligibility</Link></p>
           </div>
         </div>
       </div>

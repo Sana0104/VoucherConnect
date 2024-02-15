@@ -70,6 +70,10 @@ const UserProfile = ({ setProfileImageURL }) => {
     };
  
     const handleFileUpload = async (event) => {
+        if (!event || !event.target || !event.target.files || event.target.files.length === 0) {
+            handleCloseModal();
+            return;
+        }
         const file = event.target.files[0];
  
         const formData = new FormData();
@@ -131,7 +135,7 @@ const UserProfile = ({ setProfileImageURL }) => {
             <Dialog open={isModalOpen} onClose={handleCloseModal}>
                 <DialogTitle>Upload Profile Image</DialogTitle>
                 <DialogContent>
-                    <input type="file" accept="image/*" onChange={handleFileUpload} />
+                    <input type="file" accept=".jpg,.jpeg,.png" onChange={handleFileUpload} />
                 </DialogContent>
                 <span style={{marginLeft:"22px",marginTop:"-20px",}}>
             Accepted formats: {acceptedFileFormats.join(', ')}
