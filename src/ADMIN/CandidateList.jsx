@@ -130,28 +130,25 @@ const handleSearchOptionChange = (event) => {
         const response = await axios.post('http://localhost:8085/candidate/saveAllCandidate', formData);
         console.log('Response from server:', response);
 
-        // Handle the response based on different scenarios
+        // Handle the response based on HTTP status code
         if (response.status === 200) {
-            const { data } = response;
-            if (data.startsWith('Total')) {
-                toast.success(data);
-            } else if (data === 'Data already exists') {
-                toast.warn(data);
-            } else if (data === 'Uploaded successfully') {
-                toast.success(data);
-            } else {
-                // Handle unexpected response
-                toast.error('Unexpected response from server.');
-            }
+            toast.success('File uploaded successfully');
+        } else if (response.status === 404) { // 409 Conflict status code for data already exists
+            toast.warn('Data already exists');
         } else {
-            // Handle non-200 response status
+            // Handle unexpected response status
             toast.error('Error uploading supplier file. Please try again.');
         }
     } catch (error) {
         console.error('Error uploading supplier file:', error);
-        toast.error('Data Already Exists');
+        toast.error('No changes found to add or update data in the database.');
+    } finally {
+        // Close the modal regardless of the outcome
+        closeSupplierModal();
     }
 };
+
+
 
   const openSupplierModal = () => {
     console.log("Opening supplier modal"); // Add this line
