@@ -36,7 +36,7 @@ function VoucherRequests() {
   const [requests, setRequests] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [showReminderButton, setShowReminderButton] = useState(false);
- 
+  const [selectedDenialReason, setSelectedDenialReason] = useState("");
   const [profileImageURL, setProfileImageURL] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const openProfilePopup = (event) => {
@@ -46,7 +46,9 @@ function VoucherRequests() {
   const closeProfilePopup = () => {
     setAnchorEl(null);
   };
- 
+  const handleDenialReasonChange = (event) => {
+    setSelectedDenialReason(event.target.value);
+  };
   const isProfilePopupOpen = Boolean(anchorEl);
   const navigate = useNavigate();
  
@@ -268,23 +270,22 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
  
   const handleDenyRequest = async () => {
     try {
-      const response = await axios.get(`http://localhost:8085/requests/denyRequest/${selectedRequest.id}`);
+      // Send the denial request with the selected reason
+      const response = await axios.get(`http://localhost:8085/requests/denyRequest/${selectedRequest.id}?reason=${selectedDenialReason}`);
       console.log(response.data);
- 
-      // Send denial confirmation email here (similar to sending reminder email)
- 
+
       // Show success toasty message
       toast.success('Request denied successfully!!!');
- 
+
       // Reload the current page
       window.location.reload();
     } catch (error) {
       console.error(error.response.data);
- 
+
       // Show error toasty message
       toast.error('Failed to deny request. Please try again.');
     }
- 
+
     setDenyConfirmationVisible(false);
   };
   const fetchR2D2Image = async (id) => {
@@ -418,13 +419,29 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
     
     </div>
     <div>
-        {denyConfirmationVisible && (
-          <div className="confirmation-modal">
-            <p>Are you sure you want to deny the request?</p>
-            <button onClick={handleDenyRequest}>Confirm</button>
-            <button onClick={closeDenyConfirmation}>Cancel</button>
-          </div>
-        )}
+    {denyConfirmationVisible && (
+  <div className="confirmation-modal">
+    {/* Dropdown menu for denial reasons */}
+    <select style={{color: 'InactiveBorder',backgroundColor:'whitish-gray',marginBottom:'2px'}} value={selectedDenialReason} onChange={handleDenialReasonChange} className="reason-dropdown">
+      <option value="">Select Denial Reason</option>
+      <option value="lowScore">Low Score</option>
+      <option value="outdatedImage">Outdated Image</option>
+      <option value="incorrectScreenshot">Incorrect Screenshot</option>
+      <option value="incorrectImageFormat">Incorrect Image Format</option>
+    </select>
+    {/* Conditional rendering for the message */}
+    {selectedDenialReason === "" && (
+      <p style={{ color: 'red' }}>Please select a reason before confirming:</p>
+    )}
+    {/* Confirmation message */}
+    <p>Are you sure you want to deny the request?</p>
+    {/* Confirm and Cancel buttons */}
+    <button onClick={handleDenyRequest} disabled={!selectedDenialReason} className="confirm-button">Confirm</button>
+    <button onClick={closeDenyConfirmation} className="cancel-button">Cancel</button>
+  </div>
+)}
+
+
       </div>
       <Modal
   isOpen={isModalOpen}

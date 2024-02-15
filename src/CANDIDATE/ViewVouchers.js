@@ -176,7 +176,7 @@ const ViewVouchers = () => {
                 }
             }
  
-            const response = await axios.put(`http://localhost:8085/requests/${voucherToUpdate.voucherCode}/${updatedResult}`);
+            const response = await axios.put(`http://localhost:8085/requests/updateExamResult/${voucherToUpdate.voucherCode}/${updatedResult}`);
             if (response.status === 200) {
                 const updatedData = [...data];
                 updatedData[index].examResult = updatedResult;
