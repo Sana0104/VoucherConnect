@@ -176,7 +176,7 @@ const ViewVouchers = () => {
                 }
             }
  
-            const response = await axios.put(`http://localhost:8085/requests/${voucherToUpdate.voucherCode}/${updatedResult}`);
+            const response = await axios.put(`http://localhost:8085/requests/updateExamResult/${voucherToUpdate.voucherCode}/${updatedResult}`);
             if (response.status === 200) {
                 const updatedData = [...data];
                 updatedData[index].examResult = updatedResult;
@@ -197,7 +197,11 @@ const ViewVouchers = () => {
     };
     const handleOpenUploadDialog = (index) => {
         setSelectedExamIndex(index);
+<<<<<<< HEAD
         setSelectedFile(null); 
+=======
+        setSelectedFile(null);
+>>>>>>> f67048b36d32121f6e485bb1a403de1632b68c75
         setUploadDialogOpen(true);
     };
  
@@ -451,7 +455,11 @@ const ViewVouchers = () => {
                                                         <span>N/A</span>
                                                     )}
                                                 </StyledTableCell>
+<<<<<<< HEAD
                                               
+=======
+                                             
+>>>>>>> f67048b36d32121f6e485bb1a403de1632b68c75
                                                 <StyledTableCell>
                                                     {voucher.examResult === 'Pass' ? (
                                                         voucher.validationNumber ? (
