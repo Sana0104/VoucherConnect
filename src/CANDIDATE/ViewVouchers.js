@@ -197,6 +197,7 @@ const ViewVouchers = () => {
     };
     const handleOpenUploadDialog = (index) => {
         setSelectedExamIndex(index);
+        setSelectedFile(null); 
         setUploadDialogOpen(true);
     };
  
@@ -205,6 +206,7 @@ const ViewVouchers = () => {
     };
     const handleOpenUploadR2D2ScreenshotDialog = (index) => {
         setSelectedExamIndex(index);
+        setSelectedFile(null); // Reset selected file
         setUploadR2D2ScreenshotDialogOpen(true);
     };
  
@@ -270,9 +272,12 @@ const ViewVouchers = () => {
             // Regular expression to match exactly 16 characters consisting of alphabets and numbers
             const validationRegex = /^[A-Za-z0-9]{16}$/;
  
-            if (validationNumberInputTrimmed.length !== 16) {
-                throw new Error('Validation number must be exactly 16 characters long.');
+            if (!validationRegex.test(validationNumberInputTrimmed)) {
+                throw new Error('Validation number must be exactly 16 characters long and contain only alphabets and numbers.');
             }
+            // if (validationNumberInputTrimmed.length !== 16) {
+            //     throw new Error('Validation number must be exactly 16 characters long.');
+            // }
             const response = await axios.put(`http://localhost:8085/requests/provideValidationNumber/${voucherRequestId}`, null, {
                 params: {
                     validationNumber: validationNumberInput
@@ -446,13 +451,7 @@ const ViewVouchers = () => {
                                                         <span>N/A</span>
                                                     )}
                                                 </StyledTableCell>
-                                                {/* <StyledTableCell>
-                                                    {voucher.examResult === 'Pass' && !isValidationNumberSaved ? (
-                                                        <Button onClick={() => handleEnableValidationNumber(index)}>Enter</Button>
-                                                    ) : (
-                                                        voucher.validationNumber // Display the validation number if saved
-                                                    )}
-                                                </StyledTableCell> */}
+                                              
                                                 <StyledTableCell>
                                                     {voucher.examResult === 'Pass' ? (
                                                         voucher.validationNumber ? (
@@ -574,18 +573,18 @@ const ViewVouchers = () => {
                 </Dialog>
  
                 <Dialog open={uploadR2D2ScreenshotDialogOpen} onClose={handleCloseUploadR2D2ScreenshotDialog}>
-                    <DialogTitle>Upload R2D2 Screenshot</DialogTitle>
-                    <DialogContent>
-                        <input type="file" onChange={handleFileChange} />
-                    </DialogContent>
-                    <span style={{ marginLeft: "20px", marginTop: "-20px", }} className="file-format-info">
-                        Accepted formats: {acceptedFileFormats.join(', ')}
-                    </span>
-                    <DialogActions>
-                        <Button onClick={handleUploadR2D2Screenshot}>Upload</Button>
-                        <Button onClick={handleCloseUploadR2D2ScreenshotDialog}>Cancel</Button>
-                    </DialogActions>
-                </Dialog>
+    <DialogTitle>Upload R2D2 Screenshot</DialogTitle>
+    <DialogContent>
+        <input type="file" onChange={handleFileChange} />
+    </DialogContent>
+    <span style={{ marginLeft: "20px", marginTop: "-20px", }} className="file-format-info">
+        Accepted formats: {acceptedFileFormats.join(', ')}
+    </span>
+    <DialogActions>
+        <Button onClick={handleUploadR2D2Screenshot}>Upload</Button>
+        <Button onClick={handleCloseUploadR2D2ScreenshotDialog}>Cancel</Button>
+    </DialogActions>
+</Dialog>
  
                 <Snackbar
                     open={certificateUploaded}
