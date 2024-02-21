@@ -30,11 +30,11 @@ function CandidateList() {
   const obj = localStorage.getItem("userInfo");
   const { name, username } = JSON.parse(obj);
   const [candidates, setCandidates] = useState([]);
-  
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [profileImageURL, setProfileImageURL] = useState(null);
 
-  
+
   const openProfilePopup = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -54,10 +54,10 @@ function CandidateList() {
   const fileInputRef = useRef(null);
 
 
-  
- 
-  
- 
+
+
+
+
   useEffect(() => {
     axios.get(`http://localhost:8085/candidate/getAllCandidate`)
       .then(response => {
@@ -93,22 +93,22 @@ function CandidateList() {
     } else if (searchOption === 'email') {
       return resource.email && resource.email.toLowerCase().includes(searchValue.toLowerCase());
     } else if (searchOption === 'status') {
-  return resource.status && resource.status.toLowerCase().includes(searchValue.toLowerCase());
+      return resource.status && resource.status.toLowerCase().includes(searchValue.toLowerCase());
     }
   };
 
-const handleSearchOptionChange = (event) => {
+  const handleSearchOptionChange = (event) => {
     setSearchOption(event.target.value);
   };
- 
+
   const handleSearchInputChange = (event) => {
     setSearchValue(event.target.value);
   };
 
   const [selectedSupplierFile, setSelectedSupplierFile] = useState(null);
   const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false);
-  
- 
+
+
   const closeSupplierModal = () => {
     setIsSupplierModalOpen(false);
   };
@@ -117,36 +117,36 @@ const handleSearchOptionChange = (event) => {
   };
   const handleSupplierFileUpload = async () => {
     try {
-        if (!selectedSupplierFile) {
-            toast.error('Please select a file to upload.');
-            return;
-        }
+      if (!selectedSupplierFile) {
+        toast.error('Please select a file to upload.');
+        return;
+      }
 
-        const formData = new FormData();
-        formData.append('candidates', selectedSupplierFile);
+      const formData = new FormData();
+      formData.append('candidates', selectedSupplierFile);
 
-        // Make an HTTP request to upload the file
-        // Replace the URL with your backend endpoint
-        const response = await axios.post('http://localhost:8085/candidate/saveAllCandidate', formData);
-        console.log('Response from server:', response);
+      // Make an HTTP request to upload the file
+      // Replace the URL with your backend endpoint
+      const response = await axios.post('http://localhost:8085/candidate/saveAllCandidate', formData);
+      console.log('Response from server:', response);
 
-        // Handle the response based on HTTP status code
-        if (response.status === 200) {
-            toast.success('File uploaded successfully');
-        } else if (response.status === 404) { // 409 Conflict status code for data already exists
-            toast.warn('Data already exists');
-        } else {
-            // Handle unexpected response status
-            toast.error('Error uploading supplier file. Please try again.');
-        }
+      // Handle the response based on HTTP status code
+      if (response.status === 200) {
+        toast.success('File uploaded successfully');
+      } else if (response.status === 404) { // 409 Conflict status code for data already exists
+        toast.warn('Data already exists');
+      } else {
+        // Handle unexpected response status
+        toast.error('Error uploading supplier file. Please try again.');
+      }
     } catch (error) {
-        console.error('Error uploading supplier file:', error);
-        toast.error('No changes found to add or update data in the database.');
+      console.error('Error uploading supplier file:', error);
+      toast.error('No changes found to add or update data in the database.');
     } finally {
-        // Close the modal regardless of the outcome
-        closeSupplierModal();
+      // Close the modal regardless of the outcome
+      closeSupplierModal();
     }
-};
+  };
 
 
 
@@ -154,27 +154,27 @@ const handleSearchOptionChange = (event) => {
     console.log("Opening supplier modal"); // Add this line
     setIsSupplierModalOpen(true);
   };
-  
-  
-  
-  
+
+
+
+
   const handleDownloadSampleSheet = () => {
     const sheetContent = [
       ['EmailID', 'Practice', 'Status']
-     
+
     ];
-  
-    
+
+
     const ws = XLSX.utils.aoa_to_sheet(sheetContent);
-  
-   
+
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'candidates');
-  
-    
+
+
     XLSX.writeFile(wb, 'SampleSheet.xlsx', { bookType: 'xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  
-    
+
+
   };
   useEffect(() => {
     const fetchProfileImageURL = async () => {
@@ -202,23 +202,23 @@ const handleSearchOptionChange = (event) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const handleChangePage = (event, newPage) => {
-      setPage(newPage);
+    setPage(newPage);
   };
- 
+
   const handleChangeRowsPerPage = (event) => {
-      setRowsPerPage(parseInt(event.target.value, 10));
-      setPage(0);
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   const acceptedFileFormats = ['.xlsx'];
-  
+
   return (
     <div className="headd">
       <div>
         <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
       </div>
 
-      <div className="navbar" style={{ backgroundColor: "rgb(112, 183, 184)", width: "auto"}}>
+      <div className="navbar" style={{ backgroundColor: "rgb(112, 183, 184)", width: "auto" }}>
         <div className="user-info" style={{ marginLeft: "10px" }}>
           <p id="name">Welcome!!</p>
           <p id="date">
@@ -227,11 +227,11 @@ const handleSearchOptionChange = (event) => {
           </p>
         </div>
 
-        <div className="user-info" style={{alignItems: "flex-end"}}>
+        <div className="user-info" style={{ alignItems: "flex-end" }}>
           <div>
-          <Button color="inherit" onClick={openProfilePopup}>
+            <Button color="inherit" onClick={openProfilePopup}>
               {profileImageURL ? (
-                <img src={profileImageURL} alt="Profile" style={{ borderRadius: '50%', width: '60px', height: '60px', marginRight: '5px', marginTop:"-15px" }} />
+                <img src={profileImageURL} alt="Profile" style={{ borderRadius: '50%', width: '60px', height: '60px', marginRight: '5px', marginTop: "-15px" }} />
               ) : (
                 <AccountCircleIcon style={{ color: 'skyblue', fontSize: '45px', marginRight: '5px' }} />
               )}
@@ -259,17 +259,17 @@ const handleSearchOptionChange = (event) => {
         </div>
       </div>
 
-      <div className="wrap" style={{width: "fit-content"}}>
+      <div className="wrap" style={{ width: "fit-content" }}>
         <div className="dashboard-container">
-        <div className="back">
-  <p>
-    <Link to="/requests" style={{ color: "black", textDecoration: "none", fontSize: "16px", fontWeight: "bold" }}>
-      <FontAwesomeIcon icon={faArrowLeft} /> Back
-    </Link>
-  </p>
-</div>
+          <div className="back">
+            <p>
+              <Link to="/requests" style={{ color: "black", textDecoration: "none", fontSize: "16px", fontWeight: "bold" }}>
+                <FontAwesomeIcon icon={faArrowLeft} /> Back
+              </Link>
+            </p>
+          </div>
 
-    <div className="dashboard-dropdown">
+          <div className="dashboard-dropdown">
             <select
               className="search-text"
               value={searchOption}
@@ -304,144 +304,144 @@ const handleSearchOptionChange = (event) => {
                 }}
               />
             )}
-    </div>
-
-<div className="right-corner" style={{marginLeft:"350px"}}>
-<button  style={{
-      backgroundColor: "#2ecc71",
-      color: "#fff",
-      fontSize: "16px",
-      height: "45px",
-      width: "120px",
-      borderRadius: "8px",
-      cursor: "pointer",
-      marginRight: "20px",
-      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-      border: "none",
- 
-      fontSize:"14px"
-   
-   
- 
-    }} onClick={openSupplierModal}>Add Candidate File</button>
- <button
-          style={{
-            backgroundColor: "#3498db",
-            color: "#fff",
-            fontSize: "16px",
-            height: "45px",
-            width: "180px",
-            borderRadius: "8px",
-            cursor: "pointer",
-            marginRight: "20px",
-            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-            border: "none",
-            fontSize: "14px"
-          }}
-          onClick={handleDownloadSampleSheet}
-        >
-          Download Sample Sheet
-        </button>
-      {/* Modal for adding a supplier file */}
-      <Modal
-  isOpen={isSupplierModalOpen}
-  onRequestClose={closeSupplierModal}
-  // Add other modal props as needed
-  style={{
-    overlay: {
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    },
-    content: {
-      background: '#fff',
-      borderRadius: '8px',
-      padding: '10px',
-      maxWidth: '400px',
-      maxHeight:'200px',
-      margin: '0 auto',
-      marginTop:'15%',
-      border: 'none'
-    }
-  }}
->
-  {/* Modal content */}
-  <div>
-  <Typography id="modal-title" variant="h6" component="h2">
-      Choose File
-    </Typography>
-    {/* Add input for selecting file */}
-    <input  type="file"
-      accept=".xlsx"
-      style={{
-        border: "2px solid #3498db",
-        padding: "6px",
-        borderRadius: "8px",
-        width: "100%",
-        cursor: "pointer",
-        marginBottom: "20px",
-      }} onChange={handleSupplierFileChange}  />
-    {/* Add button for uploading file */}
-    <div style={{marginLeft:"10px",marginTop:"-20px",}}><span style={{fontSize: '12px', color: '#555'}}>
-            Accepted formats: {acceptedFileFormats.join(', ')}
-          </span> </div>
-    <button onClick={handleSupplierFileUpload} variant="contained" style={{ backgroundColor: "#2ecc71", font:'2x',color: "#fff" }}>Upload</button>
-  </div>
-</Modal>
- 
-<ToastContainer position="top-center" autoClose={3000} hideProgressBar />
-
- 
           </div>
- 
+
+          <div className="right-corner" style={{ marginLeft: "350px" }}>
+            <button style={{
+              backgroundColor: "#2ecc71",
+              color: "#fff",
+              fontSize: "16px",
+              height: "45px",
+              width: "120px",
+              borderRadius: "8px",
+              cursor: "pointer",
+              marginRight: "20px",
+              boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+              border: "none",
+
+              fontSize: "14px"
+
+
+
+            }} onClick={openSupplierModal}>Add Candidate File</button>
+            <button
+              style={{
+                backgroundColor: "#3498db",
+                color: "#fff",
+                fontSize: "16px",
+                height: "45px",
+                width: "180px",
+                borderRadius: "8px",
+                cursor: "pointer",
+                marginRight: "20px",
+                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                border: "none",
+                fontSize: "14px"
+              }}
+              onClick={handleDownloadSampleSheet}
+            >
+              Download Sample Sheet
+            </button>
+            {/* Modal for adding a supplier file */}
+            <Modal
+              isOpen={isSupplierModalOpen}
+              onRequestClose={closeSupplierModal}
+              // Add other modal props as needed
+              style={{
+                overlay: {
+                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                },
+                content: {
+                  background: '#fff',
+                  borderRadius: '8px',
+                  padding: '10px',
+                  maxWidth: '400px',
+                  maxHeight: '200px',
+                  margin: '0 auto',
+                  marginTop: '15%',
+                  border: 'none'
+                }
+              }}
+            >
+              {/* Modal content */}
+              <div>
+                <Typography id="modal-title" variant="h6" component="h2">
+                  Choose File
+                </Typography>
+                {/* Add input for selecting file */}
+                <input type="file"
+                  accept=".xlsx"
+                  style={{
+                    border: "2px solid #3498db",
+                    padding: "6px",
+                    borderRadius: "8px",
+                    width: "100%",
+                    cursor: "pointer",
+                    marginBottom: "20px",
+                  }} onChange={handleSupplierFileChange} />
+                {/* Add button for uploading file */}
+                <div style={{ marginLeft: "10px", marginTop: "-20px", }}><span style={{ fontSize: '12px', color: '#555' }}>
+                  Accepted formats: {acceptedFileFormats.join(', ')}
+                </span> </div>
+                <button onClick={handleSupplierFileUpload} variant="contained" style={{ backgroundColor: "#2ecc71", font: '2x', color: "#fff" }}>Upload</button>
+              </div>
+            </Modal>
+
+            <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
+
+
+          </div>
+
         </div>
         <div className="table-div">
-          <table className="dashboard-table" style={{width: "100%"}}>
-          <thead>
-  <tr>
-    <th>Email</th>
-    <th>Practice</th>
-    <th>Staffing Availabilty</th>
-  </tr>
-</thead>
+          <table className="dashboard-table" style={{ width: "100%" }}>
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Practice</th>
+                <th>Staffing Availabilty</th>
+              </tr>
+            </thead>
 
 
-<tbody>
-{candidates.filter(filters).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
-    <tr key={index}>
-      <td>{row.email}</td>
-      <td>{row.practice}</td>
-      <td>{row.status}</td>
-      </tr>
-    ))}
-</tbody>
+            <tbody>
+              {candidates.filter(filters).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+                <tr key={index}>
+                  <td>{row.email}</td>
+                  <td>{row.practice}</td>
+                  <td>{row.status}</td>
+                </tr>
+              ))}
+            </tbody>
           </table>
 
-  {candidates.length === 0 && (
-     <div style={{display:"flex", marginLeft: "350px", marginTop: "50px"} }> <p style={{ backgroundColor: "yellow", fontStyle: "initial"}}> No candidates data present. Please upload the data.</p> </div> 
-  )}
-  {candidates.length !==0 && (   <TablePagination style={{ width: "70%", marginLeft: "2%" }}
-                                rowsPerPageOptions={[5,10,20,25, { label: 'All', value: candidates.length }]}
-                                component="div"
-                                count={candidates.length}
-                                rowsPerPage={rowsPerPage}
-                                page={page}
-                                onPageChange={handleChangePage}
-                                onRowsPerPageChange={handleChangeRowsPerPage}
-                                labelRowsPerPage="Rows per page"
-                            />
-  )}
+          {candidates.length === 0 && (
+            <div style={{ display: "flex", marginLeft: "350px", marginTop: "50px" }}> <p style={{ backgroundColor: "yellow", fontStyle: "initial" }}> No candidates data present. Please upload the data.</p> </div>
+          )}
+          {candidates.length !== 0 && (<TablePagination style={{ width: "70%", marginLeft: "2%" }}
+            rowsPerPageOptions={[5, 10, 20, 25, { label: 'All', value: candidates.length }]}
+            component="div"
+            count={candidates.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            labelRowsPerPage="Rows per page"
+          />
+          )}
         </div>
       </div>
-    
 
 
-      <div className="footer-div" style={{"height": "35px", "marginTop": "15px", width: "100%"}}>
-        <footer> 
-        <p>&copy; {currentTime.getFullYear()} Capgemini. All rights reserved.</p>
 
-         
+      <div className="footer-div" style={{ "height": "35px", "marginTop": "15px", width: "100%" }}>
+        <footer>
+          <p>&copy; {currentTime.getFullYear()} Capgemini. All rights reserved.</p>
+
+
         </footer>
       </div>
 
