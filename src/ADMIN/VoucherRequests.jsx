@@ -266,6 +266,7 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
  
   const closeDenyConfirmation = () => {
     setDenyConfirmationVisible(false);
+    setSelectedDenialReason(""); // Reset selected denial reason
   };
  
   const handleDenyRequest = async () => {
@@ -421,18 +422,28 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
     <div>
     {denyConfirmationVisible && (
   <div className="confirmation-modal">
+     {/* Conditional rendering for the message */}
+    {selectedDenialReason === "" && (
+      <p style={{ color: 'red' }}>Please select a reason before confirming:</p>
+    )}
     {/* Dropdown menu for denial reasons */}
-    <select style={{color: 'InactiveBorder',backgroundColor:'whitish-gray',marginBottom:'2px'}} value={selectedDenialReason} onChange={handleDenialReasonChange} className="reason-dropdown">
+    <select style={{color: 'InactiveBorder',backgroundColor:'#ecf0f1',marginBottom:'2px' ,
+                fontSize: "14px",
+                height: "40px",
+                borderRadius: "5px",
+                paddingLeft: "10px",
+                border: "1px solid #3498db",
+                marginBottom:'20px',
+                background: "#ecf0f1", // Light gray background
+                color: "#2c3e50", // Dark text color
+                outline: "none",
+              }} value={selectedDenialReason} onChange={handleDenialReasonChange} className="reason-dropdown">
       <option value="">Select Denial Reason</option>
       <option value="lowScore">Low Score</option>
       <option value="outdatedImage">Outdated Image</option>
       <option value="incorrectScreenshot">Incorrect Screenshot</option>
       <option value="incorrectImageFormat">Incorrect Image Format</option>
     </select>
-    {/* Conditional rendering for the message */}
-    {selectedDenialReason === "" && (
-      <p style={{ color: 'red' }}>Please select a reason before confirming:</p>
-    )}
     {/* Confirmation message */}
     <p>Are you sure you want to deny the request?</p>
     {/* Confirm and Cancel buttons */}
@@ -440,8 +451,8 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
     <button onClick={closeDenyConfirmation} className="cancel-button">Cancel</button>
   </div>
 )}
-
-
+ 
+ 
       </div>
       <Modal
   isOpen={isModalOpen}
@@ -638,7 +649,7 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
         </div>
  
         <div className="table-div">
-          <table className="dashboard-table" style={{width: "150%"}}>
+          <table className="dashboard-table" style={{width: "165%"}}>
             <thead>
               <tr>
                 <th>Name</th>
@@ -698,22 +709,42 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
                   <td>{row.voucherExpiryLocalDate}</td>
                   <td>{row.plannedExamDate}</td>
                   <td>{row.examResult}</td>
-                  <td style={{color: "blue", textDecoration: "underline"}} onClick={() => openModal(`http://localhost:8085/requests/getCertificate/${row.id}`)}>
-            {row.certificateFileImage}
-          </td>
+                  <td>
+                    {row.examResult === "Fail" ? (
+                      <span style={{fontSize: "12px"}}>N/A</span>
+                    ) : (
+                      <span
+                        style={{
+                          color: 'blue',
+                          textDecoration: 'underline',
+                          cursor: 'pointer',
+                          fontSize: "12px"
+                        }}
+                        onClick={() => openModal(`http://localhost:8085/requests/getCertificate/${row.id}`)}
+                      >
+                        {row.certificateFileImage}
+                      </span>
+                    )}
+                  </td>
           <td>{row.validationNumber}</td>
-
-
-                 
-          <td
- 
-   
- style={{color: "blue", textDecoration: "underline"}}
-   
-    onClick={() => fetchR2D2Image(row.id)}>
-    View
- 
-</td>
+          <td>
+              {row.r2d2Screenshot !== null && row.r2d2Screenshot !== "" && row.examResult !== "Fail" && (
+                <span
+                  style={{
+                    color: 'blue',
+                    textDecoration: 'underline',
+                    cursor: 'pointer',
+                    fontSize: "12px"
+                  }}
+                  onClick={() => fetchR2D2Image(row.id)}
+                >
+                  View
+                </span>
+              )}
+              {row.r2d2Screenshot !== null && row.r2d2Screenshot !== "" && row.examResult === "Fail" && (
+                <span style={{fontSize: "12px"}}>N/A</span>
+              )}
+            </td>
 
                   <td>
                     

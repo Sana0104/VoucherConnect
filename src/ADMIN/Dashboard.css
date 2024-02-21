@@ -236,7 +236,7 @@ button {
 
 /* Table styles */
 
-.table-div td{
+.table-div td {
   width: 95%;
   font-size: 12px;
 }
@@ -522,54 +522,47 @@ button {
 
 
  .dashboard-table td:nth-child(1) {
-  width: 9%; /* Name */
+  width: 8%; /* Name */
 }
 
 .dashboard-table td:nth-child(2) {
-  width: 18%; /* Email */
+  width: 14%; /* Email */
 }
 
 .dashboard-table td:nth-child(3),
-.dashboard-table td:nth-child(5),
+.dashboard-table td:nth-child(5) {
+  width: 5%; /* Cloud, DoSelect Score */
+}
+
+
 .dashboard-table td:nth-child(6),
 .dashboard-table td:nth-child(7) {
-  width: 7%; /* Cloud, DoSelect Score, DoSelect Image, Voucher Code */
+  width:7%; /*  DoSelect Image, Voucher Code */
 }
 
-.dashboard-table td:nth-child(4) {
-  width: 15%; /* Exam */
+.dashboard-table td:nth-child(4),
+.dashboard-table td:nth-child(13) {
+  width: 14%; /* Exam and Validation number*/
 }
 
-.dashboard-table td:nth-child(8),
-.dashboard-table td:nth-child(9),
-.dashboard-table td:nth-child(10),
-.dashboard-table td:nth-child(13),
-.dashboard-table td:nth-child(14) {
-  width: 9%; /* Issued Date, Expiry Date, Exam Date, Deny Voucher, Assign Voucher */
-}
-
-.dashboard-table td:nth-child(11),
-.dashboard-table td:nth-child(12) {
-  width: 9%; /* Result, Certificate */
-}
-
-/* Set the width for DoSelect Score, Cloud, Voucher Code, and Result to be the same */
-.dashboard-table td:nth-child(3),
-.dashboard-table td:nth-child(5),
-.dashboard-table td:nth-child(6),
+/* Set the width for Result to be the same */
 .dashboard-table td:nth-child(11) {
-  width: 10%; /* Adjust the width as needed */
+  width: 7%; /* Adjust the width as needed */
+}
+
+/* Set the width for R2D2 image */
+.dashboard-table td:nth-child(14) {
+  width: 11%;
 }
 
 /* Set the width for buttons and date fields to be the same */
+/* Issued Date, Expiry Date, Exam Date, Certificate */
 .dashboard-table td:nth-child(8),
 .dashboard-table td:nth-child(9),
 .dashboard-table td:nth-child(10),
-.dashboard-table td:nth-child(13),
-.dashboard-table td:nth-child(14) {
-  width: 10%; /* Adjust the width as needed */
+.dashboard-table td:nth-child(12) {
+  width: 9%; /* Adjust the width as needed */
 }
- 
 
 /* Add more styles for other columns */
 
@@ -637,6 +630,7 @@ button {
   position: fixed;
   top: 50%;
   left: 50%;
+  font-family:Georgia, 'Times New Roman', Times, serif;
   transform: translate(-50%, -50%);
   background-color: white;
   border: 1px solid #ccc;
