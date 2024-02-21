@@ -236,7 +236,7 @@ button {
 
 /* Table styles */
 
-.table-div td {
+.table-div td{
   width: 95%;
   font-size: 12px;
 }
@@ -524,37 +524,37 @@ button {
  .dashboard-table td:nth-child(1) {
   width: 8%; /* Name */
 }
-
+ 
 .dashboard-table td:nth-child(2) {
   width: 14%; /* Email */
 }
-
+ 
 .dashboard-table td:nth-child(3),
 .dashboard-table td:nth-child(5) {
   width: 5%; /* Cloud, DoSelect Score */
 }
-
-
+ 
+ 
 .dashboard-table td:nth-child(6),
 .dashboard-table td:nth-child(7) {
   width:7%; /*  DoSelect Image, Voucher Code */
 }
-
+ 
 .dashboard-table td:nth-child(4),
 .dashboard-table td:nth-child(13) {
   width: 14%; /* Exam and Validation number*/
 }
-
+ 
 /* Set the width for Result to be the same */
 .dashboard-table td:nth-child(11) {
   width: 7%; /* Adjust the width as needed */
 }
-
+ 
 /* Set the width for R2D2 image */
 .dashboard-table td:nth-child(14) {
   width: 11%;
 }
-
+ 
 /* Set the width for buttons and date fields to be the same */
 /* Issued Date, Expiry Date, Exam Date, Certificate */
 .dashboard-table td:nth-child(8),
@@ -563,6 +563,8 @@ button {
 .dashboard-table td:nth-child(12) {
   width: 9%; /* Adjust the width as needed */
 }
+
+
 
 /* Add more styles for other columns */
 
@@ -802,4 +804,58 @@ button {
   border: none;
   cursor: pointer;
  
+}
+
+.card {
+  border-radius: 8px;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  width: max-content;
+  
+}
+
+.card-inner {
+  padding: 10px;
+}
+
+.voucher-header {
+  background-color: #4caf50; /* Green color, you can adjust as needed */
+  color: #fff;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  padding: 10px;
+  margin-right: 10px;
+}
+
+.voucher-header h3 {
+  margin: 0;
+}
+
+.voucher-info p {
+  margin: 5px 0;
+  line-height: 2;
+  color: white;
+}
+
+.voucher-info p strong {
+  margin-right: 5px;
+}
+
+.year-dropdown {
+  margin-top: 20px;
+}
+
+.year-dropdown label {
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+
+.year-dropdown select {
+  padding: 8px 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #333;
 }
