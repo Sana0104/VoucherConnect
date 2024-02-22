@@ -39,6 +39,11 @@ function VoucherRequests() {
   const [selectedDenialReason, setSelectedDenialReason] = useState("");
   const [profileImageURL, setProfileImageURL] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+
+  const [searchDate, setSearchDate] = useState(null);
+  const [searchMonth, setSearchMonth] = useState(null);
+  const [searchYear, setSearchYear] = useState(null); 
+
   const openProfilePopup = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -143,6 +148,7 @@ function VoucherRequests() {
 
   const handleSearchOptionChange = (event) => {
     setSearchOption(event.target.value);
+    setSearchValue(""); // Reset search value when a new search option is selected
   };
 
   const handleSearchInputChange = (event) => {
@@ -158,7 +164,29 @@ function VoucherRequests() {
     } else if (searchOption === 'candidateName') {
       return request.candidateName && request.candidateName.toLowerCase().includes(searchValue.toLowerCase());
     } else if (searchOption === 'plannedExamDate') {
-      return request.plannedExamDate && request.plannedExamDate.toLowerCase().includes(searchValue.toLowerCase());
+
+      const [searchYear, searchMonth, searchDate] = searchValue.split('-').map(Number);
+
+    // Extract planned exam date components
+    const plannedExamYear = new Date(request.plannedExamDate).getFullYear();
+    const plannedExamMonth = new Date(request.plannedExamDate).getMonth() + 1; // Month is zero-based
+    const plannedExamDate = new Date(request.plannedExamDate).getDate();
+
+    // Filter by selected date, month, or year
+    if (searchYear && searchMonth && searchDate) {
+      // Filter by exact date
+      return plannedExamDate === searchDate && plannedExamMonth === searchMonth && plannedExamYear === searchYear;
+    } else if (searchYear && searchMonth) {
+      // Filter by year and month
+      return plannedExamMonth === searchMonth && plannedExamYear === searchYear;
+    } else if (searchYear) {
+      // Filter by year
+      return plannedExamYear === searchYear;
+    } else {
+      // No specific date/month/year selected, return true
+      return true;
+    }
+
     } else if (searchOption === 'cloudPlatform') {
       return request.cloudPlatform && request.cloudPlatform.toLowerCase().includes(searchValue.toLowerCase());
     } else if (searchOption === 'cloudExam') {
@@ -402,6 +430,10 @@ function VoucherRequests() {
     setIsSupplierModalOpen(true);
   };
 
+  const handleDropdownClose = () => {
+    setSearchValue(""); // Reset search value when the dropdown menu is closed
+  };
+
   return (
     <div className="headd">
       <div>
@@ -555,6 +587,7 @@ function VoucherRequests() {
               className="search-text"
               value={searchOption}
               onChange={handleSearchOptionChange}
+              onClose={handleDropdownClose} // Add onClose event handler
               style={{
                 fontSize: "14px",
                 height: "40px",
@@ -577,10 +610,10 @@ function VoucherRequests() {
               <input
                 type="text"
                 value={searchValue}
-                placeholder="Search..."
+                placeholder={searchOption === 'plannedExamDate' ? "yyyy-mm-dd" : "Search..."}
                 onChange={handleSearchInputChange}
                 style={{
-                  marginTop: "5px",
+                  marginLeft: "8px",
                   padding: "8px",
                   fontSize: "13px",
                   borderRadius: "5px",
@@ -626,13 +659,14 @@ function VoucherRequests() {
               <button
                 onClick={() => handleSendReminderEmail()}
                 style={{
-                  marginTop: "5px",
+                  marginLeft: "10px",
+                  fontWeight: "bold",
+                  backgroundColor: "rgb(33, 61, 154)",
                   fontSize: "13px",
                   padding: "2px",
                   height: "40px",
                   width: "140px",
                   borderRadius: "5px",
-                  // backgroundColor: "#3498db",
                   color: "#fff",
                   cursor: "pointer",
                   border: "none",

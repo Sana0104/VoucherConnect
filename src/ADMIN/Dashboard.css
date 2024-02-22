@@ -181,20 +181,6 @@ button {
   padding: 10px;
   box-sizing: border-box;
 }
- 
-/* Add new styling for the button */
-.dashboard-dropdown button {
-  margin-left: 10px;
-  font-size: 13px;
-  font-weight: bold;
-  height: 40px;
-  width: 140px;
-  border-radius: 5px;
-  background-color: #0b5f97;
-  color: #fff;
-  cursor: pointer;
-  border: none;
-}
 
 .dashboard-dropdown select {
   padding: 5px;
@@ -447,21 +433,7 @@ button {
   position: relative;
   padding: 10px;
   box-sizing: border-box;
-  flex-direction: column;
-}
- 
-/* Add new styling for the button */
-.dashboard-dropdown button {
-  margin-left: 10px;
-  font-size: 13px;
-  font-weight: bold;
-  height: 40px;
-  width: 140px;
-  border-radius: 5px;
-  background-color: #0b5f97;
-  color: #fff;
-  cursor: pointer;
-  border: none;
+  flex-direction: row;
 }
 
 .dashboard-dropdown select {
