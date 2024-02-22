@@ -298,9 +298,9 @@ import {
 function Dashboard() {
   const navigate = useNavigate();
   const [chartData, setChartData] = useState([]);
-  const [awsVouchers, setAwsVouchers] = useState({ total: 0, used: 0, available: 0 });
-  const [gcpVouchers, setGcpVouchers] = useState({ total: 0, used: 0, available: 0 });
-  const [azureVouchers, setAzureVouchers] = useState({ total: 0, used: 0, available: 0 });
+  const [awsVouchers, setAwsVouchers] = useState({ total: 0, released: 0, available: 0 });
+  const [gcpVouchers, setGcpVouchers] = useState({ total: 0, released: 0, available: 0 });
+  const [azureVouchers, setAzureVouchers] = useState({ total: 0, released: 0, available: 0 });
   const [totalVouchers, setTotalVouchers] = useState({}); // State for total vouchers
   const [cloudPlatform, setCloudPlatform] = useState('AWS'); // State for selected cloud platform
   const [examName, setExamName] = useState(''); // State for selected exam name
