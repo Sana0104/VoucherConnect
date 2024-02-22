@@ -278,7 +278,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import './Graph.css';
 import Button from '@mui/material/Button';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -287,6 +287,7 @@ import Popover from '@mui/material/Popover';
 import UserProfile from "../CANDIDATE/UserProfile";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
+import examData from '../CANDIDATE/examdata.json';
 import {
   faClipboardCheck,
   faTachometerAlt,
@@ -297,15 +298,19 @@ import {
 function Dashboard() {
   const navigate = useNavigate();
   const [chartData, setChartData] = useState([]);
-  const [awsVouchers, setAwsVouchers] = useState({ total: 0, used: 0, available: 0 });
-  const [gcpVouchers, setGcpVouchers] = useState({ total: 0, used: 0, available: 0 });
-  const [azureVouchers, setAzureVouchers] = useState({ total: 0, used: 0, available: 0 });
+  const [awsVouchers, setAwsVouchers] = useState({ total: 0, released: 0, available: 0 });
+  const [gcpVouchers, setGcpVouchers] = useState({ total: 0, released: 0, available: 0 });
+  const [azureVouchers, setAzureVouchers] = useState({ total: 0, released: 0, available: 0 });
+  const [totalVouchers, setTotalVouchers] = useState({}); // State for total vouchers
+  const [cloudPlatform, setCloudPlatform] = useState('AWS'); // State for selected cloud platform
+  const [examName, setExamName] = useState(''); // State for selected exam name
+  const [examOptions, setExamOptions] = useState([]);
   const obj = localStorage.getItem("userInfo");
   const { name, username } = JSON.parse(obj);
   const [anchorEl, setAnchorEl] = useState(null);
   const [profileImageURL, setProfileImageURL] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // Added state for selected year
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -343,6 +348,18 @@ function Dashboard() {
         const response = await fetch('http://localhost:9091/voucher/fetchAllVouchers');
         const vouchersData = await response.json();
 
+        // Calculate total vouchers count for each cloud platform
+        const awsTotal = vouchersData.filter(voucher => voucher.cloudPlatform === 'AWS').length;
+        const gcpTotal = vouchersData.filter(voucher => voucher.cloudPlatform === 'Google').length;
+        const azureTotal = vouchersData.filter(voucher => voucher.cloudPlatform === 'Azure').length;
+
+        // Update state with total voucher counts
+        setTotalVouchers({
+          AWS: awsTotal,
+          Google: gcpTotal,
+          Azure: azureTotal
+        });
+
         // Filter vouchers data for the selected year
         const vouchersDataForYear = vouchersData.filter(voucher => {
           const issuedDate = new Date(voucher.issuedDate);
@@ -358,25 +375,31 @@ function Dashboard() {
         const usedGCPCount = vouchersDataForYear.filter(voucher => voucher.issuedTo !== null && voucher.cloudPlatform === 'Google').length;
         const usedAzureCount = vouchersDataForYear.filter(voucher => voucher.issuedTo !== null && voucher.cloudPlatform === 'Azure').length;
 
+        // Filter expired vouchers and delete them from available count
+        const currentDate = new Date();
+        const expiredAWSCount = vouchersDataForYear.filter(voucher => voucher.cloudPlatform === 'AWS' && new Date(voucher.expiryDate) < currentDate).length;
+        const expiredGCPCount = vouchersDataForYear.filter(voucher => voucher.cloudPlatform === 'Google' && new Date(voucher.expiryDate) < currentDate).length;
+        const expiredAzureCount = vouchersDataForYear.filter(voucher => voucher.cloudPlatform === 'Azure' && new Date(voucher.expiryDate) < currentDate).length;
+
         // Calculate available vouchers count for each cloud platform
-        const availableAWSCount = awsCount - usedAWSCount;
-        const availableGCPCount = gcpCount - usedGCPCount;
-        const availableAzureCount = azureCount - usedAzureCount;
+        const availableAWSCount = awsCount - usedAWSCount - expiredAWSCount;
+        const availableGCPCount = gcpCount - usedGCPCount - expiredGCPCount;
+        const availableAzureCount = azureCount - usedAzureCount - expiredAzureCount;
 
         // Update state with voucher counts
         setAwsVouchers({
           total: awsCount,
-          used: usedAWSCount,
+          released: usedAWSCount,
           available: availableAWSCount
         });
         setGcpVouchers({
           total: gcpCount,
-          used: usedGCPCount,
+          released: usedGCPCount,
           available: availableGCPCount
         });
         setAzureVouchers({
           total: azureCount,
-          used: usedAzureCount,
+          released: usedAzureCount,
           available: availableAzureCount
         });
 
@@ -384,41 +407,45 @@ function Dashboard() {
         const assignedResponse = await fetch('http://localhost:8085/requests/allAssignedVoucher');
         const assignedResponseData = await assignedResponse.json();
 
-        // Filter assigned voucher data for the selected year
-        const assignedResponseDataForYear = assignedResponseData.filter(request => new Date(request.voucherIssueLocalDate).getFullYear() === year);
+        // Filter assigned voucher data for the selected year and cloud platform
+        let assignedResponseDataForYear = assignedResponseData.filter(request => new Date(request.voucherIssueLocalDate).getFullYear() === year && request.cloudPlatform === cloudPlatform);
+        console.log(assignedResponseDataForYear);
+        // If an exam name is selected, filter data for that exam
+        if (examName !== '') {
+          assignedResponseDataForYear = assignedResponseDataForYear.filter(request => request.cloudExam === examName);
+          console.log(assignedResponseDataForYear);
+        }
 
-        const awsPassedCount = assignedResponseDataForYear.filter(request => request.examResult === 'Pass' && request.cloudPlatform === 'AWS').length;
-        const awsFailedCount = assignedResponseDataForYear.filter(request => request.examResult === 'Fail' && request.cloudPlatform === 'AWS').length;
-        const awsPendingCount = assignedResponseDataForYear.filter(request => request.examResult === 'Pending' && request.cloudPlatform === 'AWS').length;
-        const gcpPassedCount = assignedResponseDataForYear.filter(request => request.examResult === 'Pass' && request.cloudPlatform === 'Google').length;
-        const gcpFailedCount = assignedResponseDataForYear.filter(request => request.examResult === 'Fail' && request.cloudPlatform === 'Google').length;
-        const gcpPendingCount = assignedResponseDataForYear.filter(request => request.examResult === 'Pending' && request.cloudPlatform === 'Google').length;
-        const azurePassedCount = assignedResponseDataForYear.filter(request => request.examResult === 'Pass' && request.cloudPlatform === 'Azure').length;
-        const azureFailedCount = assignedResponseDataForYear.filter(request => request.examResult === 'Fail' && request.cloudPlatform === 'Azure').length;
-        const azurePendingCount = assignedResponseDataForYear.filter(request => request.examResult === 'Pending' && request.cloudPlatform === 'Azure').length;
+        const passedCount = assignedResponseDataForYear.filter(request => request.examResult === 'Pass').length;
+        const failedCount = assignedResponseDataForYear.filter(request => request.examResult === 'Fail').length;
+        const pendingCount = assignedResponseDataForYear.filter(request => request.examResult === 'Pending').length;
+        const technicalIssueCount = assignedResponseDataForYear.filter(request => request.examResult === 'Pending due to issue').length;
 
-        // Combine data for chart
-        const combinedChartData = combineData(awsPassedCount, awsFailedCount, awsPendingCount, gcpPassedCount, gcpFailedCount, gcpPendingCount, azurePassedCount, azureFailedCount, azurePendingCount);
-        setChartData(combinedChartData);
+        // Before setting the chart data, ensure it's an array with at least one element
+        let chartDataArray = [];
+
+        if (passedCount > 0 || failedCount > 0 || pendingCount > 0 || technicalIssueCount > 0) {
+          chartDataArray = [
+            { name: 'Passed', passed: passedCount },
+            { name: 'Failed', failed: failedCount },
+            { name: 'Pending', pending: pendingCount },
+            { name: 'Technical Issue', technicalIssue: technicalIssueCount }
+          ];
+        } else {
+          // If there's no data, you can set a default data point
+          chartDataArray = [{ name: 'No data', value: 0 }];
+        }
+
+        // Update chart data
+        setChartData(chartDataArray);
+
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-
+    console.log(examName)
     fetchData(selectedYear);
-  }, [selectedYear]);
-
-  const combineData = (
-    awsPassed, awsFailed, awsPending,
-    gcpPassed, gcpFailed, gcpPending,
-    azurePassed, azureFailed, azurePending
-  ) => {
-    return [
-      { name: 'AWS', passed: awsPassed, failed: awsFailed, pending: awsPending },
-      { name: 'GCP', passed: gcpPassed, failed: gcpFailed, pending: gcpPending },
-      { name: 'Azure', passed: azurePassed, failed: azureFailed, pending: azurePending },
-    ];
-  };
+  }, [selectedYear, cloudPlatform, examName]);
 
   const handleBarClick = (entry) => {
     navigate(`/${entry.name}`);
@@ -437,10 +464,32 @@ function Dashboard() {
   const dateOptions = { day: "numeric", month: "long", year: "numeric" };
   const timeOptions = { hour: "2-digit", minute: "2-digit", hour12: true };
 
-  // Function to handle year selection change
   const handleYearChange = (event) => {
     setSelectedYear(parseInt(event.target.value));
-    console.log("Selected Year:", event.target.value); // Check the selected year in the console
+    console.log("Selected Year:", event.target.value);
+  };
+
+  useEffect(() => {
+    const selectedCloud = examData.cloudPlatforms.find(
+      (cloud) => cloud.name === cloudPlatform
+    );
+    if (selectedCloud) {
+      setExamOptions(selectedCloud.exams);
+      // Also, update the examName state if the selected exam is not available for the new cloud platform
+      if (!selectedCloud.exams.includes(examName)) {
+        setExamName(''); // Reset examName to None if it's not available for the new cloud platform
+      }
+    }
+  }, [cloudPlatform]);
+
+  const handleCloudPlatformChange = (event) => {
+    const selectedPlatform = event.target.value;
+    setCloudPlatform(selectedPlatform);
+  };
+
+  const handleExamNameChange = (event) => {
+    const selectedExam = event.target.value;
+    setExamName(selectedExam === 'None' ? '' : selectedExam);
   };
 
 
@@ -487,7 +536,6 @@ function Dashboard() {
                   horizontal: 'right',
                 }}
               >
-                {/* Pass profileImageURL as a prop to UserProfile */}
                 <UserProfile setProfileImageURL={setProfileImageURL} />
               </Popover>
             </div>
@@ -503,7 +551,7 @@ function Dashboard() {
                   </div>
                   <div className="voucher-info">
                     <p>Total: {awsVouchers.total}</p>
-                    <p>Used: {awsVouchers.used}</p>
+                    <p>Released: {awsVouchers.released}</p>
                     <p>Available: {awsVouchers.available}</p>
                   </div>
                 </div>
@@ -515,7 +563,7 @@ function Dashboard() {
                   </div>
                   <div className="voucher-info">
                     <p>Total: {gcpVouchers.total}</p>
-                    <p>Used: {gcpVouchers.used}</p>
+                    <p>Released: {gcpVouchers.released}</p>
                     <p>Available: {gcpVouchers.available}</p>
                   </div>
                 </div>
@@ -527,7 +575,7 @@ function Dashboard() {
                   </div>
                   <div className="voucher-info">
                     <p>Total: {azureVouchers.total}</p>
-                    <p>Used: {azureVouchers.used}</p>
+                    <p>Released: {azureVouchers.released}</p>
                     <p>Available: {azureVouchers.available}</p>
                   </div>
                 </div>
@@ -553,20 +601,44 @@ function Dashboard() {
                 <Bar dataKey="passed" fill="#50C878" onClick={(entry) => handleBarClick(entry)} />
                 <Bar dataKey="failed" fill="#FF6868" onClick={(entry) => handleBarClick(entry)} />
                 <Bar dataKey="pending" fill="#FFBB64" onClick={(entry) => handleBarClick(entry)} />
+                <Bar dataKey="technicalIssue" fill="#497285" onClick={(entry) => handleBarClick(entry)} />
               </BarChart>
-              {/* Add dropdown list for selecting years */}
-              <div className="year-dropdown">
-                <label htmlFor="year-select">Select Year:</label>
-                <select id="year-select" value={selectedYear} onChange={handleYearChange}>
-                  {years.map((year) => (
-                    <option key={year} value={year}>{year}</option>
-                  ))}
-                </select>
+              <div className="dropdown-container">
+                <div className="select-wrapper">
+                  <label htmlFor="year-select">Select Year:</label>
+                  <select id="year-select" value={selectedYear} onChange={handleYearChange}>
+                    {years.map((year) => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="select-wrapper">
+                  <label htmlFor="platform-select">Select Cloud:</label>
+                  <select id="platform-select" value={cloudPlatform} onChange={handleCloudPlatformChange}>
+                    {examData.cloudPlatforms.map((cloud) => (
+                      <option key={cloud.name} value={cloud.name}>
+                        {cloud.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="select-wrapper">
+                  <label htmlFor="exam-select">Select Exam:</label>
+                  <select id="exam-select" value={examName} onChange={handleExamNameChange}>
+                    <option value="None">None</option>
+                    {examOptions.map((exam) => (
+                      <option key={exam} value={exam}>
+                        {exam}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
+
             </div>
           </div>
         </div>
-      </div> {/* main div closing */}
+      </div>
       <div className="footer-div" style={{ "height": "35px", "marginTop": "15px" }}>
         <footer>
           <p>&copy; 2024 Capgemini. All rights reserved.</p>

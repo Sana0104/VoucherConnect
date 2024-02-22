@@ -841,21 +841,32 @@ button {
   margin-right: 5px;
 }
 
-.year-dropdown {
-  margin-top: 20px;
+.dropdown-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
 }
 
-.year-dropdown label {
-  font-size: 16px;
+.select-wrapper {
+  margin-bottom: 10px;
+}
+
+.select-wrapper label {
   margin-right: 10px;
 }
 
-
-.year-dropdown select {
-  padding: 8px 12px;
+.select-wrapper select {
+  padding: 8px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  background-color: #fff;
-  color: #333;
+}
+
+.select-wrapper select:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.select-wrapper:last-child {
+  margin-right: 0; /* Remove margin-right for the last select-wrapper */
 }
