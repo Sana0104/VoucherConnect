@@ -588,7 +588,7 @@ function Dashboard() {
                 data={chartData}
                 margin={{
                   top: 5,
-                  right: 10,
+                  right: 20,
                   left: 20,
                   bottom: 5,
                 }}
@@ -598,10 +598,11 @@ function Dashboard() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="passed" fill="#50C878" onClick={(entry) => handleBarClick(entry)} />
+                <Bar dataKey="passed" fill="#50C878" onClick={(entry) => handleBarClick(entry)}  />
                 <Bar dataKey="failed" fill="#FF6868" onClick={(entry) => handleBarClick(entry)} />
                 <Bar dataKey="pending" fill="#FFBB64" onClick={(entry) => handleBarClick(entry)} />
-                <Bar dataKey="technicalIssue" fill="#497285" onClick={(entry) => handleBarClick(entry)} />
+                <Bar dataKey="technicalIssue" fill="#497285" onClick={(entry) => handleBarClick(entry)}  />
+
               </BarChart>
               <div className="dropdown-container">
                 <div className="select-wrapper">
