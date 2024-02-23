@@ -99,10 +99,15 @@ function CandidateList() {
 
   const handleSearchOptionChange = (event) => {
     setSearchOption(event.target.value);
+    setSearchValue(""); // Reset search value when a new search option is selected
   };
 
   const handleSearchInputChange = (event) => {
     setSearchValue(event.target.value);
+  };
+
+  const handleDropdownClose = () => {
+    setSearchValue(""); // Reset search value when the dropdown menu is closed
   };
 
   const [selectedSupplierFile, setSelectedSupplierFile] = useState(null);
@@ -295,6 +300,7 @@ function CandidateList() {
                 value={searchValue}
                 placeholder="Search..."
                 onChange={handleSearchInputChange}
+                onClose={handleDropdownClose} // Add onClose event handler
                 style={{
                   marginTop: "5px",
                   padding: "8px",
@@ -306,7 +312,7 @@ function CandidateList() {
             )}
           </div>
 
-          <div className="right-corner" style={{ marginLeft: "350px" }}>
+          <div className="right-corner" style={{ marginLeft: "410px" }}>
             <button style={{
               backgroundColor: "#2ecc71",
               color: "#fff",

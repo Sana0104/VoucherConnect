@@ -503,7 +503,7 @@ function Dashboard() {
   return (
     <div className='headd'>
       <div className='main-div'>
-        <div className="navbar1" style={{ backgroundColor: "rgb(112, 183, 184)" }}>
+        <div className="navbar1" style={{ backgroundColor: "rgb(112, 183, 184)", width: "auto"}}>
           <div className="user-info1" style={{ marginLeft: "10px" }}>
             <p id="name1">Welcome!!</p>
             <p id="date1">
@@ -543,6 +543,11 @@ function Dashboard() {
         </div>
         <div className="wrap1" style={{ width: "fit-content" }}>
           <div className='graph-container'>
+          <div className='vouchers-div'>
+            <div className='heading-class' style={{marginTop: "-20px"}}>
+            <h4>Vouchers Report:</h4>
+            </div>
+            
             <div className='main-cards'>
               <div className='card'>
                 <div className='card-inner'>
@@ -581,6 +586,7 @@ function Dashboard() {
                 </div>
               </div>
             </div>
+          </div>
             <div className='charts'>
               <BarChart
                 width={500}
@@ -601,10 +607,12 @@ function Dashboard() {
                 <Bar dataKey="passed" fill="#50C878" onClick={(entry) => handleBarClick(entry)}  />
                 <Bar dataKey="failed" fill="#FF6868" onClick={(entry) => handleBarClick(entry)} />
                 <Bar dataKey="pending" fill="#FFBB64" onClick={(entry) => handleBarClick(entry)} />
-                <Bar dataKey="technicalIssue" fill="#497285" onClick={(entry) => handleBarClick(entry)}  />
-
+                <Bar dataKey="technicalIssue" fill="#437387" onClick={(entry) => handleBarClick(entry)} />
               </BarChart>
               <div className="dropdown-container">
+                <div className='heading-class' style={{backgroundColor: "rgb(37, 70, 179)", marginBottom: "20px", width: "300px"}}>
+                   <h4>Certifications Status Report</h4>
+                </div>
                 <div className="select-wrapper">
                   <label htmlFor="year-select">Select Year:</label>
                   <select id="year-select" value={selectedYear} onChange={handleYearChange}>
