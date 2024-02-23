@@ -71,13 +71,23 @@ const ViewVouchers = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [certificateUploaded, setCertificateUploaded] = useState(false);
     const [uploadR2D2ScreenshotDialogOpen, setUploadR2D2ScreenshotDialogOpen] = useState(false);
-   
     const [isValidationNumberEnabled, setValidationNumberEnabled] = useState(false);
     const [validationNumberError, setValidationNumberError] = useState('');
     const [showValidationPopup, setShowValidationPopup] = useState(false);
     const [validationNumberInput, setValidationNumberInput] = useState('');
     const [isValidationNumberSaved, setIsValidationNumberSaved] = useState(false);
     const [r2d2ScreenshotUploaded, setR2D2ScreenshotUploaded] = useState(false);
+
+    const saveToLocalStorage = (key, data) => {
+        localStorage.setItem(key, JSON.stringify(data));
+    };
+
+    // Function to retrieve data from local storage
+const loadFromLocalStorage = (key) => {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : null;
+};
+
     useEffect(() => {
         const fetchVouchers = async () => {
             try {
@@ -162,9 +172,12 @@ const ViewVouchers = () => {
  
     const handleSaveResult = async (index) => {
         try {
+          
+
             const voucherToUpdate = data[index];
             const updatedResult = data[index].examResult;
             if (updatedResult === 'Pass') {
+                
                 if (!voucherToUpdate.certificateFileImage) {
                     throw new Error('Certificate must be uploaded before changing the result to Pass');
                 }
@@ -174,6 +187,7 @@ const ViewVouchers = () => {
                 if (!voucherToUpdate.r2d2Screenshot) {
                     throw new Error('R2D2 screenshot must be uploaded before before changing the result to Pass');
                 }
+                const localStorageData = loadFromLocalStorage('data');
             }
  
             const response = await axios.put(`http://localhost:8085/requests/updateExamResult/${voucherToUpdate.voucherCode}/${updatedResult}`);
@@ -182,7 +196,7 @@ const ViewVouchers = () => {
                 updatedData[index].examResult = updatedResult;
                 setData(updatedData);
                 setError(null);
-
+    
                 if (updatedResult !== ' ') {
                     setEditIndex(-1);
                 }
@@ -197,11 +211,7 @@ const ViewVouchers = () => {
     };
     const handleOpenUploadDialog = (index) => {
         setSelectedExamIndex(index);
-<<<<<<< HEAD
-        setSelectedFile(null); 
-=======
         setSelectedFile(null);
->>>>>>> f67048b36d32121f6e485bb1a403de1632b68c75
         setUploadDialogOpen(true);
     };
  
@@ -229,7 +239,8 @@ const ViewVouchers = () => {
                     'Content-Type': 'multipart/form-data',
                 },
             });
- 
+  // Existing code...
+  setR2D2ScreenshotUploaded(true);
             if (response.status === 200) {
                 const updatedData = [...data];
                 updatedData[selectedExamIndex].r2d2Screenshot = response.data.r2d2Screenshot;
@@ -240,6 +251,8 @@ const ViewVouchers = () => {
             } else {
                 throw new Error('Failed to upload R2D2 screenshot. Server responded with status: ' + response.status);
             }
+            // Save updated data to local storage
+            saveToLocalStorage('data', data);
         } catch (error) {
             console.error('Error uploading R2D2 screenshot:', error);
             console.log('Error uploading R2D2 screenshot: ' + error.message);
@@ -279,14 +292,13 @@ const ViewVouchers = () => {
             if (!validationRegex.test(validationNumberInputTrimmed)) {
                 throw new Error('Validation number must be exactly 16 characters long and contain only alphabets and numbers.');
             }
-            // if (validationNumberInputTrimmed.length !== 16) {
-            //     throw new Error('Validation number must be exactly 16 characters long.');
-            // }
+          
             const response = await axios.put(`http://localhost:8085/requests/provideValidationNumber/${voucherRequestId}`, null, {
                 params: {
                     validationNumber: validationNumberInput
                 }
             });
+            setIsValidationNumberSaved(true); 
             if (response.status === 200) {
                 const updatedData = [...data];
                 updatedData[selectedExamIndex].validationNumber = validationNumberInput;
@@ -299,6 +311,8 @@ const ViewVouchers = () => {
             } else {
                 throw new Error('Failed to save validation number.');
             }
+             // Save updated data to local storage
+             saveToLocalStorage('data', data);
         } catch (error) {
             console.error('Error saving validation number:', error);
             setValidationNumberError('Error saving validation number: ' + error.message);
@@ -309,7 +323,7 @@ const ViewVouchers = () => {
         setSelectedFile(file);
     };
  
-    const handleUpload = async () => {
+     const handleUpload = async () => {
         try {
             const formData = new FormData();
             formData.append('coupon', data[selectedExamIndex].voucherCode);
@@ -325,6 +339,8 @@ const ViewVouchers = () => {
                 setData(updatedData);
                 setUploadDialogOpen(false);
                 setCertificateUploaded(true);
+                // Save updated data to local storage
+                saveToLocalStorage('data', updatedData); // <-- Update this line
             } else {
                 throw new Error('Failed to upload certificate.');
             }
@@ -455,11 +471,7 @@ const ViewVouchers = () => {
                                                         <span>N/A</span>
                                                     )}
                                                 </StyledTableCell>
-<<<<<<< HEAD
-                                              
-=======
                                              
->>>>>>> f67048b36d32121f6e485bb1a403de1632b68c75
                                                 <StyledTableCell>
                                                     {voucher.examResult === 'Pass' ? (
                                                         voucher.validationNumber ? (
