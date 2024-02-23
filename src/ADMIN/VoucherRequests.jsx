@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import "./Dashboard.css";
 import axios from "axios";
 import Avatar from '@mui/material/Avatar';
-import { ToastContainer ,toast} from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-toastify/dist/ReactToastify.css';
 import Button from '@mui/material/Button';
@@ -15,7 +15,7 @@ import Modal from 'react-modal';
 import Draggable from 'react-draggable';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons"; // Import the download icon
-import { faDownload ,faExpand} from '@fortawesome/free-solid-svg-icons';
+import { faDownload, faExpand } from '@fortawesome/free-solid-svg-icons';
 
 import {
   faCalendar,
@@ -39,10 +39,15 @@ function VoucherRequests() {
   const [selectedDenialReason, setSelectedDenialReason] = useState("");
   const [profileImageURL, setProfileImageURL] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+
+  const [searchDate, setSearchDate] = useState(null);
+  const [searchMonth, setSearchMonth] = useState(null);
+  const [searchYear, setSearchYear] = useState(null); 
+
   const openProfilePopup = (event) => {
     setAnchorEl(event.currentTarget);
   };
- 
+
   const closeProfilePopup = () => {
     setAnchorEl(null);
   };
@@ -51,12 +56,12 @@ function VoucherRequests() {
   };
   const isProfilePopupOpen = Boolean(anchorEl);
   const navigate = useNavigate();
- 
+
   const [searchOption, setSearchOption] = useState("default");
   const [searchValue, setSearchValue] = useState("");
- 
+
   const [requestsOption, setRequestsOption] = useState("default");
- 
+
   useEffect(() => {
     axios.get(`http://localhost:8085/requests/getAllVouchers`)
       .then(response => {
@@ -66,26 +71,26 @@ function VoucherRequests() {
         console.log(error);
       });
   }, []);
- 
+
   const [currentTime, setCurrentTime] = useState(new Date());
- 
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 60000);
- 
+
     return () => {
       clearInterval(timer);
     };
   }, []);
- 
+
   const dateOptions = { day: "numeric", month: "long", year: "numeric" };
   const timeOptions = { hour: "2-digit", minute: "2-digit", hour12: true };
- 
+
   const handleRequests = async (event) => {
     const selectedOption = event.target.value;
     setRequestsOption(selectedOption);
- 
+
     if (selectedOption === 'Assigned') {
       try {
         const response = await axios.get('http://localhost:8085/requests/allAssignedVoucher');
@@ -114,20 +119,20 @@ function VoucherRequests() {
       try {
         const response = await axios.get('http://localhost:8085/requests/getAllCompletedVoucherRequests');
         console.log("Completed Requests " + response.data);
-        if(response.data.length>0){
+        if (response.data.length > 0) {
           setRequests(response.data);
-        } else{
+        } else {
           setRequests([]);
         }
-        
+
         setShowReminderButton(false);
       } catch (error) {
         console.error(error);
       }
-     
-    }else if (selectedOption === 'NotUpdated') {
+
+    } else if (selectedOption === 'NotUpdated') {
       try {
-       
+
         const response = await axios.get('http://localhost:8085/requests/pendingResultRequests');
         setRequests(response.data);
         setShowReminderButton(response.data.length > 0);
@@ -140,15 +145,16 @@ function VoucherRequests() {
       setShowReminderButton(false);
     }
   };
- 
+
   const handleSearchOptionChange = (event) => {
     setSearchOption(event.target.value);
+    setSearchValue(""); // Reset search value when a new search option is selected
   };
- 
+
   const handleSearchInputChange = (event) => {
     setSearchValue(event.target.value);
   };
- 
+
   const filters = (request) => {
     if (!request) {
       return false; // or true, depending on your logic for handling null requests.....
@@ -158,7 +164,29 @@ function VoucherRequests() {
     } else if (searchOption === 'candidateName') {
       return request.candidateName && request.candidateName.toLowerCase().includes(searchValue.toLowerCase());
     } else if (searchOption === 'plannedExamDate') {
-      return request.plannedExamDate && request.plannedExamDate.toLowerCase().includes(searchValue.toLowerCase());
+
+      const [searchYear, searchMonth, searchDate] = searchValue.split('-').map(Number);
+
+    // Extract planned exam date components
+    const plannedExamYear = new Date(request.plannedExamDate).getFullYear();
+    const plannedExamMonth = new Date(request.plannedExamDate).getMonth() + 1; // Month is zero-based
+    const plannedExamDate = new Date(request.plannedExamDate).getDate();
+
+    // Filter by selected date, month, or year
+    if (searchYear && searchMonth && searchDate) {
+      // Filter by exact date
+      return plannedExamDate === searchDate && plannedExamMonth === searchMonth && plannedExamYear === searchYear;
+    } else if (searchYear && searchMonth) {
+      // Filter by year and month
+      return plannedExamMonth === searchMonth && plannedExamYear === searchYear;
+    } else if (searchYear) {
+      // Filter by year
+      return plannedExamYear === searchYear;
+    } else {
+      // No specific date/month/year selected, return true
+      return true;
+    }
+
     } else if (searchOption === 'cloudPlatform') {
       return request.cloudPlatform && request.cloudPlatform.toLowerCase().includes(searchValue.toLowerCase());
     } else if (searchOption === 'cloudExam') {
@@ -167,14 +195,14 @@ function VoucherRequests() {
       return request.examResult && request.examResult.toLowerCase().includes(searchValue.toLowerCase());
     }
   };
- 
+
   const [confirmationVisible, setConfirmationVisible] = useState(false); // State to manage visibility of confirmation message
- 
+
   const handleSendReminderEmail = async () => {
     // Show confirmation dialog
     setConfirmationVisible(true);
   };
- 
+
   const handleConfirmSendReminderEmail = async () => {
     // Proceed to send the mail
     try {
@@ -182,41 +210,41 @@ function VoucherRequests() {
       console.log(response.data);
       setShowReminderButton(false);
       setRequestsOption("default");
- 
+
       // Show success toasty message
       toast.success('Mail sent successfully!!!');
- 
+
       // Reload the current page
       window.location.reload();
     } catch (error) {
       console.error(error.response.data);
- 
+
       // Show error toasty message
       toast.error('Failed to send email. Please try again.');
     }
     setConfirmationVisible(false);
   };
- 
+
   const handleCancelSendReminderEmail = () => {
     setConfirmationVisible(false);
   };
- 
- 
- 
- 
+
+
+
+
   const handleAssigneVoucherClick = (email, examName, id) => {
     navigate(`/voucher-dashboard/${email}/${examName}/${id}`);
   };
- 
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const handleChangePage = (event, newPage) => {
-      setPage(newPage);
+    setPage(newPage);
   };
- 
+
   const handleChangeRowsPerPage = (event) => {
-      setRowsPerPage(parseInt(event.target.value, 10));
-      setPage(0);
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
   useEffect(() => {
     const fetchProfileImageURL = async () => {
@@ -224,50 +252,51 @@ function VoucherRequests() {
         const response = await axios.get(`http://localhost:9092/user/getProfileImageURL/${username}`, {
           responseType: 'arraybuffer',
         });
- 
+
         const blob = new Blob([response.data], { type: 'image/jpeg' });
         const reader = new FileReader();
- 
+
         reader.onloadend = () => {
           setProfileImageURL(reader.result);
         };
- 
+
         reader.readAsDataURL(blob);
       } catch (error) {
         console.error('Error fetching image URL:', error.message);
       }
     };
- 
+
     fetchProfileImageURL();
   }, [username]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
- 
+
   // Function to open the modal and set the selected image
   const openModal = (imageUrl) => {
     setSelectedImage(imageUrl);
     setIsModalOpen(true);
   };
- 
+
   // Function to close the modal
   const closeModal = () => {
     setSelectedImage(null);
     setIsModalOpen(false);
   };
   const [numPages, setNumPages] = useState(null);
-const [pageNumber, setPageNumber] = useState(1);
-const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
- 
+
   const openDenyConfirmation = (request) => {
     setSelectedRequest(request);
     setDenyConfirmationVisible(true);
   };
- 
+
   const closeDenyConfirmation = () => {
     setDenyConfirmationVisible(false);
+    setSelectedDenialReason(""); // Reset selected denial reason
   };
- 
+
   const handleDenyRequest = async () => {
     try {
       // Send the denial request with the selected reason
@@ -293,7 +322,7 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
       const response = await axios.get(`http://localhost:8085/requests/getR2d2Screenshot/${id}`, {
         responseType: 'arraybuffer',
       });
-  
+
       const blob = new Blob([response.data], { type: 'image/jpeg' });
       const imageUrl = URL.createObjectURL(blob);
       // Handle setting the image URL to state or directly displaying it
@@ -304,16 +333,16 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
       console.error('Error fetching R2D2 image:', error.message);
     }
   };
-  
-  
- 
+
+
+
 
   // useEffect(() => {
   //   axios.get(`http://localhost:8085/requests/getAllVouchers`)
   //     .then(response => {
   //       setRequests(response.data);
-       
-       
+
+
   //     })
   //     .catch(error => {
   //       console.log(error);
@@ -350,8 +379,8 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
   const acceptedFileFormats = ['.xlsx'];
   const [selectedSupplierFile, setSelectedSupplierFile] = useState(null);
   const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false);
-  
- 
+
+
   const closeSupplierModal = () => {
     setIsSupplierModalOpen(false);
   };
@@ -360,140 +389,155 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
   };
   const handleSupplierFileUpload = async () => {
     try {
-        if (!selectedSupplierFile) {
-            toast.error('Please select a file to upload.');
-            return;
-        }
+      if (!selectedSupplierFile) {
+        toast.error('Please select a file to upload.');
+        return;
+      }
 
-        const formData = new FormData();
-        formData.append('candidates', selectedSupplierFile);
+      const formData = new FormData();
+      formData.append('candidates', selectedSupplierFile);
 
-        // Make an HTTP request to upload the file
-        // Replace the URL with your backend endpoint
-        const response = await axios.post('http://localhost:8085/candidate/saveAllCandidate', formData);
-        console.log('Response from server:', response);
+      // Make an HTTP request to upload the file
+      // Replace the URL with your backend endpoint
+      const response = await axios.post('http://localhost:8085/candidate/saveAllCandidate', formData);
+      console.log('Response from server:', response);
 
-        // Handle the response based on different scenarios
-        if (response.status === 200) {
-            const { data } = response;
-            if (data.startsWith('Total')) {
-                toast.success(data);
-            } else if (data === 'Data already exists') {
-                toast.warn(data);
-            } else if (data === 'Uploaded successfully') {
-                toast.success(data);
-            } else {
-                // Handle unexpected response
-                toast.error('Unexpected response from server.');
-            }
+      // Handle the response based on different scenarios
+      if (response.status === 200) {
+        const { data } = response;
+        if (data.startsWith('Total')) {
+          toast.success(data);
+        } else if (data === 'Data already exists') {
+          toast.warn(data);
+        } else if (data === 'Uploaded successfully') {
+          toast.success(data);
         } else {
-            // Handle non-200 response status
-            toast.error('Error uploading supplier file. Please try again.');
+          // Handle unexpected response
+          toast.error('Unexpected response from server.');
         }
+      } else {
+        // Handle non-200 response status
+        toast.error('Error uploading supplier file. Please try again.');
+      }
     } catch (error) {
-        console.error('Error uploading supplier file:', error);
-        toast.error('Data Already Exists');
+      console.error('Error uploading supplier file:', error);
+      toast.error('Data Already Exists');
     }
-};
+  };
 
   const openSupplierModal = () => {
     console.log("Opening supplier modal"); // Add this line
     setIsSupplierModalOpen(true);
   };
-    
+
+  const handleDropdownClose = () => {
+    setSearchValue(""); // Reset search value when the dropdown menu is closed
+  };
+
   return (
     <div className="headd">
-        <div>
+      <div>
         {confirmationVisible && (
-  <div className="confirmation-modal">
-    <p>Are you sure you want to send the mail?</p>
-    <button onClick={handleConfirmSendReminderEmail}>Confirm</button>
-    <button onClick={handleCancelSendReminderEmail}>Cancel</button>
-  </div>
- 
-)}
- 
- 
-      {/* <button onClick={() => setConfirmationVisible(true)}>Send Reminder Mail</button> */}
-     
-    
-    </div>
-    <div>
-    {denyConfirmationVisible && (
-  <div className="confirmation-modal">
-    {/* Dropdown menu for denial reasons */}
-    <select style={{color: 'InactiveBorder',backgroundColor:'whitish-gray',marginBottom:'2px'}} value={selectedDenialReason} onChange={handleDenialReasonChange} className="reason-dropdown">
-      <option value="">Select Denial Reason</option>
-      <option value="lowScore">Low Score</option>
-      <option value="outdatedImage">Outdated Image</option>
-      <option value="incorrectScreenshot">Incorrect Screenshot</option>
-      <option value="incorrectImageFormat">Incorrect Image Format</option>
-    </select>
-    {/* Conditional rendering for the message */}
-    {selectedDenialReason === "" && (
-      <p style={{ color: 'red' }}>Please select a reason before confirming:</p>
-    )}
-    {/* Confirmation message */}
-    <p>Are you sure you want to deny the request?</p>
-    {/* Confirm and Cancel buttons */}
-    <button onClick={handleDenyRequest} disabled={!selectedDenialReason} className="confirm-button">Confirm</button>
-    <button onClick={closeDenyConfirmation} className="cancel-button">Cancel</button>
-  </div>
-)}
+          <div className="confirmation-modal">
+            <p>Are you sure you want to send the mail?</p>
+            <button onClick={handleConfirmSendReminderEmail}>Confirm</button>
+            <button onClick={handleCancelSendReminderEmail}>Cancel</button>
+          </div>
+
+        )}
+
+
+        {/* <button onClick={() => setConfirmationVisible(true)}>Send Reminder Mail</button> */}
+
+
+      </div>
+      <div>
+        {denyConfirmationVisible && (
+          <div className="confirmation-modal">
+            {/* Conditional rendering for the message */}
+            {selectedDenialReason === "" && (
+              <p style={{ color: 'red' }}>Please select a reason before confirming:</p>
+            )}
+            {/* Dropdown menu for denial reasons */}
+            <select style={{
+              color: 'InactiveBorder', backgroundColor: '#ecf0f1', marginBottom: '2px',
+              fontSize: "14px",
+              height: "40px",
+              borderRadius: "5px",
+              paddingLeft: "10px",
+              border: "1px solid #3498db",
+              marginBottom: '20px',
+              background: "#ecf0f1", // Light gray background
+              color: "#2c3e50", // Dark text color
+              outline: "none",
+            }} value={selectedDenialReason} onChange={handleDenialReasonChange} className="reason-dropdown">
+              <option value="">Select Denial Reason</option>
+              <option value="lowScore">Low Score</option>
+              <option value="outdatedImage">Outdated Image</option>
+              <option value="incorrectScreenshot">Incorrect Screenshot</option>
+              <option value="incorrectImageFormat">Incorrect Image Format</option>
+            </select>
+            {/* Confirmation message */}
+            <p>Are you sure you want to deny the request?</p>
+            {/* Confirm and Cancel buttons */}
+            <button onClick={handleDenyRequest} disabled={!selectedDenialReason} className="confirm-button">Confirm</button>
+            <button onClick={closeDenyConfirmation} className="cancel-button">Cancel</button>
+          </div>
+        )}
 
 
       </div>
       <Modal
-  isOpen={isModalOpen}
-  onRequestClose={closeModal}
-  style={{
-    overlay: {
-      backgroundColor: 'rgba(0, 0, 0, 0.5)'
-    },
-    content: {
-      border: 'none',
-      background: 'transparent',
-      marginLeft: '40%',
-      maxWidth: '100%',
-      maxHeight: '100%',
-    }
-  }}
->
-  {/* Make the entire modal draggable */}
-  <Draggable>
-    <div className="modal-content">
-      {/* Navbar for icons */}
-      <div className="navbar-image">
-        {/* Styled close button */}
-        <button className="close-button" onClick={closeModal}>
-          <FontAwesomeIcon icon={faTimes} size="2x" />
-        </button>
-        {/* Download button */}
-        {selectedImage && selectedImage.includes("getCertificate") && (
-          <a className="download-ref" href={selectedImage} download>
-            <FontAwesomeIcon icon={faDownload} size="2x" style={{ color: 'blue' }} />
-          </a>
-        )}
-      </div>
-      {/* Modal content */}
-      <img src={selectedImage} alt="Selected" style={{ width: '100%', height: '100%' }} />
-      {/* Conditionally render full-screen icon */}
-      {selectedImage && selectedImage.includes("getDoSelectImage") && (
-        <a className="fa-expand" href={selectedImage} expand>
-          <FontAwesomeIcon icon={faExpand} size="2x" style={{ color: 'black', cursor: 'pointer' }} onClick={() => openModal(selectedImage)} />
-        </a>
-      )}
-    </div>
-  </Draggable>
-</Modal>
+        isOpen={isModalOpen}
+        onRequestClose={closeModal}
+        style={{
+          overlay: {
+            backgroundColor: 'rgba(0, 0, 0, 0.5)'
+          },
+          content: {
+            border: 'none',
+            background: 'transparent',
+            marginLeft: '40%',
+            maxWidth: '100%',
+            maxHeight: '100%',
+          }
+        }}
+      >
+        {/* Make the entire modal draggable */}
+        <Draggable>
+          <div className="modal-content">
+            {/* Navbar for icons */}
+            <div className="navbar-image">
+              {/* Styled close button */}
+              <button className="close-button" onClick={closeModal}>
+                <FontAwesomeIcon icon={faTimes} size="2x" />
+              </button>
+              {/* Download button */}
+              {selectedImage && selectedImage.includes("getCertificate") && (
+                <a className="download-ref" href={selectedImage} download>
+                  <FontAwesomeIcon icon={faDownload} size="2x" style={{ color: 'blue' }} />
+                </a>
+              )}
+            </div>
+            {/* Modal content */}
+            <img src={selectedImage} alt="Selected" style={{ width: '100%', height: '100%' }} />
+            {/* Conditionally render full-screen icon */}
+            {selectedImage && selectedImage.includes("getDoSelectImage") && (
+              <a className="fa-expand" href={selectedImage} expand>
+                <FontAwesomeIcon icon={faExpand} size="2x" style={{ color: 'black', cursor: 'pointer' }} onClick={() => openModal(selectedImage)} />
+              </a>
+            )}
+          </div>
+        </Draggable>
+      </Modal>
 
 
 
 
- 
- 
+
+
       <div className="navbar" style={{ backgroundColor: "rgb(112, 183, 184)", width: "auto" }}>
- 
+
         <div className="user-info" style={{ marginLeft: "20px" }}>
           <p id="name">Welcome!!</p>
           <p id="date">
@@ -501,12 +545,12 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
             {currentTime.toLocaleDateString(undefined, dateOptions)}
           </p>
         </div>
- 
-        <div className="user-info" style={{alignItems: "flex-end"}}>
+
+        <div className="user-info" style={{ alignItems: "flex-end" }}>
           <div>
-          <Button color="inherit" onClick={openProfilePopup}>
+            <Button color="inherit" onClick={openProfilePopup}>
               {profileImageURL ? (
-                <img src={profileImageURL} alt="Profile" style={{ borderRadius: '50%', width: '60px', height: '60px', marginRight: '5px', marginTop:"-15px" }} />
+                <img src={profileImageURL} alt="Profile" style={{ borderRadius: '50%', width: '60px', height: '60px', marginRight: '5px', marginTop: "-15px" }} />
               ) : (
                 <AccountCircleIcon style={{ color: 'skyblue', fontSize: '45px', marginRight: '5px' }} />
               )}
@@ -533,16 +577,17 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
           </div>
         </div>
       </div>
- 
+
       <div className="wrap">
- 
+
         <div className="dashboard-container">
- 
+
           <div className="dashboard-dropdown">
             <select
               className="search-text"
               value={searchOption}
               onChange={handleSearchOptionChange}
+              onClose={handleDropdownClose} // Add onClose event handler
               style={{
                 fontSize: "14px",
                 height: "40px",
@@ -561,14 +606,14 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
               <option value="cloudExam">By Exam name</option>
               <option value="examResult">By Exam Result</option>
             </select>
-            {(searchOption === 'candidateName' || searchOption === 'plannedExamDate' || searchOption === 'cloudPlatform' || searchOption === 'cloudExam'|| searchOption === 'examResult') && (
+            {(searchOption === 'candidateName' || searchOption === 'plannedExamDate' || searchOption === 'cloudPlatform' || searchOption === 'cloudExam' || searchOption === 'examResult') && (
               <input
                 type="text"
                 value={searchValue}
-                placeholder="Search..."
+                placeholder={searchOption === 'plannedExamDate' ? "yyyy-mm-dd" : "Search..."}
                 onChange={handleSearchInputChange}
                 style={{
-                  marginTop: "5px",
+                  marginLeft: "8px",
                   padding: "8px",
                   fontSize: "13px",
                   borderRadius: "5px",
@@ -577,68 +622,69 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
               />
             )}
           </div>
- 
+
           <div className="dashboard-dropdown">
-  <select
-    className="search-text"
-    value={requestsOption}
-    onChange={handleRequests}
-    style={{
-      fontSize: "14px",
-      height: "40px",
-      borderRadius: "5px",
-      paddingLeft: "10px",
-      border: "1px solid #3498db",
-      color: "black",
-      background: "#ecf0f1", // Light gray background
-      outline: "none",
-    }}
-  >
-    <option value="default" >
-      All Requests
-    </option>
-    <option value="Assigned" >
-      Assigned Requests
-    </option>
-    <option value="Pending" >
-      Pending Requests
-    </option>
-    <option value="Completed" >
-      Completed Exam
-    </option>
-    <option value="NotUpdated" >
-      Not Updated Result
-    </option>
-  </select>
-  {showReminderButton && (
-          <button
-            onClick={() => handleSendReminderEmail()}
-            style={{
-              marginTop: "5px",
-              fontSize: "13px",
-              padding: "2px",
-              height: "40px",
-              width: "140px",
-              borderRadius: "5px",
-              // backgroundColor: "#3498db",
-              color: "#fff",
-              cursor: "pointer",
-              border: "none",
-            }}
-          >
-            Send Reminder Mail
-          </button>
-        )}
-</div>
- 
-          <div className="right-corner">
-          
+            <select
+              className="search-text"
+              value={requestsOption}
+              onChange={handleRequests}
+              style={{
+                fontSize: "14px",
+                height: "40px",
+                borderRadius: "5px",
+                paddingLeft: "10px",
+                border: "1px solid #3498db",
+                color: "black",
+                background: "#ecf0f1", // Light gray background
+                outline: "none",
+              }}
+            >
+              <option value="default" >
+                All Requests
+              </option>
+              <option value="Assigned" >
+                Assigned Requests
+              </option>
+              <option value="Pending" >
+                Pending Requests
+              </option>
+              <option value="Completed" >
+                Completed Exam
+              </option>
+              <option value="NotUpdated" >
+                Not Updated Result
+              </option>
+            </select>
+            {showReminderButton && (
+              <button
+                onClick={() => handleSendReminderEmail()}
+                style={{
+                  marginLeft: "10px",
+                  fontWeight: "bold",
+                  backgroundColor: "rgb(33, 61, 154)",
+                  fontSize: "13px",
+                  padding: "2px",
+                  height: "40px",
+                  width: "140px",
+                  borderRadius: "5px",
+                  color: "#fff",
+                  cursor: "pointer",
+                  border: "none",
+                }}
+              >
+                Send Reminder Mail
+              </button>
+            )}
           </div>
- 
+
+          <div className="right-corner">
+
+          </div>
+
         </div>
- 
+
         <div className="table-div">
-          <table className="dashboard-table" style={{width: "150%"}}>
+          <table className="dashboard-table" style={{ width: "170%" }}>
             <thead>
               <tr>
                 <th>Name</th>
@@ -657,13 +703,13 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
                 <th>R2D2 Image</th>
                 <th>Deny Voucher</th>
                 <th>Assign Voucher</th>
-               
- 
+
+
               </tr>
             </thead>
- 
+
             <tbody>
-            {requests.filter(filters).sort((a, b) => {
+              {requests.filter(filters).sort((a, b) => {
                 // Sort by voucher code availability (assigned requests first, then pending)
                 if (a.voucherCode === null && b.voucherCode !== null) {
                   return -1; // Move rows with no voucher code (pending) to the top
@@ -681,58 +727,86 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
                   <td>{row.cloudExam}</td>
                   <td>{row.doSelectScore}</td>
                   <td>
-              {row.doSelectScoreImage ? (
-                <img
-                  src={`http://localhost:8085/requests/getDoSelectImage/${row.id}`}
-                  alt="DoSelect Image"
-                  style={{ width: '50px', height: '50px', cursor: 'pointer' }}
-                  onClick={() => openModal(`http://localhost:8085/requests/getDoSelectImage/${row.id}`)}
-                />
-              ) : (
-                <span>No Image</span>
-              )}
-            </td>
- 
+                    {row.doSelectScoreImage ? (
+                      <img
+                        src={`http://localhost:8085/requests/getDoSelectImage/${row.id}`}
+                        alt="DoSelect Image"
+                        style={{ width: '50px', height: '50px', cursor: 'pointer' }}
+                        onClick={() => openModal(`http://localhost:8085/requests/getDoSelectImage/${row.id}`)}
+                      />
+                    ) : (
+                      <span>No Image</span>
+                    )}
+                  </td>
+
                   <td>{row.voucherCode}</td>
                   <td>{row.voucherIssueLocalDate}</td>
                   <td>{row.voucherExpiryLocalDate}</td>
                   <td>{row.plannedExamDate}</td>
                   <td>{row.examResult}</td>
-                  <td style={{color: "blue", textDecoration: "underline"}} onClick={() => openModal(`http://localhost:8085/requests/getCertificate/${row.id}`)}>
-            {row.certificateFileImage}
-          </td>
-          <td>{row.validationNumber}</td>
+                  <td>
+                    {row.examResult === "Fail" || row.examResult === "Pending due to issue" ? (
+                      <span style={{ fontSize: "12px" }}>N/A</span>
+                    ) : (
+                      <span
+                        style={{
+                          color: 'blue',
+                          fontSize: "12px",
+                          textDecoration: 'underline',
+                          cursor: 'pointer',
+                        }}
+                        onClick={() => openModal(`http://localhost:8085/requests/getCertificate/${row.id}`)}
+                      >
+                        {row.certificateFileImage}
+                      </span>
+                    )}
+                  </td>
+                  <td>{row.validationNumber}</td>
+                  <td>
+                    {(row.r2d2Screenshot !== null && row.r2d2Screenshot !== "") && (
+                      <>
+                        {(row.examResult !== "Fail" && row.examResult !== "Pending due to issue") && (
+                          <span
+                            style={{
+                              color: 'blue',
+                              fontSize: "12px",
+                              textDecoration: 'underline',
+                              cursor: 'pointer',
+                            }}
+                            onClick={() => fetchR2D2Image(row.id)}
+                          >
+                            View
+                          </span>
+                        )}
+                        {(row.examResult === "Fail" || row.examResult === "Pending due to issue") && (
+                          <span style={{ fontSize: "12px" }}>N/A</span>
+                        )}
+                      </>
+                    )}
+                  </td>
 
 
-                 
-          <td
- 
-   
- style={{color: "blue", textDecoration: "underline"}}
-   
-    onClick={() => fetchR2D2Image(row.id)}>
-    View
- 
-</td>
+
+
 
                   <td>
-                    
-                <button
-                  className={row.voucherCode !== null ? 'disabled-button' : 'enabled-button'}
-                  onClick={() => openDenyConfirmation(row)}
-                  disabled={row.voucherCode !== null}
-                  style={{
-                    backgroundColor: row.voucherCode !== null ? "#95a5a6" : "rgb(230, 134, 134)",
-                    fontSize: "12px",
-                    height: "35px",
-                    color: "#fff",
-                    borderRadius: "5px",
-                    border: "none"
-                  }}
-                >
-                  Deny Request
-                </button>
-              </td>
+
+                    <button
+                      className={row.voucherCode !== null ? 'disabled-button' : 'enabled-button'}
+                      onClick={() => openDenyConfirmation(row)}
+                      disabled={row.voucherCode !== null}
+                      style={{
+                        backgroundColor: row.voucherCode !== null ? "#95a5a6" : "rgb(230, 134, 134)",
+                        fontSize: "12px",
+                        height: "35px",
+                        color: "#fff",
+                        borderRadius: "5px",
+                        border: "none"
+                      }}
+                    >
+                      Deny Request
+                    </button>
+                  </td>
                   <td>
                     <button
                       className={row.voucherCode !== null ? 'disabled-button' : 'enabled-button'}
@@ -750,48 +824,48 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
                       Assign Voucher
                     </button>
                   </td>
-                 
+
                 </tr>
               ))}
             </tbody>
-           
+
           </table>
-          
+
 
           {requests.length === 0 && (
-     <div style={{display:"flex", marginLeft: "350px", marginTop: "50px"} }> <p style={{ backgroundColor: "yellow", fontStyle: "-moz-initial"}}>No requests found in this category</p> 
-     </div> 
-    
-  )}
-         
-         {requests.length !== 0 && ( <TablePagination style={{ width: "70%", marginLeft: "2%" }}
-                                rowsPerPageOptions={[5,10, 20, 25, { label: 'All', value: requests.length }]}
-                                component="div"
-                                count={requests.length}
-                                rowsPerPage={rowsPerPage}
-                                page={page}
-                                onPageChange={handleChangePage}
-                                onRowsPerPageChange={handleChangeRowsPerPage}
-                                labelRowsPerPage="Rows per page"
-                            />
-                            )}
+            <div style={{ display: "flex", marginLeft: "350px", marginTop: "50px" }}> <p style={{ backgroundColor: "yellow", fontStyle: "-moz-initial" }}>No requests found in this category</p>
+            </div>
+
+          )}
+
+          {requests.length !== 0 && (<TablePagination style={{ width: "70%", marginLeft: "2%" }}
+            rowsPerPageOptions={[5, 10, 20, 25, { label: 'All', value: requests.length }]}
+            component="div"
+            count={requests.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            labelRowsPerPage="Rows per page"
+          />
+          )}
         </div>
- 
+
       </div>
- 
-      <div className="footer-div" style={{ "height": "35px", "marginTop": "15px"}}>
+
+      <div className="footer-div" style={{ "height": "35px", "marginTop": "15px" }}>
         <footer>
-        <p>&copy; {currentTime.getFullYear()} Capgemini. All rights reserved.</p>
+          <p>&copy; {currentTime.getFullYear()} Capgemini. All rights reserved.</p>
         </footer>
       </div>
- 
+
       <div className="left-column">
         <h2 className="heading">Voucher Dashboard</h2>
- 
+
         <hr />
- 
+
         <div className="row">
- 
+
           <div className="left-row">
             <p><Link to={'/dashboard'} style={{ "color": "white" }}>
               <FontAwesomeIcon icon={faTachometerAlt} size="1x" />  Dashboard</Link></p>
@@ -800,7 +874,7 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
             <p><Link to={'/requests'} style={{ "color": "white" }}>
               <FontAwesomeIcon icon={faList} size="1x" /> Requests</Link></p>
           </div>
- 
+
           <div className="left-row">
             <p><Link to={'/vouchers'} style={{ "color": "white" }}>
               <FontAwesomeIcon icon={faClipboardCheck} size="1x" />  Vouchers</Link></p>
@@ -810,12 +884,12 @@ const [denyConfirmationVisible, setDenyConfirmationVisible] = useState(false);
             <p><Link to={'/candidates'} style={{ "color": "white" }}>
               <FontAwesomeIcon icon={faUsers} size="1x" /> Eligibility</Link></p>
           </div>
- 
+
         </div>
- 
+
       </div>
     </div>
   );
 }
- 
+
 export default VoucherRequests;

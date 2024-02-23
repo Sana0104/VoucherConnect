@@ -16,7 +16,7 @@ import cloudData from "./examdata.json";
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import WarningIcon from '@mui/icons-material/Warning';
- 
+
 const RequestVoucherForm = () => {
   const [formData, setFormData] = useState({
     candidateName: '',
@@ -33,7 +33,7 @@ const RequestVoucherForm = () => {
   const username = location.state?.username || '';
   const [formErrors, setFormErrors] = useState({});
   const [examOptions, setExamOptions] = useState([]);
- 
+
   useEffect(() => {
     const obj = localStorage.getItem("userInfo");
     const { name } = JSON.parse(obj);
@@ -42,10 +42,10 @@ const RequestVoucherForm = () => {
       candidateName: name,
     }));
   }, []);
- 
+
   const handleChange = (event) => {
     const { name, value } = event.target;
- 
+
     if (name === 'doSelectScoreImage') {
       setFormData({
         ...formData,
@@ -68,7 +68,7 @@ const RequestVoucherForm = () => {
       setFormErrors({ ...formErrors, [name]: '' });
     }
   };
- 
+
   const validateFile = (file) => {
     const errorsCopy = { ...formErrors };
     if (!file) {
@@ -78,7 +78,7 @@ const RequestVoucherForm = () => {
     }
     setFormErrors(errorsCopy);
   };
- 
+
   const handleCloudPlatformChange = (event) => {
     const selectedPlatform = event.target.value;
     const errorsCopy = { ...formErrors };
@@ -96,7 +96,7 @@ const RequestVoucherForm = () => {
       setFormErrors(errorsCopy);
     }
   };
- 
+
   const validateName = (name) => {
     const errorsCopy = { ...formErrors };
     const nameRegex = /^[A-Za-z\s]+$/;
@@ -107,7 +107,7 @@ const RequestVoucherForm = () => {
     }
     setFormErrors(errorsCopy);
   };
- 
+
   const handleNameChange = (event) => {
     setFormData({
       ...formData,
@@ -115,11 +115,11 @@ const RequestVoucherForm = () => {
     });
     validateName(event.target.value);
   };
- 
+
   const validateScore = (doSelectScore) => {
     const errorsCopy = { ...formErrors };
     const isValidScore = /^-?\d+$/.test(doSelectScore);
- 
+
     if (!isValidScore || doSelectScore < 0 || doSelectScore > 100) {
       errorsCopy.doSelectScore =
         'Please enter a valid score. It should be a number between 0 and 100.';
@@ -131,7 +131,7 @@ const RequestVoucherForm = () => {
     }
     setFormErrors(errorsCopy);
   };
- 
+
   const handleScoreChange = (event) => {
     setFormData({
       ...formData,
@@ -139,45 +139,45 @@ const RequestVoucherForm = () => {
     });
     validateScore(event.target.value);
   };
- 
+
   const validateForm = () => {
     let formIsValid = true;
     const errors = {};
- 
+
     if (!formData.candidateName) {
       errors.candidateName = 'Candidate Name is required';
       formIsValid = false;
     }
- 
+
     if (!formData.cloudPlatform) {
       errors.cloudPlatform = 'Cloud Name is required';
       formIsValid = false;
     }
- 
+
     if (!formData.cloudExam) {
       errors.cloudExam = 'Exam Name is required';
       formIsValid = false;
     }
- 
+
     if (!formData.doSelectScore) {
       errors.doSelectScore = 'Exam Score is required';
       formIsValid = false;
     }
- 
+
     if (!formData.doSelectScoreImage) {
       errors.doSelectScoreImage = 'doselect score screenshot is required';
       formIsValid = false;
     }
- 
+
     if (!formData.plannedExamDate) {
       errors.plannedExamDate = 'Tentative Exam Date is required';
       formIsValid = false;
     }
- 
+
     setFormErrors(errors);
     return formIsValid;
   };
- 
+
   const handleSubmit = (event) => {
     event.preventDefault();
     if (validateForm()) {
@@ -189,15 +189,15 @@ const RequestVoucherForm = () => {
         const formDataObj = new FormData();
         formDataObj.append('data', new Blob([JSON.stringify(dataWithUserEmail)], {
           type: "application/json"
-      }));
- 
+        }));
+
         // Use the file input reference to get the file
         formDataObj.append('image', formData.doSelectScoreImage);
- 
+
         axios
           .post('http://localhost:8085/requests/voucher', formDataObj, {
             headers: {
-              'Content-Type':'multipart/form-data'
+              'Content-Type': 'multipart/form-data'
             },
           })
           .then((response) => {
@@ -231,18 +231,18 @@ const RequestVoucherForm = () => {
       }
     }
   };
- 
+
   const handleCloseDialog = () => {
     setOpenDialog(false);
   };
- 
+
   const goBack = () => {
     navigate(-1); // This function navigates back to the previous page in history
   };
- 
+
   const acceptedFileFormats = ['.jpg', '.jpeg', '.png'];
- 
- 
+
+
   return (
     <div>
       <Navbar />
@@ -268,7 +268,7 @@ const RequestVoucherForm = () => {
       >
         Go Back
       </Button>
- 
+
       <div className='form-container'>
         <h1>Voucher Request Form</h1>
         <FormControl className='form-control-data' variant="outlined" size="sl" margin="normal">
@@ -337,9 +337,9 @@ const RequestVoucherForm = () => {
           />
           {formErrors.doSelectScoreImage && (
             <span className="errors">{formErrors.doSelectScoreImage}</span>
- 
+
           )}
-           <span className="file-format-info">
+          <span className="file-format-info">
             Accepted formats: {acceptedFileFormats.join(', ')}
           </span>
         </FormControl>
@@ -389,5 +389,5 @@ const RequestVoucherForm = () => {
     </div>
   );
 };
- 
+
 export default RequestVoucherForm;

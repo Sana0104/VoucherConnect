@@ -384,31 +384,34 @@ const loadFromLocalStorage = (key) => {
                 <div className="container" style={{ marginTop: '30px', paddingTop: '80px' }}>
                     <Box>
                         <TableContainer component={Paper}>
-                            <Table aria-label="customized table" style={{ width: "70%", marginLeft: "1%" }}>
-                                <TableHead>
+                        <Table aria-label="customized table" style={{ width: "70%", marginLeft: "1%" }}>
+                            <TableHead>
+                                <StyledTableRow>
+                                    <StyledTableCell style={{ minWidth: '200px' }}>Exam Name</StyledTableCell>
+                                    <StyledTableCell >Cloud Platform</StyledTableCell>
+                                    <StyledTableCell >Voucher Code</StyledTableCell>
+                                    <StyledTableCell >Voucher Issued Date</StyledTableCell>
+
+                                    <StyledTableCell style={{ minWidth: '150px' }}>Exam Date</StyledTableCell>
+                                    <StyledTableCell style={{ minWidth: '150px' }}>Result</StyledTableCell>
+                                    <StyledTableCell style={{ minWidth: '200px' }}>Certificate</StyledTableCell>
+                                    <StyledTableCell >Validation Number</StyledTableCell>
+                                    <StyledTableCell >R2D2 Screenshot</StyledTableCell>
+                                </StyledTableRow>
+                            </TableHead>
+                            <TableBody>
+                                {loading ? (
                                     <StyledTableRow>
-                                        <StyledTableCell style={{ minWidth: '200px' }}>Exam Name</StyledTableCell>
-                                        <StyledTableCell >Cloud Platform</StyledTableCell>
-                                        <StyledTableCell >Voucher Code</StyledTableCell>
-                                        <StyledTableCell >Voucher Issued Date</StyledTableCell>
- 
-                                        <StyledTableCell style={{ minWidth: '150px' }}>Exam Date</StyledTableCell>
-                                        <StyledTableCell style={{ minWidth: '150px' }}>Result</StyledTableCell>
-                                        <StyledTableCell style={{ minWidth: '200px' }}>Certificate</StyledTableCell>
-                                        <StyledTableCell >Validation Number</StyledTableCell>
-                                        <StyledTableCell >R2D2 Screenshot</StyledTableCell>
+                                        <TableCell colSpan={7} className="table-cell">
+                                            Loading...
+                                        </TableCell>
                                     </StyledTableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {loading ? (
-                                        <StyledTableRow>
-                                            <TableCell colSpan={7} className="table-cell">
-                                                Loading...
-                                            </TableCell>
-                                        </StyledTableRow>
-                                    ) : (
-                                        data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((voucher, index) => (
-                                            <StyledTableRow key={index}>
+                                ) : (
+                                    data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((voucher, index) => {
+                                        // Calculate unique index
+                                        const uniqueIndex = page * rowsPerPage + index;
+                                        return (
+                                            <StyledTableRow key={uniqueIndex}>
                                                 <StyledTableCell>{voucher.cloudExam}</StyledTableCell>
                                                 <StyledTableCell>{voucher.cloudPlatform}</StyledTableCell>
                                                 <StyledTableCell>{voucher.voucherCode ?? 'Requested'}</StyledTableCell>
@@ -416,17 +419,17 @@ const loadFromLocalStorage = (key) => {
  
                                                 <StyledTableCell>
                                                     {voucher.plannedExamDate}
-                                                    <IconButton onClick={() => handleEditExamDate(index)}>
+                                                    <IconButton onClick={() => handleEditExamDate(uniqueIndex)}>
                                                         <EditIcon />
                                                     </IconButton>
                                                 </StyledTableCell>
                                                 <StyledTableCell>
-                                                    {editIndex === index ? (
+                                                    {editIndex === uniqueIndex ? (
                                                         <Select
                                                             value={voucher.examResult}
                                                             onChange={(e) => {
                                                                 const newData = [...data];
-                                                                newData[index].examResult = e.target.value;
+                                                                newData[uniqueIndex].examResult = e.target.value;
                                                                 setData(newData);
                                                             }}
                                                         >
@@ -443,13 +446,13 @@ const loadFromLocalStorage = (key) => {
                                                     ) : (
                                                         voucher.examResult
                                                     )}
-                                                    {(voucher.examResult === 'Pending' && editIndex !== index) && (
-                                                        <IconButton onClick={() => handleEditResult(index)}>
+                                                    {(voucher.examResult === 'Pending' && editIndex !== uniqueIndex) && (
+                                                        <IconButton onClick={() => handleEditResult(uniqueIndex)}>
                                                             <EditIcon />
                                                         </IconButton>
                                                     )}
-                                                    {(voucher.examResult !== 'Pending' && editIndex === index) && (
-                                                        <IconButton onClick={() => handleSaveResult(index)}>
+                                                    {(voucher.examResult !== 'Pending' && editIndex === uniqueIndex) && (
+                                                        <IconButton onClick={() => handleSaveResult(uniqueIndex)}>
                                                             <SaveIcon />
                                                         </IconButton>
                                                     )}
@@ -462,7 +465,7 @@ const loadFromLocalStorage = (key) => {
                                                             </div>
                                                         ) : (
                                                             <Button
-                                                                onClick={() => handleOpenUploadDialog(index)}
+                                                                onClick={() => handleOpenUploadDialog(uniqueIndex)}
                                                             >
                                                                 Upload
                                                             </Button>
@@ -478,7 +481,7 @@ const loadFromLocalStorage = (key) => {
                                                             <div>{voucher.validationNumber}</div> // Display the validation number if saved
                                                         ) : (
                                                             !isValidationNumberSaved ? (
-                                                                <Button onClick={() => handleEnableValidationNumber(index)}>Enter</Button> // Enable "Enter" button if validation number is not saved and not already saved
+                                                                <Button onClick={() => handleEnableValidationNumber(uniqueIndex)}>Enter</Button> // Enable "Enter" button if validation number is not saved and not already saved
                                                             ) : (
                                                                 <span>N/A</span> // Display "N/A" if validation number is already saved
                                                             )
@@ -499,7 +502,7 @@ const loadFromLocalStorage = (key) => {
                                                             </div>
                                                         ) : (
                                                             <Button
-                                                                onClick={() => handleOpenUploadR2D2ScreenshotDialog(index)}
+                                                                onClick={() => handleOpenUploadR2D2ScreenshotDialog(uniqueIndex)}
                                                             >
                                                                 Upload
                                                             </Button>
@@ -509,10 +512,11 @@ const loadFromLocalStorage = (key) => {
                                                     )}
                                                 </StyledTableCell>
                                             </StyledTableRow>
-                                        ))
-                                    )}
-                                </TableBody>
-                            </Table>
+                                        );
+                                    })
+                                )}
+                            </TableBody>
+                        </Table>
                             <TablePagination style={{ width: "70%", marginLeft: "2%" }}
                                 rowsPerPageOptions={[5, 10, 25, { label: 'All', value: data.length }]}
                                 component="div"
@@ -551,7 +555,7 @@ const loadFromLocalStorage = (key) => {
                 <Dialog open={isUploadDialogOpen} onClose={handleCloseUploadDialog}>
                     <DialogTitle>Upload Certificate</DialogTitle>
                     <DialogContent>
-                        <input type="file" onChange={handleFileChange} />
+                        <input type="file" accept=".jpg,.jpeg,.png" onChange={handleFileChange} />
                     </DialogContent>
                     <span style={{ marginLeft: "20px", marginTop: "-20px", }} className="file-format-info">
                         Accepted formats: {acceptedFileFormats.join(', ')}
@@ -595,7 +599,7 @@ const loadFromLocalStorage = (key) => {
                 <Dialog open={uploadR2D2ScreenshotDialogOpen} onClose={handleCloseUploadR2D2ScreenshotDialog}>
     <DialogTitle>Upload R2D2 Screenshot</DialogTitle>
     <DialogContent>
-        <input type="file" onChange={handleFileChange} />
+        <input type="file"  accept=".jpg,.jpeg,.png" onChange={handleFileChange} />
     </DialogContent>
     <span style={{ marginLeft: "20px", marginTop: "-20px", }} className="file-format-info">
         Accepted formats: {acceptedFileFormats.join(', ')}
