@@ -592,7 +592,6 @@ function VoucherRequests() {
                 fontSize: "14px",
                 height: "40px",
                 borderRadius: "5px",
-                paddingLeft: "10px",
                 border: "1px solid #3498db",
                 background: "#ecf0f1", // Light gray background
                 color: "#2c3e50", // Dark text color
@@ -615,7 +614,7 @@ function VoucherRequests() {
                 style={{
                   marginLeft: "8px",
                   padding: "8px",
-                  fontSize: "13px",
+                  fontSize: "14px",
                   borderRadius: "5px",
                   border: "1px solid #3498db",
                 }}
@@ -632,7 +631,6 @@ function VoucherRequests() {
                 fontSize: "14px",
                 height: "40px",
                 borderRadius: "5px",
-                paddingLeft: "10px",
                 border: "1px solid #3498db",
                 color: "black",
                 background: "#ecf0f1", // Light gray background
