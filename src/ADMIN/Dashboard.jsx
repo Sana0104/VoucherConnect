@@ -407,29 +407,54 @@ function Dashboard() {
         const assignedResponse = await fetch('http://localhost:8085/requests/allAssignedVoucher');
         const assignedResponseData = await assignedResponse.json();
 
+        let resignedResponseData = [];
+        try {
+          const resignedResponse = await fetch('http://localhost:8085/requests/getResignedCandidates');
+          resignedResponseData = await resignedResponse.json();
+        } catch (error) {
+          console.error('Error fetching resigned candidates:', error);
+        }
+
+        let otherBUResponseData = [];
+        try {
+          const otherBUResponse = await fetch('http://localhost:8085/requests/getBuChangedCandidates');
+          otherBUResponseData = await otherBUResponse.json();
+        } catch (error) {
+          console.error('Error fetching other BU candidates:', error);
+        }
+
         // Filter assigned voucher data for the selected year and cloud platform
         let assignedResponseDataForYear = assignedResponseData.filter(request => new Date(request.voucherIssueLocalDate).getFullYear() === year && request.cloudPlatform === cloudPlatform);
-        console.log(assignedResponseDataForYear);
+        let resignedResponseDataForYear = Array.isArray(resignedResponseData) ? resignedResponseData.filter(request => new Date(request.voucherIssueLocalDate).getFullYear() === year && request.cloudPlatform === cloudPlatform) : [];
+        let otherBUResponseDataForYear = Array.isArray(otherBUResponseData) ? otherBUResponseData.filter(request => new Date(request.voucherIssueLocalDate).getFullYear() === year && request.cloudPlatform === cloudPlatform) : [];
+        console.log(assignedResponseDataForYear)
+
         // If an exam name is selected, filter data for that exam
         if (examName !== '') {
           assignedResponseDataForYear = assignedResponseDataForYear.filter(request => request.cloudExam === examName);
-          console.log(assignedResponseDataForYear);
+          resignedResponseDataForYear = resignedResponseDataForYear.filter(request => request.cloudExam === examName);
+          otherBUResponseDataForYear = otherBUResponseDataForYear.filter(request => request.cloudExam === examName);
         }
 
         const passedCount = assignedResponseDataForYear.filter(request => request.examResult === 'Pass').length;
         const failedCount = assignedResponseDataForYear.filter(request => request.examResult === 'Fail').length;
         const pendingCount = assignedResponseDataForYear.filter(request => request.examResult === 'Pending').length;
         const technicalIssueCount = assignedResponseDataForYear.filter(request => request.examResult === 'Pending due to issue').length;
+        const resignedCount = resignedResponseDataForYear.length;
+        const otherBUCount = otherBUResponseDataForYear.length;
+
 
         // Before setting the chart data, ensure it's an array with at least one element
         let chartDataArray = [];
 
-        if (passedCount > 0 || failedCount > 0 || pendingCount > 0 || technicalIssueCount > 0) {
+        if (passedCount > 0 || failedCount > 0 || pendingCount > 0 || technicalIssueCount > 0 || resignedCount > 0 || otherBUCount > 0) {
           chartDataArray = [
             { name: 'Passed', passed: passedCount },
             { name: 'Failed', failed: failedCount },
-            { name: 'Pending', pending: pendingCount },
-            { name: 'Technical Issue', technicalIssue: technicalIssueCount }
+            { name: 'Not Completed', pending: pendingCount },
+            { name: 'Technical Issue', technicalIssue: technicalIssueCount },
+            { name: 'Resigned', resigned: resignedCount },
+            { name: 'Other Bu', otherBU: otherBUCount }
           ];
         } else {
           // If there's no data, you can set a default data point
@@ -503,7 +528,7 @@ function Dashboard() {
   return (
     <div className='headd'>
       <div className='main-div'>
-        <div className="navbar1" style={{ backgroundColor: "rgb(112, 183, 184)", width: "auto"}}>
+        <div className="navbar1" style={{ backgroundColor: "rgb(112, 183, 184)", width: "auto" }}>
           <div className="user-info1" style={{ marginLeft: "10px" }}>
             <p id="name1">Welcome!!</p>
             <p id="date1">
@@ -543,53 +568,53 @@ function Dashboard() {
         </div>
         <div className="wrap1" style={{ width: "fit-content" }}>
           <div className='graph-container'>
-          <div className='vouchers-div'>
-            <div className='heading-class' style={{marginTop: "-20px"}}>
-            <h4>Vouchers Report:</h4>
+            <div className='vouchers-div'>
+              <div className='heading-class' style={{ marginTop: "-20px" }}>
+                <h4>Vouchers Report:</h4>
+              </div>
+
+              <div className='main-cards'>
+                <div className='card'>
+                  <div className='card-inner'>
+                    <div className="voucher-header">
+                      <h3>AWS</h3>
+                    </div>
+                    <div className="voucher-info">
+                      <p>Total: {awsVouchers.total}</p>
+                      <p>Released: {awsVouchers.released}</p>
+                      <p>Available: {awsVouchers.available}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className='card'>
+                  <div className='card-inner'>
+                    <div className="voucher-header">
+                      <h3>GCP</h3>
+                    </div>
+                    <div className="voucher-info">
+                      <p>Total: {gcpVouchers.total}</p>
+                      <p>Released: {gcpVouchers.released}</p>
+                      <p>Available: {gcpVouchers.available}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className='card'>
+                  <div className='card-inner'>
+                    <div className="voucher-header">
+                      <h3>AZURE</h3>
+                    </div>
+                    <div className="voucher-info">
+                      <p>Total: {azureVouchers.total}</p>
+                      <p>Released: {azureVouchers.released}</p>
+                      <p>Available: {azureVouchers.available}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            
-            <div className='main-cards'>
-              <div className='card'>
-                <div className='card-inner'>
-                  <div className="voucher-header">
-                    <h3>AWS</h3>
-                  </div>
-                  <div className="voucher-info">
-                    <p>Total: {awsVouchers.total}</p>
-                    <p>Released: {awsVouchers.released}</p>
-                    <p>Available: {awsVouchers.available}</p>
-                  </div>
-                </div>
-              </div>
-              <div className='card'>
-                <div className='card-inner'>
-                  <div className="voucher-header">
-                    <h3>GCP</h3>
-                  </div>
-                  <div className="voucher-info">
-                    <p>Total: {gcpVouchers.total}</p>
-                    <p>Released: {gcpVouchers.released}</p>
-                    <p>Available: {gcpVouchers.available}</p>
-                  </div>
-                </div>
-              </div>
-              <div className='card'>
-                <div className='card-inner'>
-                  <div className="voucher-header">
-                    <h3>AZURE</h3>
-                  </div>
-                  <div className="voucher-info">
-                    <p>Total: {azureVouchers.total}</p>
-                    <p>Released: {azureVouchers.released}</p>
-                    <p>Available: {azureVouchers.available}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
             <div className='charts'>
               <BarChart
-                width={500}
+                width={800}
                 height={300}
                 data={chartData}
                 margin={{
@@ -604,14 +629,16 @@ function Dashboard() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="passed" fill="#50C878" onClick={(entry) => handleBarClick(entry)}  />
+                <Bar dataKey="passed" fill="#50C878" onClick={(entry) => handleBarClick(entry)} />
                 <Bar dataKey="failed" fill="#FF6868" onClick={(entry) => handleBarClick(entry)} />
                 <Bar dataKey="pending" fill="#FFBB64" onClick={(entry) => handleBarClick(entry)} />
                 <Bar dataKey="technicalIssue" fill="#437387" onClick={(entry) => handleBarClick(entry)} />
+                <Bar dataKey="resigned" fill="#a75265" onClick={(entry) => handleBarClick(entry)} />
+                <Bar dataKey="otherBU" fill="#d2b48c" onClick={(entry) => handleBarClick(entry)} />
               </BarChart>
               <div className="dropdown-container">
-                <div className='heading-class' style={{backgroundColor: "rgb(37, 70, 179)", marginBottom: "20px", width: "300px"}}>
-                   <h4>Certifications Status Report</h4>
+                <div className='heading-class' style={{ backgroundColor: "rgb(37, 70, 179)", marginBottom: "20px", width: "300px" }}>
+                  <h4>Certifications Status Report</h4>
                 </div>
                 <div className="select-wrapper">
                   <label htmlFor="year-select">Select Year:</label>
