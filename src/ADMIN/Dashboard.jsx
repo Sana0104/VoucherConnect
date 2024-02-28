@@ -454,7 +454,7 @@ function Dashboard() {
             { name: 'Not Completed', pending: pendingCount },
             { name: 'Technical Issue', technicalIssue: technicalIssueCount },
             { name: 'Resigned', resigned: resignedCount },
-            { name: 'Other Bu', otherBU: otherBUCount }
+            { name: 'Other BU', otherBU: otherBUCount }
           ];
         } else {
           // If there's no data, you can set a default data point
@@ -612,6 +612,44 @@ function Dashboard() {
                 </div>
               </div>
             </div>
+            <div className='charts-container'>
+            <div className="dropdown-container">
+                <div className='heading-class' style={{marginBottom: "20px"}}>
+                  <h4>Certifications Status Report:</h4>
+                </div>
+                <div style={{display:"flex", flexDirection: "row", alignItems: "flex-start"}}>
+                <div className="select-wrapper">
+                  <label htmlFor="year-select">Select Year:</label>
+                  <select id="year-select" value={selectedYear} onChange={handleYearChange}>
+                    {years.map((year) => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="select-wrapper" style={{marginLeft: "50px"}}>
+                  <label htmlFor="platform-select">Select Cloud:</label>
+                  <select id="platform-select" value={cloudPlatform} onChange={handleCloudPlatformChange}>
+                    {examData.cloudPlatforms.map((cloud) => (
+                      <option key={cloud.name} value={cloud.name}>
+                        {cloud.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="select-wrapper" style={{marginLeft: "50px"}}>
+                  <label htmlFor="exam-select">Select Exam:</label>
+                  <select id="exam-select" value={examName} onChange={handleExamNameChange}>
+                    <option value="None">None</option>
+                    {examOptions.map((exam) => (
+                      <option key={exam} value={exam}>
+                        {exam}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                </div>
+              </div>
             <div className='charts'>
               <BarChart
                 width={800}
@@ -636,41 +674,9 @@ function Dashboard() {
                 <Bar dataKey="resigned" fill="#a75265" onClick={(entry) => handleBarClick(entry)} />
                 <Bar dataKey="otherBU" fill="#d2b48c" onClick={(entry) => handleBarClick(entry)} />
               </BarChart>
-              <div className="dropdown-container">
-                <div className='heading-class' style={{ backgroundColor: "rgb(37, 70, 179)", marginBottom: "20px", width: "300px" }}>
-                  <h4>Certifications Status Report</h4>
-                </div>
-                <div className="select-wrapper">
-                  <label htmlFor="year-select">Select Year:</label>
-                  <select id="year-select" value={selectedYear} onChange={handleYearChange}>
-                    {years.map((year) => (
-                      <option key={year} value={year}>{year}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="select-wrapper">
-                  <label htmlFor="platform-select">Select Cloud:</label>
-                  <select id="platform-select" value={cloudPlatform} onChange={handleCloudPlatformChange}>
-                    {examData.cloudPlatforms.map((cloud) => (
-                      <option key={cloud.name} value={cloud.name}>
-                        {cloud.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="select-wrapper">
-                  <label htmlFor="exam-select">Select Exam:</label>
-                  <select id="exam-select" value={examName} onChange={handleExamNameChange}>
-                    <option value="None">None</option>
-                    {examOptions.map((exam) => (
-                      <option key={exam} value={exam}>
-                        {exam}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+             
 
+            </div>
             </div>
           </div>
         </div>
