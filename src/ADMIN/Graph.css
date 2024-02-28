@@ -145,8 +145,8 @@
     margin: 10px 0;
   }
   .heading-class {
-    background-color: rgb(68, 99, 198); /* Background color */
-    color: white; /* Text color */
+    
+    color: black; /* Text color */
     padding: 5px; /* Padding for spacing */
     border-radius: 2px; /* Border radius for rounded corners */
     display: flex; /* Use flexbox for alignment */

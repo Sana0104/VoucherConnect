@@ -454,7 +454,7 @@ function Dashboard() {
             { name: 'Not Completed', pending: pendingCount },
             { name: 'Technical Issue', technicalIssue: technicalIssueCount },
             { name: 'Resigned', resigned: resignedCount },
-            { name: 'Other Bu', otherBU: otherBUCount }
+            { name: 'Other BU', otherBU: otherBUCount }
           ];
         } else {
           // If there's no data, you can set a default data point
