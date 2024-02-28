@@ -19,6 +19,8 @@ import {
     Select,
     TablePagination,
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+
 import Navbar from './Navbar';
 import { styled } from "@mui/material/styles";
 import { tableCellClasses } from "@mui/material/TableCell";
@@ -30,19 +32,19 @@ import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import axios from 'axios';
- 
+
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
         backgroundColor: theme.palette.primary.main,
         color: theme.palette.common.white,
         whiteSpace: 'nowrap',
     },
- 
+
     [`&.${tableCellClasses.body}`]: {
         fontSize: 14,
     },
 }));
- 
+
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
     "&:nth-of-type(odd)": {
         backgroundColor: theme.palette.action.hover,
@@ -52,7 +54,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     },
     height: "2px",
 }));
- 
+
 const ViewVouchers = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -78,15 +80,17 @@ const ViewVouchers = () => {
     const [isValidationNumberSaved, setIsValidationNumberSaved] = useState(false);
     const [r2d2ScreenshotUploaded, setR2D2ScreenshotUploaded] = useState(false);
 
+
+
     const saveToLocalStorage = (key, data) => {
         localStorage.setItem(key, JSON.stringify(data));
     };
 
     // Function to retrieve data from local storage
-const loadFromLocalStorage = (key) => {
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : null;
-};
+    const loadFromLocalStorage = (key) => {
+        const data = localStorage.getItem(key);
+        return data ? JSON.parse(data) : null;
+    };
 
     useEffect(() => {
         const fetchVouchers = async () => {
@@ -94,32 +98,26 @@ const loadFromLocalStorage = (key) => {
                 const response = await fetch(`http://localhost:8085/requests/${username}`);
                 const result = await response.json();
                 setData(result); // Set the data without sorting
-                setLoading(false);
-                // const sortedData = result.sort((a, b) => {
-                //     const dateA = new Date(a.plannedExamDate);
-                //     const dateB = new Date(b.plannedExamDate);
-                //     return dateA - dateB;
-                // });
-                //  setData(sortedData);
+
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching data:', error);
                 setLoading(false);
             }
         };
- 
+
         fetchVouchers();
     }, []);
- 
+
     const handleRequestVoucher = () => {
         navigate('/requestform', { state: { username } });
     };
- 
+
     const handleEditExamDate = (index) => {
         setSelectedExamIndex(index);
         setEditDateModalOpen(true);
     };
- 
+
     const handleEditResult = (index) => {
         const voucher = data[index];
         if (!voucher.voucherCode) {
@@ -138,11 +136,11 @@ const loadFromLocalStorage = (key) => {
             setError('Editing result is not allowed before the exam date.');
         }
     };
- 
+
     const handleDateChange = (date) => {
         setSelectedDate(date);
     };
- 
+
     const handleSaveExamDate = async () => {
         try {
             const voucherToUpdate = data[selectedExamIndex];
@@ -169,15 +167,15 @@ const loadFromLocalStorage = (key) => {
             setError(error.message);
         }
     };
- 
+
     const handleSaveResult = async (index) => {
         try {
-          
+
 
             const voucherToUpdate = data[index];
             const updatedResult = data[index].examResult;
             if (updatedResult === 'Pass') {
-                
+
                 if (!voucherToUpdate.certificateFileImage) {
                     throw new Error('Certificate must be uploaded before changing the result to Pass');
                 }
@@ -189,14 +187,14 @@ const loadFromLocalStorage = (key) => {
                 }
                 const localStorageData = loadFromLocalStorage('data');
             }
- 
+
             const response = await axios.put(`http://localhost:8085/requests/updateExamResult/${voucherToUpdate.voucherCode}/${updatedResult}`);
             if (response.status === 200) {
                 const updatedData = [...data];
                 updatedData[index].examResult = updatedResult;
                 setData(updatedData);
                 setError(null);
-    
+
                 if (updatedResult !== ' ') {
                     setEditIndex(-1);
                 }
@@ -214,7 +212,7 @@ const loadFromLocalStorage = (key) => {
         setSelectedFile(null);
         setUploadDialogOpen(true);
     };
- 
+
     const handleCloseUploadDialog = () => {
         setUploadDialogOpen(false);
     };
@@ -223,24 +221,24 @@ const loadFromLocalStorage = (key) => {
         setSelectedFile(null); // Reset selected file
         setUploadR2D2ScreenshotDialogOpen(true);
     };
- 
+
     const handleCloseUploadR2D2ScreenshotDialog = () => {
         setUploadR2D2ScreenshotDialogOpen(false);
     };
- 
+
     const handleUploadR2D2Screenshot = async () => {
         try {
             const formData = new FormData();
             formData.append('coupon', data[selectedExamIndex].voucherCode);
             formData.append('image', selectedFile);
- 
+
             const response = await axios.post('http://localhost:8085/requests/uploadR2d2Screenshot', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-  // Existing code...
-  setR2D2ScreenshotUploaded(true);
+            // Existing code...
+            setR2D2ScreenshotUploaded(true);
             if (response.status === 200) {
                 const updatedData = [...data];
                 updatedData[selectedExamIndex].r2d2Screenshot = response.data.r2d2Screenshot;
@@ -259,7 +257,19 @@ const loadFromLocalStorage = (key) => {
             setError('Check the file is uploaded or not');
         }
     };
- 
+
+    const handleDeleteR2D2Screenshot = (index) => {
+        try {
+            const voucher = data[index];
+            const updatedData = [...data];
+            updatedData[index].r2d2Screenshot = null; // Remove the certificate file image
+            setData(updatedData);
+            saveToLocalStorage('data', updatedData); // Save updated data to local storage
+        } catch (error) {
+            console.error('Error deleting certificate:', error);
+            setError('Failed to delete screenshot.');
+        }
+    };
     const handleEnableValidationNumber = (index) => {
         setSelectedExamIndex(index);
         const voucher = data[index];
@@ -277,28 +287,28 @@ const loadFromLocalStorage = (key) => {
             setError('Enabling validation number is not allowed before the exam date.');
         }
     };
- 
- 
+
+
     const handleSaveValidationNumber = async () => {
         try {
             const voucherToUpdate = data[selectedExamIndex];
             const voucherRequestId = voucherToUpdate.id; // Assuming voucherRequestId is accessible in data
- 
+
             const validationNumberInputTrimmed = validationNumberInput.trim();
- 
+
             // Regular expression to match exactly 16 characters consisting of alphabets and numbers
             const validationRegex = /^[A-Za-z0-9]{16}$/;
- 
+
             if (!validationRegex.test(validationNumberInputTrimmed)) {
                 throw new Error('Validation number must be exactly 16 characters long and contain only alphabets and numbers.');
             }
-          
+
             const response = await axios.put(`http://localhost:8085/requests/provideValidationNumber/${voucherRequestId}`, null, {
                 params: {
                     validationNumber: validationNumberInput
                 }
             });
-            setIsValidationNumberSaved(true); 
+            setIsValidationNumberSaved(true);
             if (response.status === 200) {
                 const updatedData = [...data];
                 updatedData[selectedExamIndex].validationNumber = validationNumberInput;
@@ -311,19 +321,33 @@ const loadFromLocalStorage = (key) => {
             } else {
                 throw new Error('Failed to save validation number.');
             }
-             // Save updated data to local storage
-             saveToLocalStorage('data', data);
+            // Save updated data to local storage
+            saveToLocalStorage('data', data);
         } catch (error) {
             console.error('Error saving validation number:', error);
             setValidationNumberError('Error saving validation number: ' + error.message);
         }
     };
+    const handleDeleteValidationNumber = (index) => {
+        try {
+            const voucher = data[index];
+            const updatedData = [...data];
+            updatedData[index].validationNumber = null; // Remove the validation number
+            setData(updatedData);
+            setIsValidationNumberSaved(false); // <-- Add this line to reset the state
+            saveToLocalStorage('data', updatedData); // Save updated data to local storage
+        } catch (error) {
+            console.error('Error deleting validation number:', error);
+            setError('Failed to delete validation number.');
+        }
+    };
+
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         setSelectedFile(file);
     };
- 
-     const handleUpload = async () => {
+
+    const handleUpload = async () => {
         try {
             const formData = new FormData();
             formData.append('coupon', data[selectedExamIndex].voucherCode);
@@ -350,11 +374,24 @@ const loadFromLocalStorage = (key) => {
             setError('Check File is uploaded or not ');
         }
     };
- 
+
+    const handleDeleteCertificate = (index) => {
+        try {
+            const voucher = data[index];
+            const updatedData = [...data];
+            updatedData[index].certificateFileImage = null; // Remove the certificate file image
+            setData(updatedData);
+            saveToLocalStorage('data', updatedData); // Save updated data to local storage
+        } catch (error) {
+            console.error('Error deleting certificate:', error);
+            setError('Failed to delete certificate.');
+        }
+    };
+
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
- 
+
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
@@ -372,7 +409,7 @@ const loadFromLocalStorage = (key) => {
             return defaultMaxDate;
         }
     };
- 
+
     const acceptedFileFormats = ['.jpg', '.jpeg', '.png'];
     return (
         <>
@@ -384,139 +421,141 @@ const loadFromLocalStorage = (key) => {
                 <div className="container" style={{ marginTop: '30px', paddingTop: '80px' }}>
                     <Box>
                         <TableContainer component={Paper}>
-                        <Table aria-label="customized table" style={{ width: "70%", marginLeft: "1%" }}>
-                            <TableHead>
-                                <StyledTableRow>
-                                    <StyledTableCell style={{ minWidth: '200px' }}>Exam Name</StyledTableCell>
-                                    <StyledTableCell >Cloud Platform</StyledTableCell>
-                                    <StyledTableCell >Voucher Code</StyledTableCell>
-                                    <StyledTableCell >Voucher Issued Date</StyledTableCell>
-
-                                    <StyledTableCell style={{ minWidth: '150px' }}>Exam Date</StyledTableCell>
-                                    <StyledTableCell style={{ minWidth: '150px' }}>Result</StyledTableCell>
-                                    <StyledTableCell style={{ minWidth: '200px' }}>Certificate</StyledTableCell>
-                                    <StyledTableCell >Validation Number</StyledTableCell>
-                                    <StyledTableCell >R2D2 Screenshot</StyledTableCell>
-                                </StyledTableRow>
-                            </TableHead>
-                            <TableBody>
-                                {loading ? (
+                            <Table aria-label="customized table" style={{ width: "70%", marginLeft: "1%" }}>
+                                <TableHead>
                                     <StyledTableRow>
-                                        <TableCell colSpan={7} className="table-cell">
-                                            Loading...
-                                        </TableCell>
+                                        <StyledTableCell style={{ minWidth: '200px' }}>Exam Name</StyledTableCell>
+                                        <StyledTableCell >Cloud Platform</StyledTableCell>
+                                        <StyledTableCell >Voucher Code</StyledTableCell>
+                                        <StyledTableCell >Voucher Issued Date</StyledTableCell>
+                                        <StyledTableCell style={{ minWidth: '150px' }}>Exam Date</StyledTableCell>
+                                        <StyledTableCell style={{ minWidth: '150px' }}>Result</StyledTableCell>
+                                        <StyledTableCell style={{ minWidth: '200px' }}>Certificate</StyledTableCell>
+                                        <StyledTableCell >Validation Number</StyledTableCell>
+                                        <StyledTableCell >R2D2 Screenshot</StyledTableCell>
                                     </StyledTableRow>
-                                ) : (
-                                    data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((voucher, index) => {
-                                        // Calculate unique index
-                                        const uniqueIndex = page * rowsPerPage + index;
-                                        return (
-                                            <StyledTableRow key={uniqueIndex}>
-                                                <StyledTableCell>{voucher.cloudExam}</StyledTableCell>
-                                                <StyledTableCell>{voucher.cloudPlatform}</StyledTableCell>
-                                                <StyledTableCell>{voucher.voucherCode ?? 'Requested'}</StyledTableCell>
-                                                <StyledTableCell>{voucher.voucherIssueLocalDate ? voucher.voucherIssueLocalDate : 'Requested'}</StyledTableCell>
- 
-                                                <StyledTableCell>
-                                                    {voucher.plannedExamDate}
-                                                    <IconButton onClick={() => handleEditExamDate(uniqueIndex)}>
-                                                        <EditIcon />
-                                                    </IconButton>
-                                                </StyledTableCell>
-                                                <StyledTableCell>
-                                                    {editIndex === uniqueIndex ? (
-                                                        <Select
-                                                            value={voucher.examResult}
-                                                            onChange={(e) => {
-                                                                const newData = [...data];
-                                                                newData[uniqueIndex].examResult = e.target.value;
-                                                                setData(newData);
-                                                            }}
-                                                        >
-                                                            {resultOptions.map((option, optionIndex) => (
-                                                                <MenuItem
-                                                                    key={optionIndex}
-                                                                    value={option}
-                                                                    style={{ color: option === 'Pending' ? 'red' : 'inherit' }}
-                                                                >
-                                                                    {option}
-                                                                </MenuItem>
-                                                            ))}
-                                                        </Select>
-                                                    ) : (
-                                                        voucher.examResult
-                                                    )}
-                                                    {(voucher.examResult === 'Pending' && editIndex !== uniqueIndex) && (
-                                                        <IconButton onClick={() => handleEditResult(uniqueIndex)}>
+                                </TableHead>
+                                <TableBody>
+                                    {loading ? (
+                                        <StyledTableRow>
+                                            <TableCell colSpan={7} className="table-cell">
+                                                Loading...
+                                            </TableCell>
+                                        </StyledTableRow>
+                                    ) : (
+                                        data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((voucher, index) => {
+                                            // Calculate unique index
+                                            const uniqueIndex = page * rowsPerPage + index;
+                                            return (
+                                                <StyledTableRow key={uniqueIndex}>
+                                                    <StyledTableCell>{voucher.cloudExam}</StyledTableCell>
+                                                    <StyledTableCell>{voucher.cloudPlatform}</StyledTableCell>
+                                                    <StyledTableCell>{voucher.voucherCode ?? 'Requested'}</StyledTableCell>
+                                                    <StyledTableCell>{voucher.voucherIssueLocalDate ? voucher.voucherIssueLocalDate : 'Requested'}</StyledTableCell>
+
+                                                    <StyledTableCell>
+                                                        {voucher.plannedExamDate}
+                                                        <IconButton onClick={() => handleEditExamDate(uniqueIndex)}>
                                                             <EditIcon />
                                                         </IconButton>
-                                                    )}
-                                                    {(voucher.examResult !== 'Pending' && editIndex === uniqueIndex) && (
-                                                        <IconButton onClick={() => handleSaveResult(uniqueIndex)}>
-                                                            <SaveIcon />
-                                                        </IconButton>
-                                                    )}
-                                                </StyledTableCell>
-                                                <StyledTableCell>
-                                                    {voucher.examResult === 'Pass' ? (
-                                                        voucher.certificateFileImage ? (
-                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                                <div>{voucher.certificateFileImage}</div>
-                                                            </div>
-                                                        ) : (
-                                                            <Button
-                                                                onClick={() => handleOpenUploadDialog(uniqueIndex)}
+                                                    </StyledTableCell>
+                                                    <StyledTableCell>
+                                                        {editIndex === uniqueIndex ? (
+                                                            <Select
+                                                                value={voucher.examResult}
+                                                                onChange={(e) => {
+                                                                    const newData = [...data];
+                                                                    newData[uniqueIndex].examResult = e.target.value;
+                                                                    setData(newData);
+                                                                }}
                                                             >
-                                                                Upload
-                                                            </Button>
-                                                        )
-                                                    ) : (
-                                                        <span>N/A</span>
-                                                    )}
-                                                </StyledTableCell>
-                                             
-                                                <StyledTableCell>
-                                                    {voucher.examResult === 'Pass' ? (
-                                                        voucher.validationNumber ? (
-                                                            <div>{voucher.validationNumber}</div> // Display the validation number if saved
+                                                                {resultOptions.map((option, optionIndex) => (
+                                                                    <MenuItem
+                                                                        key={optionIndex}
+                                                                        value={option}
+                                                                        style={{ color: option === 'Pending' ? 'red' : 'inherit' }}
+                                                                    >
+                                                                        {option}
+                                                                    </MenuItem>
+                                                                ))}
+                                                            </Select>
                                                         ) : (
-                                                            !isValidationNumberSaved ? (
-                                                                <Button onClick={() => handleEnableValidationNumber(uniqueIndex)}>Enter</Button> // Enable "Enter" button if validation number is not saved and not already saved
+                                                            voucher.examResult
+                                                        )}
+                                                        {(voucher.examResult === 'Pending' && editIndex !== uniqueIndex) && (
+                                                            <IconButton onClick={() => handleEditResult(uniqueIndex)}>
+                                                                <EditIcon />
+                                                            </IconButton>
+                                                        )}
+                                                        {(voucher.examResult !== 'Pending' && editIndex === uniqueIndex) && (
+                                                            <IconButton onClick={() => handleSaveResult(uniqueIndex)}>
+                                                                <SaveIcon />
+                                                            </IconButton>
+                                                        )}
+                                                    </StyledTableCell>
+                                                    <StyledTableCell>
+                                                        {voucher.examResult === 'Pass' ? (
+                                                            voucher.certificateFileImage ? (
+                                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                                    <div>{voucher.certificateFileImage}</div>
+                                                                    <IconButton onClick={() => handleDeleteCertificate(index)} > {/* Add trash icon with onClick handler */}
+                                                                        <DeleteIcon />
+                                                                    </IconButton>
+                                                                </div>
                                                             ) : (
-                                                                <span>N/A</span> // Display "N/A" if validation number is already saved
+                                                                <Button onClick={() => handleOpenUploadDialog(uniqueIndex)}>Upload</Button>
                                                             )
-                                                        )
-                                                    ) : (
-                                                        <span>N/A</span> // Display "N/A" if exam result is not "Pass"
-                                                    )}
-                                                </StyledTableCell>
- 
- 
- 
- 
-                                                <StyledTableCell>
-                                                    {voucher.examResult === 'Pass' ? (
-                                                        voucher.r2d2Screenshot ? (
-                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                                <div>{voucher.r2d2Screenshot}</div>
-                                                            </div>
                                                         ) : (
-                                                            <Button
-                                                                onClick={() => handleOpenUploadR2D2ScreenshotDialog(uniqueIndex)}
-                                                            >
-                                                                Upload
-                                                            </Button>
-                                                        )
-                                                    ) : (
-                                                        <span>N/A</span>
-                                                    )}
-                                                </StyledTableCell>
-                                            </StyledTableRow>
-                                        );
-                                    })
-                                )}
-                            </TableBody>
-                        </Table>
+                                                            <span>N/A</span>
+                                                        )}
+                                                    </StyledTableCell>
+
+                                                    <StyledTableCell>
+                                                        {voucher.examResult === 'Pass' ? (
+                                                            voucher.validationNumber ? (
+                                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                                    <div>{voucher.validationNumber}</div>
+                                                                    <IconButton onClick={() => handleDeleteValidationNumber(index)} > {/* Add trash icon with onClick handler */}
+                                                                        <DeleteIcon />
+                                                                    </IconButton>
+                                                                </div>
+                                                            ) : (
+                                                                !isValidationNumberSaved ? (
+                                                                    <Button onClick={() => handleEnableValidationNumber(uniqueIndex)}>Enter</Button> // Enable "Enter" button if validation number is not saved and not already saved
+                                                                ) : (
+                                                                    <span>N/A</span> // Display "N/A" if validation number is already saved
+                                                                )
+                                                            )
+                                                        ) : (
+                                                            <span>N/A</span> // Display "N/A" if exam result is not "Pass"
+                                                        )}
+                                                    </StyledTableCell>
+                                                    <StyledTableCell>
+                                                        {voucher.examResult === 'Pass' ? (
+                                                            voucher.r2d2Screenshot ? (
+                                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                                    <div>{voucher.r2d2Screenshot}</div>
+                                                                    <IconButton onClick={() => handleDeleteR2D2Screenshot(index)}> {/* Add trash icon with onClick handler */}
+                                                                        <DeleteIcon />
+                                                                    </IconButton>
+                                                                </div>
+                                                            ) : (
+                                                                <Button
+                                                                    onClick={() => handleOpenUploadR2D2ScreenshotDialog(uniqueIndex)}
+                                                                >
+                                                                    Upload
+                                                                </Button>
+                                                            )
+                                                        ) : (
+                                                            <span>N/A</span>
+                                                        )}
+                                                    </StyledTableCell>
+                                                </StyledTableRow>
+                                            );
+                                        })
+                                    )}
+                                </TableBody>
+                            </Table>
                             <TablePagination style={{ width: "70%", marginLeft: "2%" }}
                                 rowsPerPageOptions={[5, 10, 25, { label: 'All', value: data.length }]}
                                 component="div"
@@ -540,11 +579,7 @@ const loadFromLocalStorage = (key) => {
                             utcOffset={0}
                             minDate={new Date()}
                             maxDate={getMaxDate()}
-                        // maxDate={
-                        //     data[selectedExamIndex]?.voucherExpiryLocalDate
-                        //         ? new Date(data[selectedExamIndex].voucherExpiryLocalDate)
-                        //         : null
-                        // }
+
                         />
                     </DialogContent>
                     <DialogActions>
@@ -590,26 +625,26 @@ const loadFromLocalStorage = (key) => {
                             helperText={validationNumberError} // Display error message
                         />
                     </DialogContent>
- 
+
                     <DialogActions>
                         <Button onClick={handleSaveValidationNumber}>Save</Button>
                     </DialogActions>
                 </Dialog>
- 
+
                 <Dialog open={uploadR2D2ScreenshotDialogOpen} onClose={handleCloseUploadR2D2ScreenshotDialog}>
-    <DialogTitle>Upload R2D2 Screenshot</DialogTitle>
-    <DialogContent>
-        <input type="file"  accept=".jpg,.jpeg,.png" onChange={handleFileChange} />
-    </DialogContent>
-    <span style={{ marginLeft: "20px", marginTop: "-20px", }} className="file-format-info">
-        Accepted formats: {acceptedFileFormats.join(', ')}
-    </span>
-    <DialogActions>
-        <Button onClick={handleUploadR2D2Screenshot}>Upload</Button>
-        <Button onClick={handleCloseUploadR2D2ScreenshotDialog}>Cancel</Button>
-    </DialogActions>
-</Dialog>
- 
+                    <DialogTitle>Upload R2D2 Screenshot</DialogTitle>
+                    <DialogContent>
+                        <input type="file" accept=".jpg,.jpeg,.png" onChange={handleFileChange} />
+                    </DialogContent>
+                    <span style={{ marginLeft: "20px", marginTop: "-20px", }} className="file-format-info">
+                        Accepted formats: {acceptedFileFormats.join(', ')}
+                    </span>
+                    <DialogActions>
+                        <Button onClick={handleUploadR2D2Screenshot}>Upload</Button>
+                        <Button onClick={handleCloseUploadR2D2ScreenshotDialog}>Cancel</Button>
+                    </DialogActions>
+                </Dialog>
+
                 <Snackbar
                     open={certificateUploaded}
                     autoHideDuration={6000}
@@ -664,5 +699,5 @@ const loadFromLocalStorage = (key) => {
         </>
     );
 };
- 
+
 export default ViewVouchers;
