@@ -294,6 +294,10 @@ import {
   faUsers,
   faList
 } from "@fortawesome/free-solid-svg-icons";
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import CloudDownloadOutlinedIcon from '@mui/icons-material/CloudDownloadOutlined';
+
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -524,6 +528,63 @@ function Dashboard() {
     years.push(i);
   }
 
+  const generatePDF = () => {
+    // Initialize jspdf
+    const doc = new jsPDF();
+
+    // Set font size and style for the heading
+    doc.setFontSize(16); // Set font size to 16 for the heading
+    doc.setFont('helvetica', 'bold'); // Set font style to bold for the heading
+
+    // Add heading to the PDF
+    doc.setTextColor(142, 210, 201); // Set text color to blue (RGB)
+    // Adjust the width to accommodate longer exam names
+    const reportTitle = examName ? `Certification Status Report of ${examName} Year -${selectedYear}` : `Certification Status Report of ${cloudPlatform} Year -${selectedYear}`;
+    doc.text(10, 10, reportTitle, { maxWidth: 180 });
+    // Set font size and style for the content
+    doc.setFontSize(12); // Set font size to 12 for the content
+    doc.setFont('helvetica', 'normal'); // Set font style to normal for the content
+    doc.setTextColor(0);
+    // Add text content to PDF with styling
+
+    // Calculate the sum of the total
+    const sumTotal = chartData.reduce((sum, data) => {
+      return sum + (data.passed || 0) + (data.failed || 0) + (data.pending || 0) + (data.technicalIssue || 0) + (data.resigned || 0) + (data.otherBU || 0);
+    }, 0);
+
+    // Create table headers
+    const headers = ['Category', 'Count of email'];
+
+    // Prepare table data
+    const tableData = [
+      ['Passed', chartData.find(data => data.name === 'Passed')?.passed || 0],
+      ['Failed', chartData.find(data => data.name === 'Failed')?.failed || 0],
+      ['Not Completed', chartData.find(data => data.name === 'Not Completed')?.pending || 0],
+      ['Technical Issue', chartData.find(data => data.name === 'Technical Issue')?.technicalIssue || 0],
+      ['Resigned', chartData.find(data => data.name === 'Resigned')?.resigned || 0],
+      ['Other BU', chartData.find(data => data.name === 'Other BU')?.otherBU || 0],
+      ['Grand Total', sumTotal]
+    ];
+    //  // Add table to the PDF
+    doc.autoTable({
+      head: [headers],
+      body: tableData,
+      startY: 20,
+      margin: { top: 40 },
+      columnStyles: {
+        0: { cellWidth: 'auto' } // Adjust the width of the first column
+      },
+      styles: { fontStyle: 'normal' }, // Reset font style for table
+      theme: 'grid', // Apply grid theme to the table
+      tableWidth: 'wrap' // Adjust table width dynamically based on content
+    });
+    // Extract the relevant part for the filename
+    const filename = examName ? examName.trim() : cloudPlatform.trim();
+
+    // Save or download the PDF with the extracted filename
+    doc.save(`${filename} report.pdf`);
+  };
+
 
   return (
     <div className='headd'>
@@ -580,9 +641,9 @@ function Dashboard() {
                       <h3>AWS</h3>
                     </div>
                     <div className="voucher-info">
-                      <p>Total: {awsVouchers.total}</p>
+                      <p>Received: {awsVouchers.total}</p>
                       <p>Released: {awsVouchers.released}</p>
-                      <p>Available: {awsVouchers.available}</p>
+                      <p>Balance: {awsVouchers.available}</p>
                     </div>
                   </div>
                 </div>
@@ -592,9 +653,9 @@ function Dashboard() {
                       <h3>GCP</h3>
                     </div>
                     <div className="voucher-info">
-                      <p>Total: {gcpVouchers.total}</p>
+                      <p>Received: {gcpVouchers.total}</p>
                       <p>Released: {gcpVouchers.released}</p>
-                      <p>Available: {gcpVouchers.available}</p>
+                      <p>Balance: {gcpVouchers.available}</p>
                     </div>
                   </div>
                 </div>
@@ -604,73 +665,86 @@ function Dashboard() {
                       <h3>AZURE</h3>
                     </div>
                     <div className="voucher-info">
-                      <p>Total: {azureVouchers.total}</p>
+                      <p>Received: {azureVouchers.total}</p>
                       <p>Released: {azureVouchers.released}</p>
-                      <p>Available: {azureVouchers.available}</p>
+                      <p>Balance: {azureVouchers.available}</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div className='charts'>
-              <BarChart
-                width={800}
-                height={300}
-                data={chartData}
-                margin={{
-                  top: 5,
-                  right: 20,
-                  left: 20,
-                  bottom: 5,
-                }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="passed" fill="#50C878" onClick={(entry) => handleBarClick(entry)} />
-                <Bar dataKey="failed" fill="#FF6868" onClick={(entry) => handleBarClick(entry)} />
-                <Bar dataKey="pending" fill="#FFBB64" onClick={(entry) => handleBarClick(entry)} />
-                <Bar dataKey="technicalIssue" fill="#437387" onClick={(entry) => handleBarClick(entry)} />
-                <Bar dataKey="resigned" fill="#a75265" onClick={(entry) => handleBarClick(entry)} />
-                <Bar dataKey="otherBU" fill="#d2b48c" onClick={(entry) => handleBarClick(entry)} />
-              </BarChart>
+            <div className='charts-container'>
               <div className="dropdown-container">
-                <div className='heading-class' style={{ backgroundColor: "rgb(37, 70, 179)", marginBottom: "20px", width: "300px" }}>
-                  <h4>Certifications Status Report</h4>
-                </div>
-                <div className="select-wrapper">
-                  <label htmlFor="year-select">Select Year:</label>
-                  <select id="year-select" value={selectedYear} onChange={handleYearChange}>
-                    {years.map((year) => (
-                      <option key={year} value={year}>{year}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="select-wrapper">
-                  <label htmlFor="platform-select">Select Cloud:</label>
-                  <select id="platform-select" value={cloudPlatform} onChange={handleCloudPlatformChange}>
-                    {examData.cloudPlatforms.map((cloud) => (
-                      <option key={cloud.name} value={cloud.name}>
-                        {cloud.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="select-wrapper">
-                  <label htmlFor="exam-select">Select Exam:</label>
-                  <select id="exam-select" value={examName} onChange={handleExamNameChange}>
-                    <option value="None">None</option>
-                    {examOptions.map((exam) => (
-                      <option key={exam} value={exam}>
-                        {exam}
-                      </option>
-                    ))}
-                  </select>
+                <div className='heading-class' style={{ marginBottom: "20px" }}>
+                  <h4>Certifications Status Report:</h4>
+                  <Button
+                    variant="contained"
+                    onClick={generatePDF}
+                    style={{ marginRight: '10px', backgroundColor: '#4CAF50', color: 'white' }}
+                    startIcon={<CloudDownloadOutlinedIcon />} // Add the CloudDownloadOutlined icon as the start icon
+                  >
+                    Download Report
+                  </Button>                </div>
+                <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start" }}>
+                  <div className="select-wrapper">
+                    <label htmlFor="year-select">Select Year:</label>
+                    <select id="year-select" value={selectedYear} onChange={handleYearChange}>
+                      {years.map((year) => (
+                        <option key={year} value={year}>{year}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="select-wrapper" style={{ marginLeft: "50px" }}>
+                    <label htmlFor="platform-select">Select Cloud:</label>
+                    <select id="platform-select" value={cloudPlatform} onChange={handleCloudPlatformChange}>
+                      {examData.cloudPlatforms.map((cloud) => (
+                        <option key={cloud.name} value={cloud.name}>
+                          {cloud.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="select-wrapper" style={{ marginLeft: "50px" }}>
+                    <label htmlFor="exam-select">Select Exam:</label>
+                    <select id="exam-select" value={examName} onChange={handleExamNameChange}>
+                      <option value="None">None</option>
+                      {examOptions.map((exam) => (
+                        <option key={exam} value={exam}>
+                          {exam}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
+              <div className='charts'>
+                <BarChart
+                  width={800}
+                  height={300}
+                  data={chartData}
+                  margin={{
+                    top: 5,
+                    right: 20,
+                    left: 20,
+                    bottom: 5,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="passed" fill="#50C878" onClick={(entry) => handleBarClick(entry)} />
+                  <Bar dataKey="failed" fill="#FF6868" onClick={(entry) => handleBarClick(entry)} />
+                  <Bar dataKey="pending" fill="#FFBB64" onClick={(entry) => handleBarClick(entry)} />
+                  <Bar dataKey="technicalIssue" fill="#437387" onClick={(entry) => handleBarClick(entry)} />
+                  <Bar dataKey="resigned" fill="#a75265" onClick={(entry) => handleBarClick(entry)} />
+                  <Bar dataKey="otherBU" fill="#d2b48c" onClick={(entry) => handleBarClick(entry)} />
+                </BarChart>
 
+
+              </div>
             </div>
           </div>
         </div>
