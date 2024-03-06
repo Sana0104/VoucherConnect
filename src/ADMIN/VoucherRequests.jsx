@@ -39,6 +39,8 @@ function VoucherRequests() {
   const [selectedDenialReason, setSelectedDenialReason] = useState("");
   const [profileImageURL, setProfileImageURL] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [staffingAvailabilityData, setStaffingAvailabilityData] = useState([]);
+
 
   const [searchDate, setSearchDate] = useState(null);
   const [searchMonth, setSearchMonth] = useState(null);
@@ -70,7 +72,25 @@ function VoucherRequests() {
       .catch(error => {
         console.log(error);
       });
+
+       // Fetch staffing availability data
+    axios.get(`http://localhost:8085/candidate/getAllCandidate`)
+    .then(response => {
+      setStaffingAvailabilityData(response.data);
+    })
+    .catch(error => {
+      console.error('Error fetching staffing availability:', error);
+    });
   }, []);
+
+  // Once both voucher requests and staffing availability data are fetched, combine them
+  const combinedData = requests.map(request => {
+    const matchingStaffingAvailability = staffingAvailabilityData.find(item => item.email === request.candidateEmail);
+    return {
+      ...request,
+      staffingAvailability: matchingStaffingAvailability ? matchingStaffingAvailability.status : 'N/A'
+    };
+  });
 
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -436,7 +456,7 @@ function VoucherRequests() {
   };
 
   // Calculate filtered items only if filters are applied
-const filteredRequests = searchOption === 'default' ? requests : requests.filter(filters);
+const filteredRequests = searchOption === 'default' ? combinedData : combinedData.filter(filters);
 
 // Calculate the total number of pages based on the filtered items count
 const pageCount = Math.ceil(filteredRequests.length / rowsPerPage);
@@ -483,6 +503,8 @@ const pageCount = Math.ceil(filteredRequests.length / rowsPerPage);
               <option value="outdatedImage">Outdated Image</option>
               <option value="incorrectScreenshot">Incorrect Screenshot</option>
               <option value="incorrectImageFormat">Incorrect Image Format</option>
+              <option value="resigned">Resigned</option>
+              <option value="otherBU">Other BU</option>
             </select>
             {/* Confirmation message */}
             <p>Are you sure you want to deny the request?</p>
@@ -694,6 +716,7 @@ const pageCount = Math.ceil(filteredRequests.length / rowsPerPage);
               <tr>
                 <th>Name</th>
                 <th>Email</th>
+                <th>Status</th>
                 <th>Cloud</th>
                 <th>Exam</th>
                 <th>DoSelect Score</th>
@@ -728,6 +751,7 @@ const pageCount = Math.ceil(filteredRequests.length / rowsPerPage);
                 <tr key={index}>
                   <td>{row.candidateName}</td>
                   <td>{row.candidateEmail}</td>
+                  <td>{row.staffingAvailability}</td>
                   <td>{row.cloudPlatform}</td>
                   <td>{row.cloudExam}</td>
                   <td>{row.doSelectScore}</td>
@@ -844,7 +868,7 @@ const pageCount = Math.ceil(filteredRequests.length / rowsPerPage);
           )}
 
           {requests.length !== 0 && (<TablePagination style={{ width: "70%", marginLeft: "2%" }}
-            rowsPerPageOptions={[5, 10, 20, 25, { label: 'All', value: requests.length }]}
+            rowsPerPageOptions={[5, 10, 20, 25, { label: 'All', value: filteredRequests.length }]}
             component="div"
             count={filteredRequests.length}
             rowsPerPage={rowsPerPage}
