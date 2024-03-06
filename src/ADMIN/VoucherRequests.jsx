@@ -375,6 +375,7 @@ function VoucherRequests() {
     };
 
     fetchRequests();
+
   }, []);
   const acceptedFileFormats = ['.xlsx'];
   const [selectedSupplierFile, setSelectedSupplierFile] = useState(null);
@@ -433,6 +434,12 @@ function VoucherRequests() {
   const handleDropdownClose = () => {
     setSearchValue(""); // Reset search value when the dropdown menu is closed
   };
+
+  // Calculate filtered items only if filters are applied
+const filteredRequests = searchOption === 'default' ? requests : requests.filter(filters);
+
+// Calculate the total number of pages based on the filtered items count
+const pageCount = Math.ceil(filteredRequests.length / rowsPerPage);
 
   return (
     <div className="headd">
@@ -707,7 +714,7 @@ function VoucherRequests() {
             </thead>
 
             <tbody>
-              {requests.filter(filters).sort((a, b) => {
+              {filteredRequests.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).sort((a, b) => {
                 // Sort by voucher code availability (assigned requests first, then pending)
                 if (a.voucherCode === null && b.voucherCode !== null) {
                   return -1; // Move rows with no voucher code (pending) to the top
@@ -717,7 +724,7 @@ function VoucherRequests() {
                   // Sort by planned exam date
                   return new Date(a.plannedExamDate) - new Date(b.plannedExamDate);
                 }
-              }).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
+              }).map((row, index) => (
                 <tr key={index}>
                   <td>{row.candidateName}</td>
                   <td>{row.candidateEmail}</td>
@@ -839,7 +846,7 @@ function VoucherRequests() {
           {requests.length !== 0 && (<TablePagination style={{ width: "70%", marginLeft: "2%" }}
             rowsPerPageOptions={[5, 10, 20, 25, { label: 'All', value: requests.length }]}
             component="div"
-            count={requests.length}
+            count={filteredRequests.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
