@@ -41,11 +41,6 @@ function VoucherRequests() {
   const [isOpen, setIsOpen] = useState(false);
   const [staffingAvailabilityData, setStaffingAvailabilityData] = useState([]);
 
-
-  const [searchDate, setSearchDate] = useState(null);
-  const [searchMonth, setSearchMonth] = useState(null);
-  const [searchYear, setSearchYear] = useState(null); 
-
   const openProfilePopup = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -249,9 +244,6 @@ function VoucherRequests() {
     setConfirmationVisible(false);
   };
 
-
-
-
   const handleAssigneVoucherClick = (email, examName, id) => {
     navigate(`/voucher-dashboard/${email}/${examName}/${id}`);
   };
@@ -353,21 +345,6 @@ function VoucherRequests() {
       console.error('Error fetching R2D2 image:', error.message);
     }
   };
-
-
-
-
-  // useEffect(() => {
-  //   axios.get(`http://localhost:8085/requests/getAllVouchers`)
-  //     .then(response => {
-  //       setRequests(response.data);
-
-
-  //     })
-  //     .catch(error => {
-  //       console.log(error);
-  //     });
-  // }, []);
 
   const fetchValidationNumber = async (id) => {
     try {
@@ -473,10 +450,6 @@ const pageCount = Math.ceil(filteredRequests.length / rowsPerPage);
 
         )}
 
-
-        {/* <button onClick={() => setConfirmationVisible(true)}>Send Reminder Mail</button> */}
-
-
       </div>
       <div>
         {denyConfirmationVisible && (
@@ -559,11 +532,6 @@ const pageCount = Math.ceil(filteredRequests.length / rowsPerPage);
           </div>
         </Draggable>
       </Modal>
-
-
-
-
-
 
       <div className="navbar" style={{ backgroundColor: "rgb(112, 183, 184)", width: "auto" }}>
 
@@ -711,7 +679,7 @@ const pageCount = Math.ceil(filteredRequests.length / rowsPerPage);
         </div>
 
         <div className="table-div">
-          <table className="dashboard-table" style={{ width: "170%" }}>
+          <table className="dashboard-table" style={{ width: "180%" }}>
             <thead>
               <tr>
                 <th>Name</th>
@@ -732,21 +700,24 @@ const pageCount = Math.ceil(filteredRequests.length / rowsPerPage);
                 <th>Deny Voucher</th>
                 <th>Assign Voucher</th>
 
-
               </tr>
             </thead>
 
             <tbody>
-              {filteredRequests.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).sort((a, b) => {
-                // Sort by voucher code availability (assigned requests first, then pending)
-                if (a.voucherCode === null && b.voucherCode !== null) {
-                  return -1; // Move rows with no voucher code (pending) to the top
-                } else if (a.voucherCode !== null && b.voucherCode === null) {
-                  return 1; // Move rows with voucher code (assigned) to the bottom
-                } else {
-                  // Sort by planned exam date
-                  return new Date(a.plannedExamDate) - new Date(b.plannedExamDate);
-                }
+              {filteredRequests.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .sort((a, b) => {
+                  // Sort by voucher code availability and then by planned exam date
+                  if (a.voucherCode === null && b.voucherCode !== null) {
+                    return -1; // Move rows with no voucher code (pending) to the top
+                  } else if (a.voucherCode !== null && b.voucherCode === null) {
+                    return 1; // Move rows with voucher code (assigned) to the bottom
+                  } else {
+                    // If both have voucher codes or both don't, sort by planned exam date
+                    const dateA = new Date(a.plannedExamDate);
+                    const dateB = new Date(b.plannedExamDate);
+                    // Sort by descending exam date (recent first)
+                    return dateA - dateB;
+                  }
               }).map((row, index) => (
                 <tr key={index}>
                   <td>{row.candidateName}</td>

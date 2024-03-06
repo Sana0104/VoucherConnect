@@ -494,48 +494,44 @@ button {
 
 
  .dashboard-table td:nth-child(1) {
-  width: 8%; /* Name */
+  width: 7%; /* Name */
 }
  
 .dashboard-table td:nth-child(2) {
-  width: 14%; /* Email */
+  width: 12%; /* Email */
 }
  
 .dashboard-table td:nth-child(3),
-.dashboard-table td:nth-child(5) {
-  width: 5%; /* Cloud, DoSelect Score */
-}
- 
- 
-.dashboard-table td:nth-child(6),
-.dashboard-table td:nth-child(7) {
-  width:7%; /*  DoSelect Image, Voucher Code */
-}
- 
 .dashboard-table td:nth-child(4),
-.dashboard-table td:nth-child(13) {
-  width: 14%; /* Exam and Validation number*/
+.dashboard-table td:nth-child(6),
+.dashboard-table td:nth-child(7),
+.dashboard-table td:nth-child(12) {
+  width: 6%; /* Status, Cloud, doSelect Score, doSelect Image, Exam result */
 }
  
-/* Set the width for Result to be the same */
+.dashboard-table td:nth-child(5) {
+  width: 13%; /* Exam*/
+}
+
+/* Set the width for buttons and date fields to be the same */
+/* Voucher code, Issued Date, Expiry Date, Exam Date */
+.dashboard-table td:nth-child(8), 
+.dashboard-table td:nth-child(9),
+.dashboard-table td:nth-child(10),
 .dashboard-table td:nth-child(11) {
-  width: 7%; /* Adjust the width as needed */
+  width: 8%; /* Adjust the width as needed */
+}
+ 
+/* Set the width for Certificate and validation number to be the same */
+.dashboard-table td:nth-child(13),
+.dashboard-table td:nth-child(14) {
+  width: 9%; /* Adjust the width as needed */
 }
  
 /* Set the width for R2D2 image */
-.dashboard-table td:nth-child(14) {
-  width: 11%;
+.dashboard-table td:nth-child(15) {
+  width: 7%;
 }
- 
-/* Set the width for buttons and date fields to be the same */
-/* Issued Date, Expiry Date, Exam Date, Certificate */
-.dashboard-table td:nth-child(8),
-.dashboard-table td:nth-child(9),
-.dashboard-table td:nth-child(10),
-.dashboard-table td:nth-child(12) {
-  width: 9%; /* Adjust the width as needed */
-}
-
 
 
 /* Add more styles for other columns */
